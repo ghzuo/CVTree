@@ -1,5 +1,9 @@
 # CVTree
-A whole-genome and alignment-free prokaryotic phylogeny tool. 
+ 
+CVTree stands for `Composition Vector Tree` which is the implementation
+of an alignment-free algorithm to generate a dissimilarity matrix from
+comparatively large collection of DNA or Amino Acid sequences,
+preferably whole-genome data, for phylogenetic studies.
 
 ### cv
 Get the composition vector based on the fasta file of the genome.
