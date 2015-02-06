@@ -2,7 +2,7 @@
 #define GHZ_CONFIG_H
 
 typedef unsigned long mlong;
-const char GHZ_VERSION[]="3.5";
+const char GHZ_VERSION[]="5.0";
 
 #include <boost/timer.hpp>
 
