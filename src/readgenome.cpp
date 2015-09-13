@@ -8,6 +8,8 @@ GeneType::GeneType(const string& str){
 	aainit();
     else if(str.compare("ffn") == 0)
 	nainit();
+    else if(str.compare("fna") == 0)
+	nainit();
     else{
 	cerr << "unknown genome file type!\n" << endl;
 	exit(1);
@@ -83,6 +85,9 @@ size_t GeneType::readgene(string& file, Genome& genome) const{
 }
 
 void GeneType::checkgene(string& str) const{
+    if(*(str.rbegin()) == '*' ||*(str.rbegin()) == '-')
+        str.pop_back();
+    str = toUpper(str);
     for(auto &c : str)
 	c = mc[c];
 };

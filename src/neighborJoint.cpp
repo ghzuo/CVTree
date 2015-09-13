@@ -5,7 +5,7 @@ Node* neighborJoint(Mdist& dm){
     // the function to neighbor joint the start tree
     // the distance matrix and leafs list are copy from the main program
     // so it will be changed in the main program
-
+    
     StarTree nodes(dm.size());
     for(size_t i=0; i<dm.size(); ++i){
         nodes[i] = new Node(i, dm.getname(i));
@@ -14,8 +14,9 @@ Node* neighborJoint(Mdist& dm){
 
     // get the new length of the star tree
     lenStar(nodes, dm);
+    int nNode = nodes.size()-3;
 
-    while(nodes.size() > 3){
+    for(int i=0; i<nNode; ++i){
 	// get two nearest items and set length and distance matrix
 	StarTree::iterator itx, ity;
 	njnearest(dm, nodes, itx, ity);
@@ -23,8 +24,9 @@ Node* neighborJoint(Mdist& dm){
 	// joint the two nearest neighbors
 	recjoint(dm, nodes, itx, ity);
 	// joint(dm, nodes, itx, ity);
-    }
 
+    }
+    
     // get the root of the tree which include three branches
     (*nodes[0]).length= 0.5*((*nodes[0]).length - dm.getdist((*nodes[1]).id,(*nodes[2]).id));
     (*nodes[1]).length= 0.5*((*nodes[1]).length - dm.getdist((*nodes[2]).id,(*nodes[0]).id));
@@ -50,26 +52,34 @@ void lenStar(const StarTree& vn, const Mdist& dm){
 void njnearest(const Mdist& dm, StarTree& nodes, StarTree::iterator& itx, StarTree::iterator& ity){
 
     // get the nearest neighbor
-    double minddxy = numeric_limits<double>::max();
-    double m2star  = nodes.size()-2;
-
-    vector<double> length(nodes.size());
-    for(int i=0; i<nodes.size(); ++i)
-	length[i] = (*(nodes[i])).length/m2star;
+    double minddxy(numeric_limits<double>::max());
+    size_t nNode(nodes.size());
+    double m2star(nNode);
+    m2star -= 2.0;
     
-    vector<double>::iterator iterA = length.begin(), iterB;
-    StarTree::iterator ita = nodes.begin(), itb;
-    for( ; ita != nodes.end(); ++ita){
-    	for(itb = ita + 1, iterB = iterA; itb != nodes.end(); ++itb){
-    	    double ddxy = dm.getdist((**ita).id, (**itb).id) - *iterA - *(++iterB);
+    vector<double> length(nNode);
+    vector<size_t> id(nNode);
+    for(int i=0; i<nNode; ++i){
+	length[i] = (*(nodes[i])).length/m2star;
+        id[i] = (*(nodes[i])).id;
+    }
+
+    int nx, ny;
+    for(int i=1; i<nNode; ++i){
+        size_t iId = id[i];
+        double iLen = length[i];
+        for(int j=0; j<i; ++j){
+    	    double ddxy = dm.getdist(iId, id[j]) - iLen - length[j];
     	    if(ddxy < minddxy){
-    		itx = ita;
-    		ity = itb;
+                nx = j; ny = i;
     		minddxy = ddxy;
     	    }
     	}
-	++iterA;
     }
+
+    // get the two iterator
+    itx = nodes.begin() + nx;
+    ity = nodes.begin() + ny;
 };
 
 void joint(Mdist& dm, StarTree& nodes, StarTree::iterator& itx, StarTree::iterator& ity){
