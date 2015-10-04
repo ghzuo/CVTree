@@ -17,3 +17,8 @@ neighbor-joint method.
 runCVTree.pl
 ------------
 run the two programs in one time.
+
+license
+------------
+This software is free for non-commercial use. For commercial use,
+a software agreement is required.
