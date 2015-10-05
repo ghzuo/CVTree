@@ -28,12 +28,12 @@ public:
     Mdist();
 
     // read the matrix
-    void readmtx(const string&);
+    void readmtx(const string&, const bool netcdf=false);
     void readmtxnc(const string&);
     void readmtxtxt(const string&);
 
     // output the matrix
-    void writemtx(const string&);
+    void writemtx(const string&, const bool netcdf=false);
     void writemtxnc(const string&);
     void writemtxtxt(const string&);
 

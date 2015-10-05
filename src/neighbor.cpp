@@ -9,10 +9,7 @@ int main(int argc, char* argv[]){
 
     // init the distance matrix and name list
     Mdist dm;
-    if(myargs.netcdf)
-	dm.readmtxnc(myargs.distfile);
-    else
-	dm.readmtx(myargs.distfile);
+    dm.readmtx(myargs.distfile, myargs.netcdf);
     
     // made the star tree by listfile
     // if no, all items in distance matrix are used

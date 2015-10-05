@@ -12,10 +12,7 @@ int main(int argc, char* argv[]){
     
     // read the old matrix if exist
     if(!myargs.mtxfile.empty()){
-	if(myargs.netcdf)
-            dm.readmtxnc(myargs.mtxfile);
-	else
-	    dm.readmtx(myargs.mtxfile);
+        dm.readmtx(myargs.mtxfile, myargs.netcdf);
 
 	if(!myargs.taxmap.empty()){
             for(int i=0; i<dm.size(); ++i){
@@ -118,10 +115,7 @@ int main(int argc, char* argv[]){
         }
     }
     
-    if(myargs.netcdf)
-        dm.writemtxnc(myargs.outfile);
-    else
-	dm.writemtx(myargs.outfile);
+    dm.writemtxnc(myargs.outfile, myargs.netcdf);
 
     cerr << "*** Complete Program, Time Elapsed: " << mytimer.elapsed() << "s" << endl;
 }

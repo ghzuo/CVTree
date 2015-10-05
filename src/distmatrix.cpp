@@ -3,8 +3,8 @@
 Mdist::Mdist():ng(0){};
 
 // read the tranditional infile for the distance matrix
-void Mdist::readmtx(const string& file){
-    if(getsuffix(file) == "nc")
+void Mdist::readmtx(const string& file, const bool netcdf){
+    if(netcdf || getsuffix(file) == "nc")
 	readmtxnc(file);
     else
 	readmtxtxt(file);
@@ -74,8 +74,8 @@ void Mdist::readmtxnc(const string& file){
 
 
 // select the distance matrix file type
-void Mdist::writemtx(const string& file){
-    if(getsuffix(file) == "nc")
+void Mdist::writemtx(const string& file, const bool netcdf){
+    if(netcdf || getsuffix(file) == "nc")
 	writemtxnc(file);
     else
 	writemtxtxt(file);
