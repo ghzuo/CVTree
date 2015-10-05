@@ -5,24 +5,30 @@ of an alignment-free algorithm to generate a dissimilarity matrix from
 comparatively large collection of DNA or Amino Acid sequences,
 preferably whole-genome data, for phylogenetic studies.
 
-# Prerequire
+Programs
+------ 
+* cv:  Get the composition vector based on the fasta file of the genome.
+* tree:  Get the phylogeny tree based on the composition vectors and
+  neighbor-joint method.
+* runCVTree.pl: run the two programs in one time.
 
-# Program
-cv
+# Installation
+
+Preparation
 ------
-Get the composition vector based on the fasta file of the genome.
+* cmake >= 2.6
+* g++ >= 4.8 or other compilor supporting C++11 standard
+* Library: libz, netcdf, netcdf_cpp
 
-tree
------
-Get the phylogeny tree based on the composition vectors and
-neighbor-joint method.
+Compile
+------
+1. unzip the package file and change into it
+2. mkdir build and change into it
+3. cmake ..
+4. make
+5. make install
 
-runCVTree.pl
-------------
-run the two programs in one time.
-
-
-# license
+# License
 
 This software is free for non-commercial use. For commercial use,
 a software agreement is required.
