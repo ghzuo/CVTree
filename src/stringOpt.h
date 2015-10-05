@@ -7,8 +7,9 @@
 #include <cctype>
 #include <string>
 #include <iostream>
-#include <boost/lexical_cast.hpp>
+#include <sstream>
 #include <sys/stat.h>
+#include <chrono>
 
 using namespace std;
 
@@ -31,23 +32,11 @@ double str2double(const string& str);
 
 template <class T> 
 void str2number(const string& str, T& v){
-    v = boost::lexical_cast<T>(trim(str));
+   istringstream iss(str);
+   iss >> v;
 };
 
 long getFileSize(const string&);
-
-template <typename T>
-bool isValid(const string& str){
-    bool res = true;
-    try{
-	T tmp = boost::lexical_cast<T>(trim(str));
-    } 
-    catch(boost::bad_lexical_cast &e){
-	res = false;
-    }
-    return res;
-};
-
 template <class T> 
 void readlist(const string& file, vector<T>& list){
     ifstream infile(file.c_str());
@@ -62,4 +51,16 @@ void readlist(const string& file, vector<T>& list){
 	list.push_back(item);
     infile.close();
 };
+
+struct Timer{
+    std::chrono::system_clock::time_point start;
+
+    Timer():start(std::chrono::system_clock::now()){};
+
+    double elapsed(){
+        auto now = std::chrono::system_clock::now();
+        return std::chrono::duration_cast<std::chrono::seconds>(now - start).count();
+    };
+};
+
 #endif

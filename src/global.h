@@ -3,7 +3,4 @@
 
 typedef unsigned long mlong;
 const char GHZ_VERSION[]="5.0";
-
-#include <boost/timer.hpp>
-
 #endif

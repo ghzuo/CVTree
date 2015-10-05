@@ -2,7 +2,7 @@
 
 int main(int argc, char* argv[]){
     // set a timer
-    boost::timer mytimer;
+    Timer mytimer;
 
     // get the input arguments
     Args myargs(argc,argv);

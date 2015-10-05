@@ -2,7 +2,7 @@
 
 int main(int argc, char* argv[]){
     // set a timer
-    boost::timer mytimer;
+    Timer mytimer;
 
     Args myargs(argc, argv);
 
@@ -136,7 +136,7 @@ void Args::kcheck(int kmax){
 
 void Args::usage(){
     cerr << "\nProgram Usage: \n\n" 
-	 << program  
+	 << program  << "\n"
 	 <<" [ -I faa ]          input genome file directory, defaut: faa\n"
 	 <<" [ -i list ]         input species list, defaut: list\n"
 	 <<" [ -k '3 4 5 6 7' ]  values of k, defaut: N = 3 4 5 6 7\n"
