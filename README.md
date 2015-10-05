@@ -17,14 +17,14 @@ Programs
 Preparation
 ------
 * cmake >= 2.6
-* g++ >= 4.8 or other compilor supporting C++11 standard
+* g++ >= 4.8 or other compiler supporting C++11 standard
 * Library: libz, netcdf, netcdf_cpp
 
-Compile
+Compiling
 ------
 1. unzip the package file and change into it
 2. mkdir build and change into it
-3. cmake ..
+3. cmake .. or add some options you wanted
 4. make
 5. make install
 
