@@ -25,6 +25,15 @@ preferably whole-genome data, for phylogenetic studies.
 4. make
 5. make install
 
+## Reference
+* Ji Qi, Bin Wang, Bailin Hao (2004) Whole proteome prokaryote phylogeny
+  without sequence alignment: a K-string composition approach, J Mol
+  Evol, 58: 1 –11
+* Guanghong Zuo, Bailin Hao (2015) CVTree3 web server for
+  whole-genome-based and alignment-free prokaryotic phylogeny and
+  taxonomy, Genomics Proteomics & Bioinformatics, Accepted for
+  Publication.
+
 ## License
 
 This software is free for non-commercial use. For commercial use,
