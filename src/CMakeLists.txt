@@ -5,7 +5,7 @@ ADD_DEFINITIONS("-O3 -std=c++11")
 
 INCLUDE_DIRECTORIES("/usr/local/include")
 LINK_DIRECTORIES(${LIBRARY_OUTPUT_PATH} "/usr/local/lib")
-LINK_LIBRARIES(z netcdf netcdf_c++ libcvtree.a)
+LINK_LIBRARIES(libcvtree.a z netcdf netcdf_c++)
 
 SET(HEADFILES  global.h
   readgenome.h kstring.h
