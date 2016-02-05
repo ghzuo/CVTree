@@ -24,7 +24,7 @@ using namespace std;
 
 // read arguments
 struct Args{
-    string program, outfile, mtxfile, extdir, orgdir;
+    string program, outfile, mtxfile, outmtx, extdir, orgdir;
     vector<string> suflist, extlist, orglist;
     vector<size_t> orgIndex;
     unordered_map<string,string> taxmap;

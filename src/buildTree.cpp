@@ -107,13 +107,17 @@ int main(int argc, char* argv[]){
 	}
     }
 
-    // output the matrix
+    // set the taxonomy
     if(myargs.outtax && !myargs.taxmap.empty()){
         for(int i=0; i<dm.size(); ++i){
             string orgname = dm.getname(i);
             dm.setname(i, myargs.taxmap[orgname]);
         }
     }
+
+    // output the matrix
+    if(!myargs.outmtx.empty())
+        dm.writemtx(myargs.outmtx, myargs.netcdf);
     cerr << "*** Get distance matrix, Time Elapsed: " << mytimer.elapsed() << "s" << endl;
 
     // do the NJ algorithm and return the NJ tree
@@ -129,7 +133,7 @@ int main(int argc, char* argv[]){
     cerr << "*** Get the tree, Time Elapsed: " << mytimer.elapsed() << "s" << endl;
 }
 
-Args::Args(int argc, char** argv):outfile("FullTaxonomy.nwk"),orgdir("cv/"),extdir("cv/"),
+Args::Args(int argc, char** argv):outfile("cvtree.nwk"),orgdir("cv/"),extdir("cv/"),
 				  outtax(true),netcdf(false){
     
     program = argv[0];
@@ -137,7 +141,7 @@ Args::Args(int argc, char** argv):outfile("FullTaxonomy.nwk"),orgdir("cv/"),extd
     string extfile, orgfile, ndxfile, taxfile;
 
     char ch;
-    while ((ch = getopt(argc, argv, "i:I:n:e:E:s:o:m:t:M:TCh")) != -1){
+    while ((ch = getopt(argc, argv, "i:I:n:e:E:s:o:m:d:t:M:TCh")) != -1){
       switch (ch){
       case 'i': 
 	  extfile = optarg; break;
@@ -155,6 +159,8 @@ Args::Args(int argc, char** argv):outfile("FullTaxonomy.nwk"),orgdir("cv/"),extd
 	  break;
       case 'm':
 	  mtxfile = optarg; break;
+      case 'd':
+          outmtx = optarg; break;
       case 't':
 	  taxfile = optarg; break;
       case 'T':
@@ -179,6 +185,12 @@ Args::Args(int argc, char** argv):outfile("FullTaxonomy.nwk"),orgdir("cv/"),extd
 	  usage();
       }
     }
+
+    if(mtxfile.empty() && extfile.empty()){
+        cerr << "\nYou must set the input cv list (by -i) or input matrix (by -m)\n" << endl;
+        exit(0);
+    }
+        
 
     if(suflist.empty())
 	suflist.emplace_back(".cv6.gz");
@@ -238,15 +250,16 @@ void Args::usage(){
     cerr << "\nThe total physical memory of this computer is " << memorySize << " Byte\n"
 	 << "\nProgram Usage (VERSION: " << GHZ_VERSION << "): \n\n" 
 	 << program  <<"\n" 
-	 <<" [ -o dist.matrix ]   Output distance matrix, defaut: dist.matrix\n"
+	 <<" [ -o cvtree.nwk ]    Output distance matrix, defaut: cvtree.nwk\n"
 	 <<" [ -I extdir ]        Directory of extend cv files, defaut: cv\n"
-	 <<" [ -i infile ]        Extend cv file list, defaut: no extend cv used\n"
+	 <<" [ -i list ]          CV file list, defaut: no input list is set\n"
 	 <<" [ -s cv6.gz ]        Suffix of cv file, defaut: cv6.gz\n"
 	 <<" [ -E orgdir  ]       Directory of the orginal cv files\n"
 	 <<" [ -m indist.matrix ] Input distance matrix, default: no input matrix used\n"
 	 <<" [ -e orglist ]       Name of selected genomes, which are in input distance matrix\n"
 	 <<" [ -n ndxlist ]       Index of selected genomes, which are input distance matrix\n"
 	 <<"                      The index file used first!\n"
+         <<" [ -d dist.matrix ]   Output the distance matrix, default: no output matrix\n"
 	 <<" [ -t taxfile ]       input taxonomy information\n"
 	 <<" [ -T ]               Do not output taxonomy information\n"
 	 <<" [ -M <N> ]           Runing memory size as G roughly, default 80% physical memory\n"
