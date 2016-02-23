@@ -63,12 +63,14 @@ size_t GeneType::readgene(string& file, Genome& genome) const{
     //cout << " Read file: " << file << endl;
 
     for(string line; getline(infile, line); ){
-    	if(line[0] == '>'){
-	    genome.emplace_back();
-    	}
-	else{
-    	    genome.back().append(line);
-	}
+        line = trim(line);
+        if(line.empty()){
+            
+        }else if(line[0] == '>'){
+            genome.emplace_back();
+        }else{
+            genome.back().append(line);
+        }
     }
     infile.close();
 
@@ -92,3 +94,4 @@ void GeneType::checkgene(string& str) const{
 	c = mc[c];
 };
 
+ 
