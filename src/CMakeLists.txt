@@ -27,6 +27,9 @@ SET(LIBCVTREE_SRC ${HEADFILES}
 SET(CV_SRC ${HEADFILES}
   cvtree.h cvtree.cpp )
 
+SET(CV_SRC ${HEADFILES}
+    cvdump.cpp )
+
 SET(TREE_SRC ${HEADFILES}
   buildTree.h buildTree.cpp)
 
@@ -34,6 +37,9 @@ ADD_LIBRARY(cvtree STATIC ${LIBCVTREE_SRC})
 
 ADD_EXECUTABLE(cv ${CV_SRC})
 ADD_DEPENDENCIES(cv cvtree)
+
+ADD_EXECUTABLE(cvdump ${CV_SRC})
+ADD_DEPENDENCIES(cvdump cvtree)
 
 ADD_EXECUTABLE(tree ${TREE_SRC})
 ADD_DEPENDENCIES(tree cvtree)
@@ -43,5 +49,5 @@ ADD_DEPENDENCIES(tree cvtree)
 # INSTALL(FILES ${HEADFILES}
 #   DESTINATION include/cvtree)
 
-INSTALL(TARGETS cv tree
+INSTALL(TARGETS cv tree cvdump
   RUNTIME DESTINATION bin)
