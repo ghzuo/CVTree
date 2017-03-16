@@ -39,8 +39,8 @@ int main(int argc, char* argv[]){
 
 	    char kbuf[5];
 	    sprintf(kbuf, "%d", k);
-	    string infile = myargs.outdir + fname + ".cv" + kbuf + ".gz";
-	    writecv(cv, infile);
+	    string outfile = myargs.outdir + fname + myargs.suffix + kbuf + ".gz";
+	    writecv(cv, outfile);
 	}
     }
 
@@ -48,15 +48,15 @@ int main(int argc, char* argv[]){
 };
 
 
-Args::Args(int argc, char** argv):gtype("faa"),method(1),indir("faa/"),
-    outdir("cv/"){
+Args::Args(int argc, char** argv):gtype("faa"),method(1),indir(""),outdir(""){
 
     program = argv[0];
     string listfile("list");
     string listkval("3 4 5 6 7");
+    string onefasta("");
 
     char ch;
-    while((ch = getopt(argc, argv, "I:i:k:O:g:S:h")) != -1){
+    while((ch = getopt(argc, argv, "I:i:k:O:g:S:s:f:h")) != -1){
       switch(ch){
       case 'I':
 	  indir = optarg; addsuffix(indir, '/'); break;
@@ -70,6 +70,13 @@ Args::Args(int argc, char** argv):gtype("faa"),method(1),indir("faa/"),
 	  listkval = optarg; break;
       case 'S':
 	  method = str2int(optarg); break;
+      case 's':
+          suffix = optarg;
+          if(*(suffix.begin()) != '.')
+              suffix = '.' + suffix;
+	  break;
+      case 'f':
+          onefasta = optarg; break;
       case 'h':
 	  usage();
       case '?':
@@ -78,29 +85,35 @@ Args::Args(int argc, char** argv):gtype("faa"),method(1),indir("faa/"),
     }
 
     //check the genome type
-    if(gtype != "faa" && gtype != "ffn"){
-	cerr << "Only faa/ffn are supported!\n" << endl;
+    if(gtype != "faa" && gtype != "ffn" && gtype != "fna"){
+	cerr << "Only faa/ffn/fna are supported!\n" << endl;
 	exit(1);
     }
 
     //get the input file name
-    ifstream list(listfile.c_str());
-    if(!list){
-	cerr << "Cannot found the input file " << listfile << endl;
-	exit(1);
-    }
+    if(onefasta.empty()){
+        ifstream list(listfile.c_str());
+        if(!list){
+            cerr << "Cannot found the input file " << listfile << endl;
+            exit(1);
+        }
 
-    for(string line; getline(list, line); ){
-	string fname = trim(line);
-	if(!fname.empty()){
-            if(getsuffix(fname) != gtype)
-                fname += "." + gtype;
-            string infile = indir + fname;
-	    flist.emplace_back(fname,getFileSize(infile));
-	}
-    }
-    list.close();
-    sort(flist.begin(),flist.end(),bySecond);
+        set<string> tmpSet;
+        for(string line; getline(list, line); ){
+            string fname = trim(line);
+            if(!fname.empty()){
+                if(getsuffix(fname) != gtype)
+                    fname += "." + gtype;
+                string infile = indir + fname;
+                if(tmpSet.insert(fname).second)
+                    flist.emplace_back(fname,getFileSize(infile));
+            }
+        }
+        list.close();
+        sort(flist.begin(),flist.end(),bySecond);
+    }else{
+        flist.emplace_back(onefasta, 0);
+    }    
 
     // get the kvalue
     vector<string> wd;
@@ -121,6 +134,14 @@ Args::Args(int argc, char** argv):gtype("faa"),method(1),indir("faa/"),
     }else{
 	slist = klist;
     }
+
+    // determine the cv suffix
+    if(suffix.empty()){
+        if(method == 0)
+            suffix = ".ncv";
+        else
+            suffix = ".cv";
+    }
 }
 
 void Args::kcheck(int kmax){
@@ -137,12 +158,15 @@ void Args::kcheck(int kmax){
 void Args::usage(){
     cerr << "\nProgram Usage: \n\n" 
 	 << program  << "\n"
-	 <<" [ -I faa ]          input genome file directory, defaut: faa\n"
+	 <<" [ -I <dir> ]        input genome file directory\n"
 	 <<" [ -i list ]         input species list, defaut: list\n"
+         <<" [ -f <Fasta> ]      get cv for only one fasta \n"
 	 <<" [ -k '3 4 5 6 7' ]  values of k, defaut: N = 3 4 5 6 7\n"
 	 <<" [ -g faa ]          the type of genome file, defaut: faa\n"
-	 <<" [ -O cv ]           output cv directory, defaut: cv\n"
+	 <<" [ -O <dir> ]        output cv directory\n"
 	 <<" [ -S 0/1]           whethe do the subtract, defaut: 1\n"
+         <<" [ -s .ncv/.cv ]     Suffix of cv file, \n"
+         <<"                     defaut: .ncv for method 0, .cv for method 1\n"
 	 <<" [ -h ]              disply this information\n"
 	 << endl;
 

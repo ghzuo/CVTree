@@ -12,6 +12,7 @@ struct Args{
     set<int> klist;
     set<int> slist;
     int method;
+    string suffix;
 
     Args(int, char**);
     void kcheck(int);
