@@ -3,3 +3,4 @@ build
 *.aux
 built
 CMakeLists.txt.user
+.vscode

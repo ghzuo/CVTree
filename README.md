@@ -5,6 +5,14 @@ of an alignment-free algorithm to generate a dissimilarity matrix from
 comparatively large collection of DNA or Amino Acid sequences,
 preferably whole-genome data, for phylogenetic studies.
 
+Please visit our webserve of CVTree, where you can use the cvtree tools 
+more convenient.  The CVTree3 Web Server have two identical but independent 
+installations at cvtree.big.ac.cn (Beijing Institute of Genomics, Beijing) 
+and tlife.fudan.edu.cn/cvtree3 (Fudan University, Shanghai).
+
+Currently due to management issue only the one at 
+http://cvtree.big.ac.cn can be used.
+
 #### Main Programs
 * cv:  Get the composition vector based on the fasta file of the genome.
 * tree:  Get the phylogeny tree based on the composition vectors and
