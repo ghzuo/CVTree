@@ -7,11 +7,8 @@ preferably whole-genome data, for phylogenetic studies.
 
 Please visit our webserve of CVTree, where you can use the cvtree tools 
 more convenient.  The CVTree3 Web Server have two identical but independent 
-installations at cvtree.big.ac.cn (Beijing Institute of Genomics, Beijing) 
-and tlife.fudan.edu.cn/cvtree3 (Fudan University, Shanghai).
-
-Currently due to management issue only the one at 
-http://cvtree.big.ac.cn can be used.
+installations at http://cvtree.big.ac.cn (Beijing Institute of Genomics, Beijing) 
+and http://tlife.fudan.edu.cn/cvtree3 (Fudan University, Shanghai).
 
 #### Main Programs
 * cv:  Get the composition vector based on the fasta file of the genome.
