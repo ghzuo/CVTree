@@ -123,7 +123,7 @@ int main(int argc, char* argv[]){
     // do the NJ algorithm and return the NJ tree
     //delete the outgrouup
     Node *aTree = neighborJoint(dm);
-    (*aTree).children.pop_back();
+    // (*aTree).children.pop_back();
     
     // output the Tree
     ofstream nwk(myargs.outfile.c_str());
