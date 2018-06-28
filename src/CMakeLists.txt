@@ -1,3 +1,6 @@
+cmake_minimum_required (VERSION 2.6)
+project (CVTree)
+
 find_package(OpenMP)
 if (OPENMP_FOUND)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")

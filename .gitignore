@@ -4,3 +4,10 @@ build
 built
 CMakeLists.txt.user
 .vscode
+.vstags
+cache
+cvtreeManual.aux
+cvtreeManual.fdb_latexmk
+cvtreeManual.fls
+cvtreeManual.log
+cvtreeManual.synctex.gz

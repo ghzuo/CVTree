@@ -68,7 +68,7 @@ where
   dissimilarity matrix by Neighbor Joint method.
 \end{enumerate}
 For more detailed description of the algorithm please consult
-\cite{qwh04}.
+\cite{qwh04}. 
 
 
 
@@ -76,7 +76,8 @@ For more detailed description of the algorithm please consult
 \subsection{Preparation}
 \begin{itemize}
 	\item cmake $\geq$ 2.6
-	\item g++ $\geq$ 4.8 or other compiler supporting C++11 standard
+  \item g++ $\geq$ 4.8 or other compiler supporting C++11 standard
+  \item compiler with support openmp for parallel
 	\item Library: libz, netcdf, netcdf\_cpp
 \end{itemize}
 
@@ -86,7 +87,7 @@ cmake
 \begin{itemize}
 	\item unzip the package file and change into it
 	\item mkdir build and change into it
-	\item cmake .. or add some options you wanted, e.g.:\\ -DCMAKE\_INSTALL\_PREFIX=/usr/local
+	\item cmake ../src or add some options you wanted, e.g.:\\ -DCMAKE\_INSTALL\_PREFIX=/usr/local
 	\item make
 	\item make install
 \end{itemize}
@@ -148,7 +149,7 @@ cvdump  -i <cvfile>        input file name
  [ -h ]              disply this information
 \end{verbatim}
 
-  \item runCVTree.pl -- Easy script to obtain the result.
+  \item runCVTree.sh (in example folder) -- Easy script to obtain the result.
 \end{enumerate}
 
 \section{Citing CVTree in a Publication}
@@ -173,7 +174,7 @@ versions were:
   Ver. 3.9.6 was written by Ji Qi.
 \item Web Server CVTree 2.0 was written by Zhao Xu and Bailin Hao
 \item Standalone CVTree 4.4 was written by Zhao Xu
-\item Web Server CVTree 2.0 was written by Guanghong Zuo and Bailin Hao
+\item Web Server CVTree 3.0 was written by Guanghong Zuo and Bailin Hao
 \item Standalone CVTree 5.0 was written by Guanghong Zuo
 \end{enumerate}
 

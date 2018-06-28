@@ -14,21 +14,27 @@ and http://tlife.fudan.edu.cn/cvtree3 (Fudan University, Shanghai).
 * cv:  Get the composition vector based on the fasta file of the genome.
 * tree:  Get the phylogeny tree based on the composition vectors and
   neighbor-joint method.
-* runCVTree.pl: run the two programs in one time.
+* cvdump: Show composition vector
 
 ## Installation
 
 #### Preparation
 * cmake >= 2.6
 * g++ >= 4.8 or other compiler supporting C++11 standard
+* compiler with support openmp for parallel
 * Library: libz, netcdf, netcdf_cpp
 
 #### Compiling
 1. unzip the package file and change into it
 2. mkdir build and change into it
-3. cmake .. or add some options you wanted
+3. cmake ../src or add some options you wanted
 4. make
 5. make install
+
+## Run Programs with Example
+If this is the first time you use CVTree package, please go to the
+"example" folder. Please edit script "runCVTree.sh" and "list" to
+set your project and test software.
 
 ## Reference
 * Ji Qi, Bin Wang, Bailin Hao (2004) Whole proteome prokaryote phylogeny
