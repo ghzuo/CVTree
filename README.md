@@ -33,8 +33,8 @@ and http://tlife.fudan.edu.cn/cvtree3 (Fudan University, Shanghai).
 
 ## Run Programs with Example
 If this is the first time you use CVTree package, please go to the
-"example" folder. Please edit script "runCVTree.sh" and "list" to
-set your project and test software.
+"example" folder. Edit script "runCVTree.sh" and "list" to set your 
+project and test software.
 
 ## Reference
 * Ji Qi, Bin Wang, Bailin Hao (2004) Whole proteome prokaryote phylogeny
