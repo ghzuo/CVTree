@@ -94,14 +94,7 @@ cmake
 
 \section{Programs and Command-Line Options}
 
-The main program was implemented in C++. For most purposes, the C++
-program \verb!cvtree! is enough for the end user. However we supply some
-Perl scripts to treat extremely massive input data (e.g., exceeding
-several gigabytes). If you encounter ``Out of memory'' warning when
-running CVTree program by \verb!-o! or \verb!-l! option, you can try to
-use \verb!-c! option instead. Option \verb!-c! will output separated CV
-files into the given directory, which can be used by \verb!bdist!(or
-\verb!batch_dist.pl!) to calculate the final dissimilarity matrix.
+The main program was implemented in C++.
 
 \begin{enumerate}\itemsep 0pt
   \item cv -- Generate CV files from input data
