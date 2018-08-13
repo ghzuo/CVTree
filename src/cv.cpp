@@ -119,7 +119,7 @@ void Args::usage() {
        << " [ -f <Fasta> ]      get cv for only one fasta \n"
        << " [ -k '3 4 5 6 7' ]  values of k, defaut: N = 3 4 5 6 7\n"
        << " [ -g faa ]          the type of genome file, defaut: faa\n"
-       << " [ -m Hao/Li/Zuo]    the method for cvtree, defaut: Hao\n"
+       << " [ -m Hao/InterList/InterSet]  the method for cvtree, defaut: Hao\n"
        << " [ -q ]              Run command in queit mode\n"
        << " [ -h ]              disply this information\n"
        << endl;
