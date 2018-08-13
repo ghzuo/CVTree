@@ -1,56 +1,69 @@
-cmake_minimum_required (VERSION 2.6)
-project (CVTree)
+###
+# Copyright (c) 2018  T-Life Research Center, Fudan University, Shanghai, China.
+# See the accompanying Manual for the contributors and the way to cite this work.
+# Comments and suggestions welcome. Please contact
+# Dr. Guanghong Zuo <ghzuo@fudan.edu.cn>
+# 
+# @Author: Dr. Guanghong Zuo
+# @Date: 2017-09-01 15:55:03
+# @Last Modified By: Dr. Guanghong Zuo
+# @Last Modified Time: 2018-04-26 19:51:32
+###
 
-find_package(OpenMP)
-if (OPENMP_FOUND)
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-endif()
+LINK_LIBRARIES(libcvtr.a)
 
-SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
-SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
-
-ADD_DEFINITIONS("-O3 -std=c++11")
-
-INCLUDE_DIRECTORIES("/usr/local/include")
-LINK_DIRECTORIES(${LIBRARY_OUTPUT_PATH} "/usr/local/lib")
-LINK_LIBRARIES(libcvtree.a z netcdf netcdf_c++)
-
-SET(HEADFILES  global.h
+SET(CVTREEHEADS 
   readgenome.h kstring.h
   stringOpt.h  memory.h
-  neighborJoint.h distmatrix.h)
+  distmatrix.h info.h
+  method.h neighborJoint.h
+  distance.h)
 
-SET(LIBCVTREE_SRC ${HEADFILES}
+SET(LIBCVTREE_SRC ${CVTREEHEADS}
   readgenome.cpp kstring.cpp
   stringOpt.cpp  memory.cpp
-  neighborJoint.cpp distmatrix.cpp
-  tree.cpp )
-  
-SET(CV_SRC ${HEADFILES}
-  cvtree.h cvtree.cpp )
+  distmatrix.cpp tree.cpp
+  info.cpp method.cpp
+  neighborJoint.cpp distance.cpp
+  )
 
-SET(CVDUMP_SRC ${HEADFILES}
-    cvdump.cpp )
+SET(CV_SRC ${CVTREEHEADS}
+  cv.h cv.cpp)
 
-SET(TREE_SRC ${HEADFILES}
-  buildTree.h buildTree.cpp)
+SET(CVDUMP_SRC ${CVTREEHEADS}
+  cvdump.cpp)
 
-ADD_LIBRARY(cvtree STATIC ${LIBCVTREE_SRC})
+SET(DIST_SRC ${CVTREEHEADS}
+  dist.h dist.cpp)
+
+SET(GETDIST_SRC ${CVTREEHEADS}
+  getdist.cpp)
+
+SET(NJ_SRC ${CVTREEHEADS}
+  neighbor.h neighbor.cpp)
+
+SET(CVTREE_SRC ${CVTREEHEADS}
+  cvtree.h cvtree.cpp)
+
+ADD_LIBRARY(cvtr STATIC ${LIBCVTREE_SRC})
 
 ADD_EXECUTABLE(cv ${CV_SRC})
-ADD_DEPENDENCIES(cv cvtree)
+TARGET_LINK_LIBRARIES(cv cvtr)
 
 ADD_EXECUTABLE(cvdump ${CVDUMP_SRC})
-ADD_DEPENDENCIES(cvdump cvtree)
+TARGET_LINK_LIBRARIES(cvdump cvtr)
 
-ADD_EXECUTABLE(tree ${TREE_SRC})
-ADD_DEPENDENCIES(tree cvtree)
+ADD_EXECUTABLE(dist ${DIST_SRC})
+TARGET_LINK_LIBRARIES(dist cvtr)
 
-# INSTALL(TARGETS cvtree 
-#   ARCHIVE DESTINATION lib)
-# INSTALL(FILES ${HEADFILES}
-#   DESTINATION include/cvtree)
+ADD_EXECUTABLE(getdist ${GETDIST_SRC})
+TARGET_LINK_LIBRARIES(getdist cvtr)
 
-INSTALL(TARGETS cv tree cvdump
-  RUNTIME DESTINATION bin)
+ADD_EXECUTABLE(nj ${NJ_SRC})
+TARGET_LINK_LIBRARIES(nj cvtr)
+
+ADD_EXECUTABLE(cvtree ${CVTREE_SRC})
+TARGET_LINK_LIBRARIES(cvtree cvtr)
+
+INSTALL(TARGETS cv cvdump dist getdist nj cvtree
+   RUNTIME DESTINATION bin)

@@ -1,160 +1,140 @@
+/*
+ * Copyright (c) 2018  T-Life Research Center, Fudan University, Shanghai,
+ * China. See the accompanying Manual for the contributors and the way to cite
+ * this work. Comments and suggestions welcome. Please contact Dr. Guanghong Zuo
+ * <ghzuo@fudan.edu.cn>
+ *
+ * @Author: Dr. Guanghong Zuo
+ * @Date: 2016-04-19 11:37:42
+ * @Last Modified By: Dr. Guanghong Zuo
+ * @Last Modified Time: 2018-07-26 22:02:23
+ */
+
 #include "neighborJoint.h"
 
 /// For neighborJoint
-Node* neighborJoint(Mdist& dm){
-    // the function to neighbor joint the start tree
-    // the distance matrix and leafs list are copy from the main program
-    // so it will be changed in the main program
-    
-    StarTree nodes(dm.size());
-    for(size_t i=0; i<dm.size(); ++i){
-        nodes[i] = new Node(i, dm.getname(i));
-    }
-    Node* outgrp = nodes[0];
+Node *neighborJoint(Mdist &dm) {
+  // the function to neighbor joint the start tree
+  // the distance matrix and leafs list are copy from the main program
+  // so it will be changed in the main program
 
-    // get the new length of the star tree
-    lenStar(nodes, dm);
-    int nNode = nodes.size()-3;
+  StarTree nodes(dm.size());
+  for (size_t i = 0; i < dm.size(); ++i) {
+    nodes[i] = new Node(i, dm.getname(i));
+  }
+  Node *outgrp = nodes[0];
 
-    for(int i=0; i<nNode; ++i){
-	// get two nearest items and set length and distance matrix
-	StarTree::iterator itx, ity;
-	njnearest(dm, nodes, itx, ity);
+  // get the new length of the star tree
+  lenStar(nodes, dm);
+  int nNode = nodes.size() - 3;
 
-	// joint the two nearest neighbors
-	recjoint(dm, nodes, itx, ity);
-	// joint(dm, nodes, itx, ity);
+  // get the nj tree
+  for (int i = 0; i < nNode; ++i) {
+    // get two nearest items and set length and distance matrix
+    Neighbor nb;
+    njnearest(dm, nodes, nb);
 
-    }
-    
-    // get the root of the tree which include three branches
-    (*nodes[0]).length= 0.5*((*nodes[0]).length - dm.getdist((*nodes[1]).id,(*nodes[2]).id));
-    (*nodes[1]).length= 0.5*((*nodes[1]).length - dm.getdist((*nodes[2]).id,(*nodes[0]).id));
-    (*nodes[2]).length= 0.5*((*nodes[2]).length - dm.getdist((*nodes[0]).id,(*nodes[1]).id));
+    // joint the two nearest neighbors
+    joint(dm, nodes, nb);
+  }
 
-    Node* aTree = new Node;
-    for(auto &nd : nodes)
-	(*aTree).addChild(nd);
+  // get the root of the tree which include three branches
+  (*nodes[0]).length =
+      0.5 * ((*nodes[0]).length - dm.getdist((*nodes[1]).id, (*nodes[2]).id));
+  (*nodes[1]).length =
+      0.5 * ((*nodes[1]).length - dm.getdist((*nodes[2]).id, (*nodes[0]).id));
+  (*nodes[2]).length =
+      0.5 * ((*nodes[2]).length - dm.getdist((*nodes[0]).id, (*nodes[1]).id));
 
-    aTree = (*aTree).resetroot(outgrp);
-    
-    return aTree;
+  // add the root
+  Node *aTree = new Node;
+  for (auto &nd : nodes)
+    (*aTree).addChild(nd);
+
+  // set the outgroup
+  aTree = (*aTree).resetroot(outgrp);
+
+  return aTree;
 }
 
-void lenStar(const StarTree& vn, const Mdist& dm){
-    for(auto &np : vn){
-	(*np).length = 0.0;
-	for(auto &nd : vn)
-	    (*np).length += dm.getdist((*np).id, (*nd).id);
+void lenStar(const StarTree &vn, const Mdist &dm) {
+  for (auto &np : vn) {
+    double len = 0.0;
+    size_t idp = (*np).id;
+    for (auto &nd : vn) {
+      if (np != nd)
+        len += dm.getdist(idp, (*nd).id);
     }
+    (*np).length = len;
+  }
 };
 
-void njnearest(const Mdist& dm, StarTree& nodes, StarTree::iterator& itx, StarTree::iterator& ity){
+void njnearest(const Mdist &dm, StarTree &nodes, Neighbor &nb) {
 
-    // get the nearest neighbor
-    double minddxy(numeric_limits<double>::max());
-    size_t nNode(nodes.size());
-    double m2star(nNode);
-    m2star -= 2.0;
-    
-    vector<double> length(nNode);
-    vector<size_t> id(nNode);
-    for(int i=0; i<nNode; ++i){
-	length[i] = (*(nodes[i])).length/m2star;
-        id[i] = (*(nodes[i])).id;
+  // get the nearest neighbor
+  size_t nNode(nodes.size());
+  double m2star(nNode - 2);
+
+  vector<double> length(nNode);
+  vector<size_t> id(nNode);
+  for (int i = 0; i < nNode; ++i) {
+    length[i] = (*(nodes[i])).length / m2star;
+    id[i] = (*(nodes[i])).id;
+  }
+
+  double minddxy(numeric_limits<double>::max());
+  double ddxy;
+  for (int i = 1; i < nNode; ++i) {
+    minddxy += length[i];
+    size_t Idi = id[i];
+    for (int j = 0; j < i; ++j) {
+      ddxy = dm._getdist(id[j], Idi) - length[j];
+      if (ddxy < minddxy) {
+        nb.first = j;
+        nb.second = i;
+        minddxy = ddxy;
+      }
     }
-
-    int nx, ny;
-    for(int i=1; i<nNode; ++i){
-        size_t iId = id[i];
-        double iLen = length[i];
-        for(int j=0; j<i; ++j){
-    	    double ddxy = dm.getdist(iId, id[j]) - iLen - length[j];
-    	    if(ddxy < minddxy){
-                nx = j; ny = i;
-    		minddxy = ddxy;
-    	    }
-    	}
-    }
-
-    // get the two iterator
-    itx = nodes.begin() + nx;
-    ity = nodes.begin() + ny;
+    minddxy -= length[i];
+  }
 };
 
-void joint(Mdist& dm, StarTree& nodes, StarTree::iterator& itx, StarTree::iterator& ity){
+void joint(Mdist &dm, StarTree &nodes, Neighbor &nb) {
 
-    // delete the two nearest nodes for the star tree
-    Node* nx = *itx;
-    *itx = nodes.back();
-    nodes.pop_back();
-    
-    Node* ny = *ity;
-    *ity = nodes.back();
-    nodes.pop_back();
-    
-    //the new perent node of the two nearest nodes
-    vector<Node*> vn{nx,ny};
-    Node* nz = new Node((*nx).id, vn);
-    
-    // reset the length branch
-    double dxdy = ((*nx).length - (*ny).length)/nodes.size();
-    double dxy  = dm.getdist((*nx).id, (*ny).id);
-    (*nx).length = 0.5*(dxy + dxdy);
-    (*ny).length = 0.5*(dxy - dxdy);
+  // reset the length branch
+  Node *nx = nodes[nb.first];
+  Node *ny = nodes[nb.second];
+  size_t idx = (*nx).id;
+  size_t idy = (*ny).id;
 
-    // reset the distrance matrix
-    // use the nx index to the index of nz in distrance matrix
-    for(auto &nu : nodes){
-	double dux = dm.getdist((*nx).id, (*nu).id);
-	double duy = dm.getdist((*ny).id, (*nu).id);
-	dm.setdist((*nz).id, (*nu).id, 0.5*(dux+duy-dxy));
+  double mstar = double(nodes.size());
+  double dx = (*nx).length;
+  double dy = (*ny).length;
+  double dxdy = (dx - dy) / (mstar - 2);
+  double dxy = dm.getdist(idx, idy);
+  (*nx).length = 0.5 * (dxy + dxdy);
+  (*ny).length = 0.5 * (dxy - dxdy);
+
+  // set the parent nodes and add the two nodes to the new node
+  Node *nz = new Node(idx);
+  (*nz).length = 0.5 * (dx + dy - dxy * mstar);
+  (*nz).addChild(ny);
+  (*nz).addChild(nx);
+
+  // replace the first node by new nodes and delete the second node
+  nodes[nb.first] = nz;
+  nodes.erase(nodes.begin() + nb.second);
+
+  // set the distrance between node z and other nodes
+  // use the nx index to the index of nz in distrance matrix
+  for (auto &nu : nodes) {
+    if (nu != nz) {
+      size_t idu = (*nu).id;
+      double dux = dm.getdist(idx, idu);
+      double duy = dm.getdist(idy, idu);
+      double duz = 0.5 * (dux + duy - dxy);
+      dm.setdist(idx, idu, duz);
+      (*nu).length = (*nu).length - dux - duy + duz;
     }
-	 
-    // add the new node to the star tree
-    nodes.emplace_back(nz);
-    
-    // renew the length of branch
-    lenStar(nodes, dm);
-};
-
-// 
-void recjoint(Mdist& dm, StarTree& nodes, StarTree::iterator& itx, StarTree::iterator& ity){
-
-    // the new parent node
-    Node* nz = new Node;
-
-    // add the two nodes to the new node
-    Node* ny = *ity;
-    nodes.erase(ity);
-    (*nz).addChild(ny);
-	
-    Node* nx = *itx;
-    nodes.erase(itx);
-    (*nz).addChild(nx);
-
-    // reset the length branch
-    double m2star = nodes.size();
-    double dx = (*nx).length;
-    double dy = (*ny).length;
-    double dxdy = (dx - dy)/m2star;
-    double dxy  = dm.getdist((*nx).id, (*ny).id);
-    (*nx).length = 0.5*(dxy + dxdy);
-    (*ny).length = 0.5*(dxy - dxdy);
-    (*nz).length = 0.5*(dx + dy - dxy*(m2star+2));
-    
-    // set the distrance between node z and other nodes
-    // use the nx index to the index of nz in distrance matrix
-    (*nz).id = (*nx).id;
-    for(auto &nu : nodes){
-	double dux = dm.getdist((*nx).id, (*nu).id);
-	double duy = dm.getdist((*ny).id, (*nu).id);
-	double duz = 0.5*(dux + duy - dxy);
-	dm.setdist((*nz).id, (*nu).id, duz);
-	(*nu).length = (*nu).length - dux - duy + duz;
-    }
-
-    // add the new node to the star tree
-    nodes.emplace_back(nz);
+  }
 }
-

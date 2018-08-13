@@ -1,247 +1,277 @@
+/*
+ * Copyright (c) 2018  T-Life Research Center, Fudan University, Shanghai,
+ * China. See the accompanying Manual for the contributors and the way to cite
+ * this work. Comments and suggestions welcome. Please contact Dr. Guanghong Zuo
+ * <ghzuo@fudan.edu.cn>
+ *
+ * @Author: Dr. Guanghong Zuo
+ * @Date: 2018-04-26 10:40:55
+ * @Last Modified By: Dr. Guanghong Zuo
+ * @Last Modified Time: 2018-07-16 19:50:27
+ */
+
 #include "cvtree.h"
 
-int main(int argc, char* argv[]){
-    // set a timer
-    Timer mytimer;
+// for output infomation
+Info theInfo;
 
-    Args myargs(argc, argv);
+int main(int argc, char *argv[]) {
+  // get the input arguments
+  Args myargs(argc, argv);
 
-    //get gene type to read and read gene file
-    GeneType mygene(myargs.gtype);
+  // init domains
+  vector<pair<size_t, Mdist>> dms(myargs.klist.size());
+#pragma omp parallel for ordered
+  for (size_t i = 0; i < myargs.klist.size(); ++i) {
+    dms[i].first = myargs.klist[i];
+    dms[i].second.init(myargs.glist);
+    if (!myargs.refdm.empty()) {
+      string str = nameWithK(myargs.refdm, dms[i].first);
+      assignDM(str, myargs.netcdf, dms[i].second);
+    }
+#pragma omp ordered
+    theInfo.output(dms[i].second.info() + " for K=" + to_string(dms[i].first));
+  }
 
-    //get the genome letters map to check the sequcne
-    int kmax = Kstr::init(mygene.letters);
-    myargs.kcheck(kmax);
-
-    #pragma omp parallel for schedule (dynamic)
-    for(int i=0; i<myargs.flist.size(); ++i){
-        string fname = myargs.flist[i].first;
-	string infile = myargs.indir + fname;
-	Genome genome;
-	mygene.readgene(infile, genome);
-
-	//get the cv of all K of the genome
-	map<int, CVmap> mvc;
-	map<int, double> nstr;
-	for(auto &k : myargs.slist){
-	    CVmap cv;
-	    nstr[k] = count(genome, k, cv);
-	    mvc[k] = cv;
-	}
-
-	for(auto &k : myargs.klist){
-	    CVmap cv;
-	    if(myargs.method == 1){
-                double factor = nstr[k]*nstr[k-2]/(nstr[k-1]*nstr[k-1]);
-	    	subtract(mvc[k], mvc[k-1], mvc[k-2], factor, cv);
-	    }else
-		cv = mvc[k];
-
-	    char kbuf[5];
-	    sprintf(kbuf, "%d", k);
-	    string outfile = myargs.outdir + fname + myargs.suffix + kbuf + ".gz";
-	    writecv(cv, outfile);
-	}
+  // get the cvs for the NAN distances
+  theInfo.output("Start check and calculate CVs for " +
+                 to_string(myargs.glist.size()) + " Genomes");
+#pragma omp parallel for
+  for (size_t i = 0; i < myargs.glist.size(); ++i) {
+    // get the missing K list
+    vector<size_t> klist;
+    for (size_t j = 0; j < myargs.klist.size(); ++j) {
+      if (dms[j].second.hasNAN(i))
+        klist.emplace_back(myargs.klist[j]);
     }
 
-    cerr << "*** Time Elapsed: " << mytimer.elapsed() << "s" << endl;
-};
+    // get the CVs
+    myargs.method->getCV(myargs.glist[i], klist);
+  }
+  theInfo.output("All CVs are obtained");
 
+  // Calculate the NAN distance
+  for (size_t j = 0; j < myargs.klist.size(); ++j) {
+    Mdist &dm = dms[j].second;
+    size_t k = dms[j].first;
 
-Args::Args(int argc, char** argv):gtype("faa"),method(1),indir(""),outdir(""){
+    if (dm.hasNAN()) {
+      IterStep::reIndex();
+      theInfo.output("Start calculate for K=" + to_string(k));
 
-    program = argv[0];
-    string listfile("list");
-    string listkval("3 4 5 6 7");
-    string onefasta("");
-
-    char ch;
-    while((ch = getopt(argc, argv, "I:i:k:O:g:S:s:f:h")) != -1){
-      switch(ch){
-      case 'I':
-	  indir = optarg; addsuffix(indir, '/'); break;
-      case 'i': 
-	  listfile = optarg; break;
-      case 'O':
-	  outdir = optarg; addsuffix(outdir, '/'); break;
-      case 'g':
-	  gtype = optarg; break;
-      case 'k':
-	  listkval = optarg; break;
-      case 'S':
-	  method = str2int(optarg); break;
-      case 's':
-          suffix = optarg;
-          if(*(suffix.begin()) != '.')
-              suffix = '.' + suffix;
-	  break;
-      case 'f':
-          onefasta = optarg; break;
-      case 'h':
-	  usage();
-      case '?':
-	  usage();
+      // set the cvfile name
+      vector<string> cvfile(myargs.glist);
+      for (auto &str : cvfile) {
+        str = myargs.method->getCVname(str, k);
       }
+
+      do {
+        // check the memory and divided steps
+        IterStep theStep(dm, cvfile);
+        theStep.checkSize(myargs.maxM);
+
+        // execute the calculate
+        theStep.execute(dm, myargs.method);
+
+      } while (dm.hasNAN());
+
+      theInfo.output("End the calculate distance for K=" + to_string(k));
     }
 
-    //check the genome type
-    if(gtype != "faa" && gtype != "ffn" && gtype != "fna"){
-	cerr << "Only faa/ffn/fna are supported!\n" << endl;
-	exit(1);
-    }
+    // output the distance matrix
+    string fname = nameWithK(myargs.dmName, k);
+    mkpath(fname);
+    dm.writemtx(fname, myargs.netcdf);
+  }
 
-    //get the input file name
-    if(onefasta.empty()){
-        ifstream list(listfile.c_str());
-        if(!list){
-            cerr << "Cannot found the input file " << listfile << endl;
-            exit(1);
-        }
+// get the nwk tree
+#pragma omp parallel for ordered
+  for (size_t i = 0; i < dms.size(); ++i) {
+    // do the NJ algorithm and return the NJ tree
+    Node *aTree = neighborJoint(dms[i].second);
 
-        set<string> tmpSet;
-        for(string line; getline(list, line); ){
-            string fname = trim(line);
-            if(!fname.empty()){
-                if(getsuffix(fname) != gtype)
-                    fname += "." + gtype;
-                string infile = indir + fname;
-                if(tmpSet.insert(fname).second)
-                    flist.emplace_back(fname,getFileSize(infile));
-            }
-        }
-        list.close();
-        sort(flist.begin(),flist.end(),bySecond);
-    }else{
-        flist.emplace_back(onefasta, 0);
-    }    
+#pragma omp ordered
+    theInfo.output("Get the Neighbor Joint tree for K=" +
+                   to_string(dms[i].first));
 
-    // get the kvalue
-    vector<string> wd;
-    separateWord(wd, listkval);
-    for(auto &str : wd){
-	size_t kval;
-	str2number(str, kval);
-	klist.insert(kval);
-    }
-
-    //get the statistic list
-    if(method == 1){
-	for(auto &k : klist){
-	    slist.insert(k);
-	    slist.insert(k-1);
-	    slist.insert(k-2);
-	}
-    }else{
-	slist = klist;
-    }
-
-    // determine the cv suffix
-    if(suffix.empty()){
-        if(method == 0)
-            suffix = ".ncv";
-        else
-            suffix = ".cv";
-    }
+    // output the Tree
+    // output the distance matrix
+    string fname = nameWithK(myargs.treeName, dms[i].first);
+    mkpath(fname);
+    ofstream nwk(fname.c_str());
+    (*aTree).outnwk(nwk);
+    nwk.close();
+  }
 }
 
-void Args::kcheck(int kmax){
-    // check k value range
-    if(*(slist.begin()) < 1 || *(--slist.end())> kmax){
-	cerr << "The range of k value is ["
-	     << ((method == 1) ? 3 : 1)
-	     << "," << kmax << "]" << endl;
-       exit(3);
+/*********************************************************************/
+/******************** End of Main programin **************************/
+/*********************************************************************/
+
+Args::Args(int argc, char **argv) : treeName(""), dmName(""), netcdf(false) {
+
+  program = argv[0];
+  memorySize = getMemorySize() * 0.8;
+
+  string listfile("list");
+  string methStr("Hao");
+  string gtype("faa");
+  string gdir("");
+  string cvdir("cv/");
+  string listkval("3 4 5 6 7");
+
+  char ch;
+  while ((ch = getopt(argc, argv, "i:G:V:k:d:t:m:M:r:g:Cqh")) != -1) {
+    switch (ch) {
+    case 'i':
+      listfile = optarg;
+      break;
+    case 'V':
+      cvdir = optarg;
+      if (!cvdir.empty())
+        addsuffix(cvdir, '/');
+      break;
+    case 'G':
+      gdir = optarg;
+      addsuffix(gdir, '/');
+      break;
+    case 'r':
+      refdm = optarg;
+      break;
+    case 'M':
+      str2number(optarg, memorySize);
+      memorySize *= 1073741824;
+      break;
+    case 'm':
+      methStr = optarg;
+      break;
+    case 'k':
+      listkval = optarg;
+      break;
+    case 'd':
+      dmName = optarg;
+      break;
+    case 't':
+      treeName = optarg;
+      break;
+    case 'C':
+      netcdf = true;
+      break;
+    case 'q':
+      theInfo.info = false;
+      break;
+    case 'g':
+      gtype = optarg;
+      break;
+    case 'h':
+      usage();
+    case '?':
+      usage();
     }
-};
+  }
 
-
-void Args::usage(){
-    cerr << "\nProgram Usage: \n\n" 
-	 << program  << "\n"
-	 <<" [ -I <dir> ]        input genome file directory\n"
-	 <<" [ -i list ]         input species list, defaut: list\n"
-         <<" [ -f <Fasta> ]      get cv for only one fasta \n"
-	 <<" [ -k '3 4 5 6 7' ]  values of k, defaut: N = 3 4 5 6 7\n"
-	 <<" [ -g faa ]          the type of genome file, defaut: faa\n"
-	 <<" [ -O <dir> ]        output cv directory\n"
-	 <<" [ -S 0/1]           whethe do the subtract, defaut: 1\n"
-         <<" [ -s .ncv/.cv ]     Suffix of cv file, \n"
-         <<"                     defaut: .ncv for method 0, .cv for method 1\n"
-	 <<" [ -h ]              disply this information\n"
-	 << endl;
-
+  // check the genome type
+  if (gtype != "faa" && gtype != "ffn" && gtype != "fna") {
+    cerr << "Only faa/ffn/fna are supported!\n" << endl;
     exit(1);
+  }
+
+  // set the method
+  method = Method::create(methStr, gtype);
+  method->setCVdir(cvdir);
+
+  // get the kvalue
+  vector<string> wd;
+  separateWord(wd, listkval);
+  for (auto &str : wd)
+    klist.emplace_back(stoul(str));
+
+  sort(klist.begin(), klist.end());
+  uniqueWithOrder(klist);
+  method->checkK(klist);
+
+  // get the input file name
+  readlist(listfile, glist);
+  uniqueWithOrder(glist);
+
+  for (auto &gname : glist) {
+    if (getsuffix(gname) == gtype)
+      gname = delsuffix(gname);
+  }
+
+  if (!gdir.empty()) {
+    for (auto &gname : glist) {
+      gname = gdir + gname;
+    }
+  }
+
+  // set the output tree name format
+  if (treeName.empty()) {
+    treeName = "tree/" + methStr + (*method).cvsuff + "$.nwk";
+  }
+
+  // set the output dm name format
+  if (dmName.empty()) {
+    dmName = "dm/" + methStr + (*method).cvsuff + "$.nc";
+  }
+
+  //... Get The limit of memory size for cv
+  float maxNameLen = 2048.0;
+  float giga = 1073741824.0;
+  size_t ng = glist.size();
+  float bs = maxNameLen * ng + ng * (ng + 1) * sizeof(double) / 2 + giga;
+  maxM = memorySize - bs;
 }
 
-size_t count(const Genome& genome, size_t k, CVmap& cv){
-    size_t n(0);
-    for(const auto &gene : genome){
-	//the number of kstring of the gene
-        n += (gene.size()-k+1);
+void Args::usage() {
+  cerr << "\nThe total physical memory of this computer is " << memorySize
+       << " Byte\n"
+       << "\nProgram Usage: \n\n"
+       << program << "\n"
+       << " [ -d <dm> ]         Output distance matrix format, defaut: "
+          "<Method><Suffix><K>\n"
+       << " [ -t <nwk> ]         Output distance matrix format, defaut: "
+          "<Method><Suffix><K>.nwk\n"
+       << " [ -G <dir> ]        Input genome file directory\n"
+       << " [ -g faa ]          the type of genome file, defaut: faa\n"
+       << " [ -V <cvdir> ]      Super directory of cv files\n"
+       << " [ -i list ]         Genome list for distance matrix, defaut: "
+          "list\n"
+       << " [ -k '3 4 5 6 7' ]  values of k, defaut: N = 3 4 5 6 7\n"
+       << " [ -r <matrix> ]     Reference distance matrixs, splite with ','\n"
+       << " [ -M <N> ]          Runing memory size as G roughly, "
+       << "                     default 80% of physical memory\n"
+       << " [ -m Hao/Li/Zuo] Method for cvtree, defaut: Hao\n"
+       << " [ -C ]           Force use the netcdf compress distance matrix\n"
+       << " [ -q ]           Run command in queit mode\n"
+       << " [ -h ]           Disply this information\n"
+       << endl;
+  exit(1);
+}
 
-	//get the first k string
-	Kstr ks(gene.substr(0,k));
-	CVmap::iterator iter=cv.find(ks);
-	if(iter == cv.end()){
-	    cv[ks] = 1.0;
-	}else{
-	    ++(iter->second);
-	}
+string nameWithK(const string &str, size_t k) {
 
-	//get the next kstring
-	for(int i=k; i<gene.size(); ++i){
-	    ks.behead();
-	    ks.append(gene[i]);
-	    CVmap::iterator iter=cv.find(ks);
-	    if(iter == cv.end()){
-		cv[ks] = 1.0;
-	    }else{
-		++(iter->second);
-	    }
-	}
-    }
-    return n;
-};
+  string kstr = to_string(k);
+  if (str.empty())
+    return kstr;
 
+  if (str.find("$", 0) == std::string::npos)
+    return str + "$";
 
-void subtract(const CVmap& mck, const CVmap& mckM1, const CVmap& mckM2, 
-	      double factor, CVmap& cv){
+  string sstr = str;
+  size_t npos = 0;
+  while ((npos = sstr.find("$", npos)) != std::string::npos) {
+    sstr.replace(npos, 1, kstr);
+    npos += kstr.length();
+  }
+  return sstr;
+}
 
-    CVmap::const_iterator iter;
-    for(const auto &cd : mckM2){
-	Kstr ksM2 = cd.first;
-	double nksM2 = cd.second;
-	for(auto &c : ksM2.charSet){
-	    Kstr ksM1A = ksM2;
-	    ksM1A.append(c);
-	    iter = mckM1.find(ksM1A);
-	    if(iter != mckM1.end()){
-		double nksM1A = iter->second;
-
-		for(auto &d : ksM2.charSet){
-		    Kstr ksM1B = ksM2;
-		    ksM1B.addhead(d);
-		    iter = mckM1.find(ksM1B);
-		    if(iter != mckM1.end()){
-			double nksM1B = iter->second;
-			double nks0 = factor * nksM1B*nksM1A/nksM2;
-
-			Kstr ks = ksM1B;
-			ks.append(c);
-			iter = mck.find(ks);
-			double nks = 0;
-			if(iter != mck.end())
-			    nks = iter->second;
-			cv[ks] = (nks - nks0)/nks0;
-		    }
-		}
-	    }
-	}
-    }
-    
-};
-
-bool bySecond(const pair<string,long>& a, const pair<string,long>& b){
-    return a.second > b.second;
-};
-
+void mkpath(const string &nm) {
+  size_t npos = 0;
+  while ((npos = nm.find("/", npos)) != std::string::npos) {
+    string dir = nm.substr(0, npos);
+    mkdir(dir.c_str(), 0755);
+    npos++;
+  }
+}
