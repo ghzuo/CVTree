@@ -1,3 +1,15 @@
+/*
+ * Copyright (c) 2018  T-Life Research Center, Fudan University, Shanghai, China.
+ * See the accompanying Manual for the contributors and the way to cite this work.
+ * Comments and suggestions welcome. Please contact
+ * Dr. Guanghong Zuo <ghzuo@fudan.edu.cn>
+ * 
+ * @Author: Dr. Guanghong Zuo
+ * @Date: 2017-03-17 15:39:23
+ * @Last Modified By: Dr. Guanghong Zuo
+ * @Last Modified Time: 2018-07-26 22:01:05
+ */
+
 #ifndef KSTRING_H
 #define KSTRING_H
 
@@ -9,12 +21,14 @@
 #include <list>
 #include <vector>
 #include <algorithm>
-#include <math.h> 
+#include <iterator>
+#include <cmath>
 #include <zlib.h>
 #include <unordered_map>
 
-#include "global.h"
 #include "readgenome.h"
+
+typedef unsigned long mlong;
 
 struct Kstr{
     static vector<char> charSet;
@@ -60,14 +74,40 @@ typedef pair<Kstr,double> CVdim;
 typedef unordered_map<Kstr,double,Kstr_Hash> CVmap;
 typedef vector<CVdim> CVvec;
 
-void writecv(const CVmap&, const string&);
-void writecv(const CVvec&, const string&);
-double readcv(const string&, CVvec&);
-size_t cvsize(const string&);
-
 double module(const CVvec&);
 void normalize(CVvec&);
-double dist(const CVvec&, const CVvec&);
+
+// CVblock: a segment of the CVvec
+typedef CVvec::const_iterator CViter;
+struct CVblock{
+    CViter begin, end;
+
+    CVblock(const CViter& a, const CViter& b);
+    
+    bool empty()  const;
+    CViter last() const;
+    CViter mid() const;
+    CViter getLower(const CViter&) const;
+    CViter getUpper(const CViter&) const;
+    int length() const;
+
+    bool pop();
+    bool resetBegin(CViter&);
+    bool resetEnd(CViter&);
+};
+
+bool fitBoundary(CVblock&, CVblock&);
+bool fitBegin(CVblock&, CVblock&);
+bool fitEnd(CVblock&, CVblock&);
+double align(CVblock&, CVblock&);
+double shrink(CVblock&, CVblock&);
+double binaryAlign(CVblock&, CVblock&);
+void _binaryAlign(CVblock&, CVblock&, double& d);
+
+void writecv(const CVmap&, const string&);
+void writecv(const CVvec&, const string&);
+double readcv(const string&, CVvec&, bool normalize=true);
+size_t cvsize(const string&);
 
 void readvk(const string&, vector<Kstr>&);
 void writevk(const string&, const vector<Kstr>&);

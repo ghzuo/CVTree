@@ -8,13 +8,15 @@ preferably whole-genome data, for phylogenetic studies.
 Please visit our webserve of CVTree, where you can use the cvtree tools 
 more convenient.  The CVTree3 Web Server have two identical but independent 
 installations at http://cvtree.big.ac.cn (Beijing Institute of Genomics, Beijing) 
-and http://tlife.fudan.edu.cn/cvtree3 (Fudan University, Shanghai).
+and http://tlife.fudan.edu.cn/cvtree (Fudan University, Shanghai).
 
 #### Main Programs
+* cvtree: the main program, it get the phylogeny tree based from the fasta file of genomes.
 * cv:  Get the composition vector based on the fasta file of the genome.
-* tree:  Get the phylogeny tree based on the composition vectors and
-  neighbor-joint method.
 * cvdump: Show composition vector
+* dist: Get the distance matrix based on the compostion vector
+* getdist: Show select distances from the distamce matrix
+* nj: Get the phylogeny tree from the distance matrix by neighbor-joint method.
 
 ## Installation
 
@@ -27,14 +29,14 @@ and http://tlife.fudan.edu.cn/cvtree3 (Fudan University, Shanghai).
 #### Compiling
 1. unzip the package file and change into it
 2. mkdir build and change into it
-3. cmake ../src or add some options you wanted
+3. cmake .. or add some options you wanted
 4. make
 5. make install
 
 ## Run Programs with Example
 If this is the first time you use CVTree package, please go to the
-"example" folder. Edit script "runCVTree.sh" and "list" to set your 
-project and test software.
+"example" folder. Edit "list" to include the genome names, and run 
+the cvtree command to get the phylogeny tree by: `../build/cvtree -G faa`
 
 ## Reference
 * Ji Qi, Bin Wang, Bailin Hao (2004) Whole proteome prokaryote phylogeny

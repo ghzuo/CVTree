@@ -1,3 +1,15 @@
+/*
+ * Copyright (c) 2018  T-Life Research Center, Fudan University, Shanghai, China.
+ * See the accompanying Manual for the contributors and the way to cite this work.
+ * Comments and suggestions welcome. Please contact
+ * Dr. Guanghong Zuo <ghzuo@fudan.edu.cn>
+ * 
+ * @Author: Dr. Guanghong Zuo
+ * @Date: 2016-04-19 11:37:42
+ * @Last Modified By: Dr. Guanghong Zuo
+ * @Last Modified Time: 2018-07-26 22:02:50
+ */
+
 #ifndef READGENOME_H
 #define READGENOME_H
 
@@ -8,7 +20,6 @@
 #include <cctype>
 #include <iomanip>
 
-#include "global.h"
 #include "stringOpt.h"
 using namespace std;
 
@@ -19,8 +30,10 @@ struct GeneType{
     char mc[128];
     vector<char> letters;
     
+    GeneType() = default;
     GeneType(const string&);
 
+    void init(const string&);
     void aainit();
     void nainit();
 

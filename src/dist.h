@@ -1,46 +1,32 @@
+/*
+ * Copyright (c) 2018  T-Life Research Center, Fudan University, Shanghai,
+ * China. See the accompanying Manual for the contributors and the way to cite
+ * this work. Comments and suggestions welcome. Please contact Dr. Guanghong Zuo
+ * <ghzuo@fudan.edu.cn>
+ *
+ * @Author: Dr. Guanghong Zuo
+ * @Date: 2017-03-08 20:30:43
+ * @Last Modified By: Dr. Guanghong Zuo
+ * @Last Modified Time: 2018-07-26 21:55:04
+ */
+
 #ifndef DIST_H
 #define DIST_H
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <iomanip>
-#include <string>
-#include <vector>
-#include <set>
-#include <regex>
-#include <unordered_map>
-
-#include "stringOpt.h"
-#include "global.h"
-#include "distmatrix.h"
-#include "memory.h"
-
-// select the Kstr class
-#include "kstring.h"
-
+#include "distance.h"
+#include "info.h"
 using namespace std;
 
 // read arguments
-struct Args{
-    string program, outfile, mtxfile, extdir, orgdir;
-    vector<string> suflist, extlist, orglist;
-    vector<size_t> orgIndex;
-    unordered_map<string,string> taxmap;
-    bool outtax, netcdf;
-    float memorySize;
-    
-    Args(int, char**);
-    void usage();
+struct Args {
+  string program, outfile, suffix, refdm;
+  vector<string> glist;
+  bool netcdf;
+  float maxM, memorySize;
+  Method *method;
+
+  Args(int, char **);
+  void usage();
 };
 
-struct IterStep{
-    size_t first, second;
-    float size;
-
-    IterStep();
-    IterStep(size_t ibeg):first(ibeg),second(ibeg),size(0.0){};
-};
-
-void checkCVsize(const Args&, size_t, vector<IterStep>&);
 #endif

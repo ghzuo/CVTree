@@ -1,66 +1,117 @@
+/*
+ * Copyright (c) 2018  T-Life Research Center, Fudan University, Shanghai,
+ * China. See the accompanying Manual for the contributors and the way to cite
+ * this work. Comments and suggestions welcome. Please contact Dr. Guanghong Zuo
+ * <ghzuo@fudan.edu.cn>
+ *
+ * @Author: Dr. Guanghong Zuo
+ * @Date: 2017-11-15 20:20:23
+ * @Last Modified By: Dr. Guanghong Zuo
+ * @Last Modified Time: 2018-04-26 19:47:16
+ */
+
 #ifndef STRINGOPT_H
 #define STRINGOPT_H
 
-#include <fstream>
-#include <string>
-#include <vector>
 #include <cctype>
-#include <string>
-#include <iostream>
-#include <sstream>
-#include <sys/stat.h>
 #include <chrono>
+#include <fstream>
+#include <iostream>
+#include <set>
+#include <sstream>
+#include <string>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <vector>
 
 using namespace std;
 
-string Ltrim(const string&);
-string Rtrim(const string&);
-string trim(const string&);
+string Ltrim(const string &);
+string Rtrim(const string &);
+string trim(const string &);
 
-int separateWord(vector<string>&, string);
+int separateWord(vector<string> &, string, const string& sep = " ,");
 
-void addsuffix(string&, char);
-string chgsuffix(const string&, const string&);
-string getsuffix(const string& nm);
+void addsuffix(string &, char);
+string chgsuffix(const string &, const string &);
+string getsuffix(const string &);
+string delsuffix(const string &);
 
-string toUpper(const string&);
-string toLower(const string&);
+string toUpper(const string &);
+string toLower(const string &);
 
-int str2int(const string&);
-float  str2float(const string&);
-double str2double(const string& str);
+int str2int(const string &);
+float str2float(const string &);
+double str2double(const string &str);
 
-template <class T> 
-void str2number(const string& str, T& v){
-   istringstream iss(str);
-   iss >> v;
+template <class T> void str2number(const string &str, T &v) {
+  istringstream iss(str);
+  iss >> v;
 };
 
-long getFileSize(const string&);
-template <class T> 
-void readlist(const string& file, vector<T>& list){
-    ifstream infile(file.c_str());
-    if(!infile){
-        cerr << "\nCannot found the input file "
-             << file << endl;
-        exit(1);
+long getFileSize(const string &);
+
+bool fileExists(const string &);
+
+// template <typename T>
+// bool isValid(const string& str){
+//    bool res = true;
+//    try{
+//       T tmp = boost::lexical_cast<T>(trim(str));
+//    }
+//    catch(boost::bad_lexical_cast &e){
+//       res = false;
+//    }
+//    return res;
+// };
+
+template <class T> void readlist(const string &file, vector<T> &list) {
+  ifstream infile(file.c_str());
+  if (!infile) {
+    cerr << "\nCannot found the input file " << file << endl;
+    exit(1);
+  }
+
+  T item;
+  while (infile >> item)
+    list.push_back(item);
+  infile.close();
+};
+
+template <class T> void uniqueWithOrder(vector<T> &list) {
+  vector<T> tmpVector;
+  set<T> tmpSet;
+  for (auto item : list) {
+    if (tmpSet.insert(item).second) {
+      tmpVector.emplace_back(item);
     }
-
-    T item;
-    while(infile >> item) 
-	list.push_back(item);
-    infile.close();
+  }
+  tmpVector.shrink_to_fit();
+  list.swap(tmpVector);
 };
 
-struct Timer{
-    std::chrono::system_clock::time_point start;
+template <class T, class A>
+string strjoin(const A &begin, const A &end, const T &t) {
+  ostringstream buf;
+  A iter = begin;
+  buf << *iter;
+  for (++iter; iter != end; iter++) {
+    buf << t;
+    buf << *iter;
+  }
 
-    Timer():start(std::chrono::system_clock::now()){};
+  return buf.str();
+}
 
-    double elapsed(){
-        auto now = std::chrono::system_clock::now();
-        return std::chrono::duration_cast<std::chrono::seconds>(now - start).count();
-    };
+struct Timer {
+  std::chrono::system_clock::time_point start;
+
+  Timer() : start(std::chrono::system_clock::now()){};
+
+  double elapsed() {
+    auto now = std::chrono::system_clock::now();
+    return std::chrono::duration_cast<std::chrono::seconds>(now - start)
+        .count();
+  };
 };
-
 #endif
