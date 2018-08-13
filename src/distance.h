@@ -48,7 +48,7 @@ struct CVitem {
   void fill() { readcv(fname, cv); };
   void clear() { cv.clear(); };
 
-  bool operator<(const CVitem& it){
+  bool operator<(const CVitem& it) const{
     return it.nNAN < nNAN;
   }
 };
