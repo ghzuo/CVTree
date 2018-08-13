@@ -38,6 +38,9 @@ If this is the first time you use CVTree package, please go to the
 "example" folder. Edit "list" to include the genome names, and run 
 the cvtree command to get the phylogeny tree by: `../build/cvtree -G faa`
 
+## Todo
+The docuemt of the software.
+
 ## Reference
 * Ji Qi, Bin Wang, Bailin Hao (2004) Whole proteome prokaryote phylogeny
   without sequence alignment: a K-string composition approach, J Mol
