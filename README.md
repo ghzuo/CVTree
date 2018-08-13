@@ -31,7 +31,8 @@ and http://tlife.fudan.edu.cn/cvtree (Fudan University, Shanghai).
 2. mkdir build and change into it
 3. cmake .. or add some options you wanted
 4. make
-5. make install
+5. make manual
+6. make install
 
 ## Run Programs with Example
 If this is the first time you use CVTree package, please go to the

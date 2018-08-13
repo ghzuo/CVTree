@@ -10,8 +10,8 @@
 # @Last Modified Time: 2018-04-26 19:50:44
 ###
 
-cmake_minimum_required (VERSION 2.6)
-project (CVTreePlus)
+cmake_minimum_required(VERSION 2.8.4)
+project (CVTree)
 
 ## For Compile
 ##########################################################
@@ -33,5 +33,7 @@ LINK_DIRECTORIES(${LIBRARY_OUTPUT_PATH} "/usr/local/lib")
 LINK_LIBRARIES(z netcdf netcdf_c++)
 
 ADD_SUBDIRECTORY(src)
+ADD_SUBDIRECTORY(manual)
+
 
 
