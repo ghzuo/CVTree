@@ -12,11 +12,13 @@ and http://tlife.fudan.edu.cn/cvtree (Fudan University, Shanghai).
 
 #### Main Programs
 * cvtree: the main program, it get the phylogeny tree based from the fasta file of genomes.
-* cv:  Get the composition vector based on the fasta file of the genome.
-* cvdump: Show composition vector
-* dist: Get the distance matrix based on the compostion vector
+* g2dv:  Get the composition vector based on the fasta file of the genome.
+* cv2dm: Get the distance matrix based on the compostion vector
+* dm2tree: Get the phylogeny tree from the distance matrix by neighbor-joint method.
 * getdist: Show select distances from the distamce matrix
-* nj: Get the phylogeny tree from the distance matrix by neighbor-joint method.
+* cvdump: Show composition vector
+* diffmtx: compare two distance matrixes
+
 
 ## Installation
 
@@ -40,7 +42,7 @@ If this is the first time you use CVTree package, please go to the
 the cvtree command to get the phylogeny tree by: `../build/cvtree -G faa`
 
 ## Todo
-The docuemt of the software.
+* The docuemt of the software.
 
 ## Reference
 * Ji Qi, Bin Wang, Bailin Hao (2004) Whole proteome prokaryote phylogeny
