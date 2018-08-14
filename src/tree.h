@@ -75,6 +75,7 @@ struct Node {
   void _getStr(istream &, string &);
   void _getKeyValue(string &, string &);
   void injson(istream &);
+  void injson(const string&);
   void outjson(ostream &);
   void outjsonAbbr(ostream &);
 

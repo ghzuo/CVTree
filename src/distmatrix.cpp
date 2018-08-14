@@ -470,6 +470,10 @@ string Mdist::getname(size_t i) const { return name[i]; };
 
 void Mdist::setname(size_t i, const string &str) { name[i] = str; };
 
+vector<string> Mdist::getNameList() const{
+   return name;
+};
+
 // format the genome name
 void Mdist::cleanName() {
   for (int i = 0; i < ng; ++i) {
@@ -503,6 +507,7 @@ void Mdist::assignDM(const Mdist &dm, vector<size_t> &hit) {
     }
   }
 };
+
 
 // assign distance by other distance matrix
 void Mdist::assignDM(const Mdist &dm) {
@@ -538,3 +543,4 @@ size_t Mdist::msize() const { return ng * (ng - 1) / 2; };
 size_t Mdist::capacity() const {
   return dist.capacity() * sizeof(double) + sizeof(ng);
 };
+

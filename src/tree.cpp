@@ -252,6 +252,15 @@ void Node::getDefineLeafs(vector<Node *> &nodes) {
   }
 };
 
+void Node::injson(const string& file){
+   ifstream ijson(file.c_str());
+   if(! ijson){
+      cerr << " Cannot found the input file " << file << endl;
+      exit(4);
+   }
+   injson(ijson);
+}
+
 void Node::injson(istream &is) {
   is.get();
   _injson(is);

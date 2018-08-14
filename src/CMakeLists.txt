@@ -39,6 +39,8 @@ SET(DIST_SRC ${CVTREEHEADS}
 SET(GETDIST_SRC ${CVTREEHEADS}
   getdist.cpp)
 
+SET(DIFFMTX_SRC ${CVTREEHEADS} diffMatrix.cpp)
+
 SET(NJ_SRC ${CVTREEHEADS}
   neighbor.h neighbor.cpp)
 
@@ -59,11 +61,14 @@ TARGET_LINK_LIBRARIES(cv2dm cvtr)
 ADD_EXECUTABLE(getdist ${GETDIST_SRC})
 TARGET_LINK_LIBRARIES(getdist cvtr)
 
+ADD_EXECUTABLE(diffmtx ${DIFFMTX_SRC})
+TARGET_LINK_LIBRARIES(diffmtx cvtr)
+
 ADD_EXECUTABLE(dm2tree ${NJ_SRC})
 TARGET_LINK_LIBRARIES(dm2tree cvtr)
 
 ADD_EXECUTABLE(cvtree ${CVTREE_SRC})
 TARGET_LINK_LIBRARIES(cvtree cvtr)
 
-INSTALL(TARGETS g2cv cvdump cv2dm getdist dm2tree cvtree
+INSTALL(TARGETS g2cv cvdump cv2dm getdist diffmtx dm2tree cvtree
    RUNTIME DESTINATION bin)

@@ -84,6 +84,7 @@ public:
   double getdist(size_t, size_t) const;
   string getname(size_t) const;
   pair<size_t, size_t> getIndex(size_t) const;
+  vector<string> getNameList() const;
   void setdist(size_t, size_t, double);
   void setname(size_t, const string &);
 
