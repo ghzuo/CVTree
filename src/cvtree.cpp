@@ -84,6 +84,12 @@ int main(int argc, char *argv[]) {
     dm.writemtx(fname, myargs.netcdf);
   }
 
+// check the genome number bigger than 3
+  if(myargs.glist.size() < 3){
+      theInfo.output("There are only " + to_string(myargs.glist.size()) + " genomes, no tree will output");
+      exit(2);
+  }
+
 // get the nwk tree
 #pragma omp parallel for ordered
   for (size_t i = 0; i < dms.size(); ++i) {
