@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
 
       // check the memory and divided steps
       IterStep theStep(dm, cvfile);
-      theStep.checkSize(myargs.maxM);
+      theStep.checkSize(myargs.maxM, dm);
       theStep.execute(dm, myargs.method);
     } while (dm.hasNAN());
     theInfo.output("End the distance calculate");

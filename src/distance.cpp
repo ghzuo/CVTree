@@ -25,9 +25,8 @@ IterStep::IterStep(const Mdist &dm, const vector<string> &flist) : size(0.0) {
       cvlist.emplace_back(it);
     }
   }
-  sort(cvlist.begin(), cvlist.end());
-  npos = cvlist.size();
 
+  // set the file name
   for (auto &it : cvlist) {
     it.fname = flist[it.ndx];
   }
@@ -35,23 +34,36 @@ IterStep::IterStep(const Mdist &dm, const vector<string> &flist) : size(0.0) {
   ++ndx;
 };
 
-void IterStep::checkSize(float maxM) {
-  npos = 0;
-  for (; npos < cvlist.size(); ++npos) {
-    size += cvsize(cvlist[npos].fname);
-    if (size > maxM) {
-      ++npos;
-      break;
+void IterStep::checkSize(float maxM, const Mdist &dm) {
+
+  // sort by the number of NAN
+  sort(cvlist.begin(), cvlist.end());
+
+  for (size_t i = 0; i < cvlist.size(); ++i) {
+    if (size < maxM) {
+      size_t j = i + 1;
+      for (; j < cvlist.size(); ++j) {
+        if (dm.isNAN(cvlist[i].ndx, cvlist[j].ndx)) {
+          size += cvsize(cvlist[i].fname);
+          introBlock.emplace_back(&cvlist[i]);
+          break;
+        }
+      }
+      if (j == cvlist.size()) {
+        interBlock.emplace_back(&cvlist[i]);
+      }
+    } else {
+      interBlock.emplace_back(&cvlist[i]);
     }
   }
 }
 
-size_t IterStep::length() const { return npos; };
+size_t IterStep::length() const { return introBlock.size(); };
 
 void IterStep::fillBlock() {
 #pragma omp parallel for
-  for (auto i = 0; i < npos; ++i) {
-    cvlist[i].fill();
+  for (auto i = 0; i < introBlock.size(); ++i) {
+    introBlock[i]->fill();
   }
   return;
 };
@@ -61,12 +73,12 @@ void IterStep::calcInDist(Mdist &dm, Method *meth) {
 #pragma omp parallel
 #pragma omp single
   {
-    for (auto i = 0; i < npos; ++i) {
-      for (auto j = i + 1; j < npos; ++j) {
+    for (auto i = 0; i < introBlock.size(); ++i) {
+      for (auto j = i + 1; j < introBlock.size(); ++j) {
 #pragma omp task
-        if (dm.isNAN(cvlist[i].ndx, cvlist[j].ndx)) {
-          dm.setdist(cvlist[i].ndx, cvlist[j].ndx,
-                     meth->dist(cvlist[i].cv, cvlist[j].cv));
+        if (dm.isNAN(introBlock[i]->ndx, introBlock[j]->ndx)) {
+          dm.setdist(introBlock[i]->ndx, introBlock[j]->ndx,
+                     meth->dist(introBlock[i]->cv, introBlock[j]->cv));
         }
       }
     }
@@ -75,20 +87,20 @@ void IterStep::calcInDist(Mdist &dm, Method *meth) {
 };
 
 void IterStep::calcOutDist(Mdist &dm, Method *meth) {
-// for the intro-distances between the genomes
-#pragma omp parallel for
-  for (auto i = npos; i < cvlist.size(); ++i) {
+  // for the intro-distances between the genomes
+  for (auto i = 0; i < interBlock.size(); ++i) {
     // read an orginal cv
-    cvlist[i].fill();
+    interBlock[i]->fill();
 
-    // obtain the distances between the genome and the extend genomes
-    for (auto j = 0; j < npos; ++j) {
-      if (dm.isNAN(cvlist[i].ndx, cvlist[j].ndx)) {
-        dm.setdist(cvlist[i].ndx, cvlist[j].ndx,
-                   meth->dist(cvlist[i].cv, cvlist[j].cv));
+// obtain the distances between the genome and the extend genomes
+#pragma omp parallel for
+    for (auto j = 0; j < introBlock.size(); ++j) {
+      if (dm.isNAN(interBlock[i]->ndx, introBlock[j]->ndx)) {
+        dm.setdist(interBlock[i]->ndx, introBlock[j]->ndx,
+                   meth->dist(interBlock[i]->cv, introBlock[j]->cv));
       }
     }
-    cvlist[i].clear();
+    interBlock[i]->clear();
   }
   return;
 };
@@ -106,7 +118,7 @@ void IterStep::execute(Mdist &dm, Method *meth) {
   theInfo.output("Complete calculate of intro-block");
 
   // calculate the outer distances
-  if (npos < cvlist.size()) {
+  if (!interBlock.empty()) {
     calcOutDist(dm, meth);
     theInfo.output("Complete calculate of inter-block", -1);
   } else {
@@ -137,7 +149,8 @@ void assignDM(const string &refdm, bool netcdf, Mdist &dm) {
 
 string IterStep::info() {
   string str = "Start the calculate block " + to_string(ndx);
-  str += "\n" + to_string(npos) + " CVs will be loaded, which size is " +
-         to_string(size / 1073741824) + "G";
+  str += "\n" + to_string(introBlock.size()) +
+         " CVs will be loaded, which size is " + to_string(size / 1073741824) +
+         "G";
   return str;
 }

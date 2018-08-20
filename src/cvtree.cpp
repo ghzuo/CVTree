@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
       do {
         // check the memory and divided steps
         IterStep theStep(dm, cvfile);
-        theStep.checkSize(myargs.maxM);
+        theStep.checkSize(myargs.maxM, dm);
 
         // execute the calculate
         theStep.execute(dm, myargs.method);

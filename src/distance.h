@@ -26,10 +26,10 @@
 #include <vector>
 
 #include "distmatrix.h"
+#include "info.h"
 #include "memory.h"
 #include "method.h"
 #include "stringOpt.h"
-#include "info.h"
 
 // select the Kstr class
 #include "kstring.h"
@@ -48,9 +48,7 @@ struct CVitem {
   void fill() { readcv(fname, cv); };
   void clear() { cv.clear(); };
 
-  bool operator<(const CVitem& it) const {
-    return it.nNAN < nNAN;
-  }
+  bool operator<(const CVitem &it) const { return it.nNAN < nNAN; }
 };
 
 struct IterStep {
@@ -58,14 +56,15 @@ struct IterStep {
   static void reIndex();
 
   vector<CVitem> cvlist;
-  size_t npos;
+  vector<CVitem *> introBlock;
+  vector<CVitem *> interBlock;
   float size;
 
-  IterStep(const Mdist&, const vector<string>&);
-  void checkSize(float);
+  IterStep(const Mdist &, const vector<string> &);
+  void checkSize(float, const Mdist &);
 
   size_t length() const;
-  void fillBlock();  //TODO: mergin the readcv into calcInDist function
+  void fillBlock(); // TODO: mergin the readcv into calcInDist function
   void calcInDist(Mdist &, Method *);
   void calcOutDist(Mdist &, Method *);
   void execute(Mdist &, Method *);
