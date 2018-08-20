@@ -87,13 +87,13 @@ void IterStep::calcInDist(Mdist &dm, Method *meth) {
 };
 
 void IterStep::calcOutDist(Mdist &dm, Method *meth) {
-  // for the intro-distances between the genomes
+// for the intro-distances between the genomes
+#pragma omp parallel for
   for (auto i = 0; i < interBlock.size(); ++i) {
     // read an orginal cv
     interBlock[i]->fill();
 
-// obtain the distances between the genome and the extend genomes
-#pragma omp parallel for
+    // obtain the distances between the genome and the extend genomes
     for (auto j = 0; j < introBlock.size(); ++j) {
       if (dm.isNAN(interBlock[i]->ndx, introBlock[j]->ndx)) {
         dm.setdist(interBlock[i]->ndx, introBlock[j]->ndx,
