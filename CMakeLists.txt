@@ -35,7 +35,6 @@ LINK_LIBRARIES(z netcdf netcdf_c++)
 
 ## include subdirectories
 ADD_SUBDIRECTORY(src)
-ADD_SUBDIRECTORY(manual)
 
 ## for the latex manual
 find_package(LATEX)

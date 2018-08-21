@@ -46,7 +46,7 @@ struct CVitem {
   CVitem() = default;
   CVitem(size_t i, size_t n) : ndx(i), nNAN(n){};
   void fill() { readcv(fname, cv); };
-  void clear() { cv.clear(); };
+  void clear() { CVvec().swap(cv); };
 
   bool operator<(const CVitem &it) const { return it.nNAN < nNAN; }
 };
