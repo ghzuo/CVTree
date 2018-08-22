@@ -47,6 +47,9 @@ SET(NJ_SRC ${CVTREEHEADS}
 SET(CVTREE_SRC ${CVTREEHEADS}
   cvtree.h cvtree.cpp)
 
+SET(MKDB_SRC ${CVTREEHEADS}
+  mkdb.h mkdb.cpp)
+
 ADD_LIBRARY(cvtr STATIC ${LIBCVTREE_SRC})
 
 ADD_EXECUTABLE(g2cv ${CV_SRC})
@@ -70,5 +73,8 @@ TARGET_LINK_LIBRARIES(dm2tree cvtr)
 ADD_EXECUTABLE(cvtree ${CVTREE_SRC})
 TARGET_LINK_LIBRARIES(cvtree cvtr)
 
-INSTALL(TARGETS g2cv cvdump cv2dm getdist diffmtx dm2tree cvtree
+ADD_EXECUTABLE(mkdb ${MKDB_SRC})
+TARGET_LINK_LIBRARIES(mkdb cvtr)
+
+INSTALL(TARGETS g2cv cvdump cv2dm getdist diffmtx dm2tree cvtree mkdb
    RUNTIME DESTINATION bin)
