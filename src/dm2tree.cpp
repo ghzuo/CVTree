@@ -10,7 +10,7 @@
  * @Last Modified Time: 2018-07-26 21:57:25
  */
 
-#include "neighbor.h"
+#include "dm2tree.h"
 Info theInfo;
 
 int main(int argc, char *argv[]) {

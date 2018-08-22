@@ -13,28 +13,29 @@
 #ifndef CVTREE_H
 #define CVTREE_H
 
-#include "distance.h"
-#include "neighborJoint.h"
+#include "cvmeth.h"
+#include "distmeth.h"
 #include "info.h"
+#include "neighborJoint.h"
 using namespace std;
 
 // read arguments
-
-
 struct Args {
   string program, dmName, treeName;
   string refdm;
   vector<string> glist;
   vector<size_t> klist;
   bool netcdf;
-  float maxM, memorySize;
-  Method *method;
+  float memorySize;
+
+  CVmeth *cmeth;
+  DistMeth *dmeth;
 
   Args(int, char **);
   void usage();
 };
 
 string nameWithK(const string &, size_t);
-void mkpath(const string&);
+void mkpath(const string &);
 
 #endif

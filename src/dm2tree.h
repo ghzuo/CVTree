@@ -10,8 +10,8 @@
  * @Last Modified Time: 2018-07-26 21:52:05
  */
 
-#ifndef NEIGHBOR_H
-#define NEIGHBOR_H
+#ifndef DM2TREE_H
+#define DM2TREE_H
 
 #include <fstream>
 #include <iomanip>

@@ -10,16 +10,16 @@
  * @Last Modified Time: 2018-07-19 23:17:49
  */
 
-#ifndef CV_H
-#define CV_H
+#ifndef G2CV_H
+#define G2CV_H
 
-#include "method.h"
+#include "cvmeth.h"
 #include "info.h"
 struct Args {
   string program;
   vector<string> flist;
   vector<size_t> klist;
-  Method* meth;
+  CVmeth* meth;
 
   Args(int, char **);
   void usage();

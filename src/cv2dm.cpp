@@ -10,7 +10,7 @@
  * @Last Modified Time: 2018-07-16 19:50:27
  */
 
-#include "dist.h"
+#include "cv2dm.h"
 Info theInfo;
 
 int main(int argc, char *argv[]) {
@@ -22,23 +22,20 @@ int main(int argc, char *argv[]) {
   dm.init(myargs.glist);
 
   // assign the dm by reference DMs
-  assignDM(myargs.refdm, myargs.netcdf, dm);
+  dm.assign(myargs.refdm, myargs.netcdf);
   theInfo.output(dm.info());
 
   if (dm.hasNAN()) {
     theInfo.output("Start distance calculate");
 
-    do {
-      // set the cvfile name
-      vector<string> cvfile(myargs.glist);
-      for (auto &str : cvfile)
-        str += myargs.suffix + ".gz";
+    // set the cvfile name
+    vector<string> cvfile(myargs.glist);
+    for (auto &str : cvfile)
+      str += myargs.suffix + ".gz";
 
-      // check the memory and divided steps
-      IterStep theStep(dm, cvfile);
-      theStep.checkSize(myargs.maxM, dm);
-      theStep.execute(dm, myargs.method);
-    } while (dm.hasNAN());
+    // do the calculation of distance
+    myargs.meth->execute(cvfile, dm);
+
     theInfo.output("End the distance calculate");
   }
 
@@ -56,7 +53,7 @@ Args::Args(int argc, char **argv)
   program = argv[0];
   memorySize = getMemorySize() * 0.8;
   string listfile("list");
-  string methStr("Hao");
+  string methStr("Cosine");
   string cvdir("");
 
   char ch;
@@ -109,7 +106,17 @@ Args::Args(int argc, char **argv)
   }
 
   // set the method
-  method = Method::create(methStr);
+    // set the method
+  if (methStr == "Cosine") {
+    meth = new Cosine;
+  } else if (methStr == "InterSet") {
+    meth = new InterSet;
+  } else if (methStr == "InterList") {
+    meth = new InterList;
+  } else {
+    cerr << "Unknow Method: " << methStr << endl;
+    exit(3);
+  }
 
   // set the outfile name
   if (outfile.empty()) {
@@ -117,11 +124,7 @@ Args::Args(int argc, char **argv)
   }
 
   //... Get The limit of memory size for cv
-  float maxNameLen = 2048.0;
-  float giga = 1073741824.0;
-  size_t ng = glist.size();
-  float bs = maxNameLen * ng + ng * (ng + 1) * sizeof(double) / 2 + giga;
-  maxM = memorySize - bs;
+  meth->setMaxMem(memorySize, glist.size());
 }
 
 void Args::usage() {
@@ -137,7 +140,7 @@ void Args::usage() {
        << " [ -r <matrix> ]  Reference distance matrixs, splite with ','\n"
        << " [ -M <N> ]       Runing memory size as G roughly, \n"
        << "                  default 80% of physical memory\n"
-       << " [ -m Hao/InterList/InterSet] Method for cvtree, defaut: Hao\n"
+       << " [ -m Cosine/InterList/InterSet] Method for cvtree, defaut: Cosine\n"
        << " [ -C ]           Force use the netcdf compress distance matrix\n"
        << " [ -q ]           Run command in queit mode\n"
        << " [ -h ]           Disply this information\n"

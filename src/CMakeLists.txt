@@ -16,25 +16,25 @@ SET(CVTREEHEADS
   readgenome.h kstring.h
   stringOpt.h  memory.h
   distmatrix.h info.h
-  method.h neighborJoint.h
-  distance.h)
+  neighborJoint.h
+  distmeth.h cvmeth.h)
 
 SET(LIBCVTREE_SRC ${CVTREEHEADS}
   readgenome.cpp kstring.cpp
   stringOpt.cpp  memory.cpp
   distmatrix.cpp tree.cpp
-  info.cpp method.cpp
-  neighborJoint.cpp distance.cpp
+  info.cpp neighborJoint.cpp 
+  distmeth.cpp cvmeth.cpp
   )
 
 SET(CV_SRC ${CVTREEHEADS}
-  cv.h cv.cpp)
+  g2cv.h g2cv.cpp)
 
 SET(CVDUMP_SRC ${CVTREEHEADS}
   cvdump.cpp)
 
 SET(DIST_SRC ${CVTREEHEADS}
-  dist.h dist.cpp)
+  cv2dm.h cv2dm.cpp)
 
 SET(GETDIST_SRC ${CVTREEHEADS}
   getdist.cpp)
@@ -42,7 +42,7 @@ SET(GETDIST_SRC ${CVTREEHEADS}
 SET(DIFFMTX_SRC ${CVTREEHEADS} diffMatrix.cpp)
 
 SET(NJ_SRC ${CVTREEHEADS}
-  neighbor.h neighbor.cpp)
+  dm2tree.h dm2tree.cpp)
 
 SET(CVTREE_SRC ${CVTREEHEADS}
   cvtree.h cvtree.cpp)

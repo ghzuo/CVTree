@@ -10,7 +10,7 @@
  * @Last Modified Time: 2018-07-19 23:18:09
  */
 
-#include "cv.h"
+#include "g2cv.h"
 Info theInfo;
 
 int main(int argc, char *argv[]) {
@@ -18,9 +18,9 @@ int main(int argc, char *argv[]) {
   // set the argures
   Args myargs(argc, argv);
 
-#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for
   for (int i = 0; i < myargs.flist.size(); ++i) {
-    myargs.meth->getCV(myargs.flist[i], myargs.klist);
+    myargs.meth->execute(myargs.flist[i], myargs.klist);
   }
 };
 
@@ -28,26 +28,26 @@ Args::Args(int argc, char **argv) {
 
   program = argv[0];
   string listfile("list");
-  string listkval("3 4 5 6 7");
+  string listkval("5 6 7");
   string onefasta("");
   string gtype("faa");
-  string indir("");
-  string outdir("");
+  string gdir("");
+  string cvdir("");
   string methStr("Hao");
 
   char ch;
   while ((ch = getopt(argc, argv, "G:i:k:V:g:m:f:qh")) != -1) {
     switch (ch) {
     case 'G':
-      indir = optarg;
-      addsuffix(indir, '/');
+      gdir = optarg;
+      addsuffix(gdir, '/');
       break;
     case 'i':
       listfile = optarg;
       break;
     case 'V':
-      outdir = optarg;
-      addsuffix(outdir, '/');
+      cvdir = optarg;
+      addsuffix(cvdir, '/');
       break;
     case 'g':
       gtype = optarg;
@@ -78,8 +78,15 @@ Args::Args(int argc, char **argv) {
   }
 
   // set the method
-  meth = Method::create(methStr, gtype);
-  (*meth).setCVdir(outdir);
+  if (methStr == "Hao") {
+    meth = new HaoMethod;
+  } else if (methStr == "Count") {
+    meth = new Counting;
+  } else {
+    cerr << "Unknow Method: " << methStr << endl;
+    exit(3);
+  }
+  meth->init(cvdir, gtype);
 
   // get the kvalue
   vector<string> wd;
@@ -88,7 +95,7 @@ Args::Args(int argc, char **argv) {
     klist.emplace_back(stoul(str));
   sort(klist.begin(), klist.end());
   uniqueWithOrder(klist);
-  (*meth).checkK(klist);
+  meth->checkK(klist);
 
   // get the input file name
   if (onefasta.empty()) {
@@ -103,9 +110,9 @@ Args::Args(int argc, char **argv) {
       gname = delsuffix(gname);
   }
 
-  if (!indir.empty()) {
+  if (!gdir.empty()) {
     for (auto &gname : flist) {
-      gname = indir + gname;
+      gname = gdir + gname;
     }
   }
 };
@@ -113,15 +120,15 @@ Args::Args(int argc, char **argv) {
 void Args::usage() {
   cerr << "\nProgram Usage: \n\n"
        << program << "\n"
-       << " [ -G <dir> ]        input genome file directory\n"
-       << " [ -V <dir> ]        output cv directory\n"
-       << " [ -i list ]         input species list, defaut: list\n"
-       << " [ -f <Fasta> ]      get cv for only one fasta \n"
-       << " [ -k '3 4 5 6 7' ]  values of k, defaut: N = 3 4 5 6 7\n"
-       << " [ -g faa ]          the type of genome file, defaut: faa\n"
-       << " [ -m Hao/InterList/InterSet]  the method for cvtree, defaut: Hao\n"
-       << " [ -q ]              Run command in queit mode\n"
-       << " [ -h ]              disply this information\n"
+       << " [ -G <dir> ]      input genome file directory\n"
+       << " [ -V <dir> ]      output cv directory\n"
+       << " [ -i list ]       input species list, defaut: list\n"
+       << " [ -f <Fasta> ]    get cv for only one fasta \n"
+       << " [ -k '5 6 7' ]    values of k, defaut: K = 5 6 7\n"
+       << " [ -g faa ]        the type of genome file, defaut: faa\n"
+       << " [ -m Hao/Count ]  the method for cvtree, defaut: Hao\n"
+       << " [ -q ]            Run command in queit mode\n"
+       << " [ -h ]            disply this information\n"
        << endl;
 
   exit(1);

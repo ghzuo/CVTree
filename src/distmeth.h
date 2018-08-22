@@ -10,8 +10,8 @@
  * @Last Modified Time: 2018-07-31 15:49:27
  */
 
-#ifndef DISTANCE_H
-#define DISTANCE_H
+#ifndef DISTMETH_H
+#define DISTMETH_H
 
 #include <algorithm>
 #include <fstream>
@@ -25,14 +25,11 @@
 #include <unordered_map>
 #include <vector>
 
-#include "distmatrix.h"
 #include "info.h"
-#include "memory.h"
-#include "method.h"
-#include "stringOpt.h"
-
-// select the Kstr class
+#include "distmatrix.h"
 #include "kstring.h"
+#include "memory.h"
+#include "stringOpt.h"
 
 using namespace std;
 
@@ -40,36 +37,50 @@ using namespace std;
 struct CVitem {
   size_t ndx;
   string fname;
-  size_t nNAN;
   CVvec cv;
 
   CVitem() = default;
-  CVitem(size_t i, size_t n) : ndx(i), nNAN(n){};
+  CVitem(size_t i, const string& str) : ndx(i), fname(str){};
   void fill() { readcv(fname, cv); };
   void clear() { CVvec().swap(cv); };
-
-  bool operator<(const CVitem &it) const { return it.nNAN < nNAN; }
 };
 
-struct IterStep {
-  static size_t ndx;
-  static void reIndex();
-
+struct DistMeth {
   vector<CVitem> cvlist;
   vector<CVitem *> introBlock;
   vector<CVitem *> interBlock;
-  float size;
+  float maxM;
 
-  IterStep(const Mdist &, const vector<string> &);
-  void checkSize(float, const Mdist &);
+  void setMaxMem(float ms, int ng, int nk=1);
+  void init(const vector<string>&);
 
+  // divided task in steps
+  float setStep(const Mdist &);
+  string infoStep(int, float);
   size_t length() const;
+  void cleanStep();
+
+  // execute calculation
   void fillBlock(); // TODO: mergin the readcv into calcInDist function
-  void calcInDist(Mdist &, Method *);
-  void calcOutDist(Mdist &, Method *);
-  void execute(Mdist &, Method *);
-  string info();
+  void calcInDist(Mdist &);
+  void calcOutDist(Mdist &);
+  void execute(const vector<string>&, Mdist &);
+
+  // the virtual function for different methods
+  virtual double dist(const CVvec &, const CVvec &) = 0;
 };
 
-void assignDM(const string &, bool, Mdist &);
+// son class for different method
+struct Cosine : public DistMeth {
+  double dist(const CVvec &, const CVvec &) override;
+};
+
+struct InterSet : public DistMeth {
+  double dist(const CVvec &, const CVvec &) override;
+};
+
+struct InterList : public DistMeth {
+  double dist(const CVvec &, const CVvec &) override;
+};
+
 #endif

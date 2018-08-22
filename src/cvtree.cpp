@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
     dms[i].second.init(myargs.glist);
     if (!myargs.refdm.empty()) {
       string str = nameWithK(myargs.refdm, dms[i].first);
-      assignDM(str, myargs.netcdf, dms[i].second);
+      dms[i].second.assign(str, myargs.netcdf);
     }
 #pragma omp ordered
     theInfo.output(dms[i].second.info() + " for K=" + to_string(dms[i].first));
@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
     }
 
     // get the CVs
-    myargs.method->getCV(myargs.glist[i], klist);
+    myargs.cmeth->execute(myargs.glist[i], klist);
   }
   theInfo.output("All CVs are obtained");
 
@@ -56,24 +56,17 @@ int main(int argc, char *argv[]) {
     size_t k = dms[j].first;
 
     if (dm.hasNAN()) {
-      IterStep::reIndex();
+
       theInfo.output("Start calculate for K=" + to_string(k));
 
       // set the cvfile name
       vector<string> cvfile(myargs.glist);
       for (auto &str : cvfile) {
-        str = myargs.method->getCVname(str, k);
+        str = myargs.cmeth->getCVname(str, k);
       }
 
-      do {
-        // check the memory and divided steps
-        IterStep theStep(dm, cvfile);
-        theStep.checkSize(myargs.maxM, dm);
-
-        // execute the calculate
-        theStep.execute(dm, myargs.method);
-
-      } while (dm.hasNAN());
+      // do the calculation of distance
+      myargs.dmeth->execute(cvfile, dm);
 
       theInfo.output("End the calculate distance for K=" + to_string(k));
     }
@@ -124,7 +117,7 @@ Args::Args(int argc, char **argv) : treeName(""), dmName(""), netcdf(false) {
   string gtype("faa");
   string gdir("");
   string cvdir("cv/");
-  string listkval("3 4 5 6 7");
+  string listkval("5 6 7");
 
   char ch;
   while ((ch = getopt(argc, argv, "i:G:V:k:d:t:m:M:r:g:Cqh")) != -1) {
@@ -183,10 +176,22 @@ Args::Args(int argc, char **argv) : treeName(""), dmName(""), netcdf(false) {
   }
 
   // set the method
-  method = Method::create(methStr, gtype);
-  method->setCVdir(cvdir);
+  if (methStr == "Hao" || methStr == "CVTree") {
+    cmeth = new HaoMethod;
+    dmeth = new Cosine;
+  } else if (methStr == "Li" || methStr == "InterSet") {
+    cmeth = new Counting;
+    dmeth = new InterSet;
+  } else if (methStr == "Zuo" || methStr == "InterList") {
+    cmeth = new Counting;
+    dmeth = new InterList;
+  } else {
+    cerr << "Unknow Method: " << methStr << endl;
+    exit(3);
+  }
+  cmeth->init(cvdir, gtype);
 
-  // get the kvalue
+  // get the kvalue and check
   vector<string> wd;
   separateWord(wd, listkval);
   for (auto &str : wd)
@@ -194,7 +199,7 @@ Args::Args(int argc, char **argv) : treeName(""), dmName(""), netcdf(false) {
 
   sort(klist.begin(), klist.end());
   uniqueWithOrder(klist);
-  method->checkK(klist);
+  cmeth->checkK(klist);
 
   // get the input file name
   readlist(listfile, glist);
@@ -213,20 +218,17 @@ Args::Args(int argc, char **argv) : treeName(""), dmName(""), netcdf(false) {
 
   // set the output tree name format
   if (treeName.empty()) {
-    treeName = "tree/" + methStr + (*method).cvsuff + "$.nwk";
+    treeName = "tree/" + methStr + cmeth->cvsuff + "$.nwk";
   }
 
   // set the output dm name format
   if (dmName.empty()) {
-    dmName = "dm/" + methStr + (*method).cvsuff + "$.nc";
+    dmName = "dm/" + methStr + cmeth->cvsuff + "$.nc";
   }
 
-  //... Get The limit of memory size for cv
-  float maxNameLen = 2048.0;
-  float giga = 1073741824.0;
-  size_t ng = glist.size();
-  float bs = maxNameLen * ng + ng * (ng + 1) * sizeof(double) / 2 + giga;
-  maxM = memorySize - bs;
+  //... Get The limit of memory size
+  dmeth->setMaxMem(memorySize, glist.size(), klist.size());
+
 }
 
 void Args::usage() {
@@ -243,7 +245,7 @@ void Args::usage() {
        << " [ -V <cvdir> ]      Super directory of cv files\n"
        << " [ -i list ]         Genome list for distance matrix, defaut: "
           "list\n"
-       << " [ -k '3 4 5 6 7' ]  values of k, defaut: N = 3 4 5 6 7\n"
+       << " [ -k '5 6 7' ]      values of k, defaut: K = 5 6 7\n"
        << " [ -r <matrix> ]     Reference distance matrixs, splite with ','\n"
        << " [ -M <N> ]          Runing memory size as G roughly,\n"
        << "                     default 80% of physical memory\n"

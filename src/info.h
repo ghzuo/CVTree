@@ -12,9 +12,9 @@
 #ifndef INFO_H
 #define INFO_H
 
-#include "distance.h"
-using namespace std;
+#include "stringOpt.h"
 
+using namespace std;
 struct Info {
   bool info;
   int dep;

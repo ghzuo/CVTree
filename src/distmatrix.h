@@ -65,8 +65,9 @@ public:
 
   // get the distance from other distance matrix
   void cleanName();
-  void assignDM(const Mdist &, vector<size_t> &);
-  void assignDM(const Mdist &);
+  void assign(const Mdist &, vector<size_t> &);
+  void assign(const Mdist &);
+  void assign(const string&, bool);
 
   // check NAN distance
   int chkNAN(const vector<size_t> &, vector<pair<size_t, size_t>> &) const;

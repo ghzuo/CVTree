@@ -482,7 +482,7 @@ void Mdist::cleanName() {
 };
 
 // assign distance by other distance matrix
-void Mdist::assignDM(const Mdist &dm, vector<size_t> &hit) {
+void Mdist::assign(const Mdist &dm, vector<size_t> &hit) {
 
   // get the name-index map of the reference DM
   unordered_map<string, size_t> mapMI;
@@ -510,7 +510,7 @@ void Mdist::assignDM(const Mdist &dm, vector<size_t> &hit) {
 
 
 // assign distance by other distance matrix
-void Mdist::assignDM(const Mdist &dm) {
+void Mdist::assign(const Mdist &dm) {
 
   // get the name-index map of the reference DM
   unordered_map<string, size_t> mapMI;
@@ -534,6 +534,27 @@ void Mdist::assignDM(const Mdist &dm) {
     }
   }
 };
+
+// assign distance by alist of distance matrix
+void Mdist::assign(const string &refdm, bool netcdf) {
+  // assign distance by reference DM
+  vector<string> dmlist;
+  separateWord(dmlist, refdm);
+  for (auto &fnm : dmlist) {
+    Mdist xdm;
+    bool readxdm;
+#pragma omp critical
+    { readxdm = xdm.readmtx(fnm, netcdf); }
+    if (readxdm) {
+      xdm.cleanName();
+      assign(xdm);
+      if (!hasNAN())
+        return;
+    }
+  }
+};
+
+
 
 // global options
 size_t Mdist::size() const { return ng; };

@@ -10,10 +10,10 @@
  * @Last Modified Time: 2018-07-26 21:55:04
  */
 
-#ifndef DIST_H
-#define DIST_H
+#ifndef CV2DM_H
+#define CV2DM_H
 
-#include "distance.h"
+#include "distmeth.h"
 #include "info.h"
 using namespace std;
 
@@ -23,7 +23,7 @@ struct Args {
   vector<string> glist;
   bool netcdf;
   float maxM, memorySize;
-  Method *method;
+  DistMeth *meth;
 
   Args(int, char **);
   void usage();
