@@ -30,11 +30,11 @@ int main(int argc, char *argv[]) {
       dms[i].second.assign(str, myargs.netcdf);
     }
 #pragma omp ordered
-    theInfo.output(dms[i].second.info() + " for K=" + to_string(dms[i].first));
+    theInfo(dms[i].second.info() + " for K=" + to_string(dms[i].first));
   }
 
   // get the cvs for the NAN distances
-  theInfo.output("Start check and calculate CVs for " +
+  theInfo("Start check and calculate CVs for " +
                  to_string(myargs.glist.size()) + " Genomes");
 #pragma omp parallel for
   for (size_t i = 0; i < myargs.glist.size(); ++i) {
@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
     // get the CVs
     myargs.cmeth->execute(myargs.glist[i], klist);
   }
-  theInfo.output("All CVs are obtained");
+  theInfo("All CVs are obtained");
 
   // Calculate the NAN distance
   for (size_t j = 0; j < myargs.klist.size(); ++j) {
@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
 
     if (dm.hasNAN()) {
 
-      theInfo.output("Start calculate for K=" + to_string(k));
+      theInfo("Start calculate for K=" + to_string(k));
 
       // set the cvfile name
       vector<string> cvfile(myargs.glist);
@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
       // do the calculation of distance
       myargs.dmeth->execute(cvfile, dm);
 
-      theInfo.output("End the calculate distance for K=" + to_string(k));
+      theInfo("End the calculate distance for K=" + to_string(k));
     }
 
     // output the distance matrix
@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
 
 // check the genome number bigger than 3
   if(myargs.glist.size() < 3){
-      theInfo.output("There are only " + to_string(myargs.glist.size()) + " genomes, no tree will output");
+      theInfo("There are only " + to_string(myargs.glist.size()) + " genomes, no tree will output");
       exit(2);
   }
 
@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
     Node *aTree = neighborJoint(dms[i].second);
 
 #pragma omp ordered
-    theInfo.output("Get the Neighbor Joint tree for K=" +
+    theInfo("Get the Neighbor Joint tree for K=" +
                    to_string(dms[i].first));
 
     // output the Tree
@@ -157,7 +157,7 @@ Args::Args(int argc, char **argv) : treeName(""), dmName(""), netcdf(false) {
       netcdf = true;
       break;
     case 'q':
-      theInfo.info = false;
+      theInfo.quiet = true;
       break;
     case 'g':
       gtype = optarg;

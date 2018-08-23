@@ -23,10 +23,10 @@ int main(int argc, char *argv[]) {
 
   // assign the dm by reference DMs
   dm.assign(myargs.refdm, myargs.netcdf);
-  theInfo.output(dm.info());
+  theInfo(dm.info());
 
   if (dm.hasNAN()) {
-    theInfo.output("Start distance calculate");
+    theInfo("Start distance calculate");
 
     // set the cvfile name
     vector<string> cvfile(myargs.glist);
@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
     // do the calculation of distance
     myargs.meth->execute(cvfile, dm);
 
-    theInfo.output("End the distance calculate");
+    theInfo("End the distance calculate");
   }
 
   // output the distance matrix
@@ -88,7 +88,7 @@ Args::Args(int argc, char **argv)
       netcdf = true;
       break;
     case 'q':
-      theInfo.info = false;
+      theInfo.quiet = true;
       break;
     case 'h':
       usage();

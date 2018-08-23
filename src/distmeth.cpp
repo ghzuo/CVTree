@@ -125,28 +125,28 @@ void DistMeth::execute(const vector<string> &flist, Mdist &dm) {
 
   do {
     // check the memory and set steps
-    theInfo.output(infoStep(++ndx, setStep(dm)), 1);
+    theInfo(infoStep(++ndx, setStep(dm)), 1);
 
     // read the extend cv of the step
     fillBlock();
-    theInfo.output("Complete read CVs", 1);
+    theInfo("Complete read CVs", 1);
 
     // calculate the inner distances
     calcInDist(dm);
-    theInfo.output("Complete calculate of intro-block");
+    theInfo("Complete calculate of intro-block");
 
     // calculate the outer distances
     if (!interBlock.empty()) {
       calcOutDist(dm);
-      theInfo.output("Complete calculate of inter-block", -1);
+      theInfo("Complete calculate of inter-block", -1);
     } else {
-      theInfo.output("No inter-block calculate are required", -1);
+      theInfo("No inter-block calculate are required", -1);
     }
     // clean the cvs
     cleanStep();
 
     // output complete infomation
-    theInfo.output("Complete Distance Calculate of the Block", -1);
+    theInfo("Complete Distance Calculate of the Block", -1);
 
   } while (dm.hasNAN());
 }

@@ -16,14 +16,14 @@
 
 using namespace std;
 struct Info {
-  bool info;
+  bool quiet;
   int dep;
   Timer mytimer;
 
   Info();
   ~Info();
 
-  void output(const string&, int idep=0);
+  void operator()(const string&, int idep=0);
 };
 
 #endif

@@ -62,7 +62,7 @@ Args::Args(int argc, char **argv) {
       onefasta = optarg;
       break;
     case 'q':
-      theInfo.info = false;
+      theInfo.quiet = true;
       break;
     case 'h':
       usage();

@@ -64,7 +64,7 @@ Args::Args(int argc, char **argv)
       netcdf = true;
       break;
     case 'q':
-      theInfo.info = false;
+      theInfo.quiet = true;
       break;
     case 'h':
       usage();

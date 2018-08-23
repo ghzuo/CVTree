@@ -44,11 +44,8 @@ struct CVmeth {
   void setCVdir(const string &);
   void setg(const string &);
 
-  // two ways for cvdir
-  string (CVmeth::*getCVpref)(const string &);
-  string gcSameDir(const string &);
-  string gcDiffDir(const string &);
-  string getCVname(const string &, size_t);
+  // get the cvname for diffent cvdir
+  function<string(const string&, size_t)> getCVname;
 
   // from genome to cv
   void checkK(const vector<size_t> &);

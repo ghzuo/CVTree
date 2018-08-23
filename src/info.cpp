@@ -11,17 +11,17 @@
  */
 #include "info.h"
 
-Info::Info() : dep(0), info(true){};
+Info::Info() : dep(0), quiet(false){};
 
 Info::~Info() {
   //... destroy the lock
-  if (info)
+  if (! quiet)
     cerr << "*** Complete Program, Time Elapsed: " << mytimer.elapsed() << "s"
          << endl;
 }
 
-void Info::output(const string &str, int idep) {
-  if (info) {
+void Info::operator()(const string &str, int idep) {
+  if (! quiet) {
     if (idep > 0)
       dep += idep;
     string indent(dep * 4, ' ');

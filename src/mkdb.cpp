@@ -20,14 +20,14 @@ int main(int argc, char *argv[]) {
   Args myargs(argc, argv);
 
   // get the cvs for the NAN distances
-  theInfo.output("Start check and calculate CVs for " +
+  theInfo("Start check and calculate CVs for " +
                  to_string(myargs.glist.size()) + " Genomes");
 #pragma omp parallel for
   for (size_t i = 0; i < myargs.glist.size(); ++i) {
     // get the CVs
     myargs.cmeth->execute(myargs.glist[i], myargs.klist);
   }
-  theInfo.output("All CVs are obtained");
+  theInfo("All CVs are obtained");
 
   // init domains
   vector<pair<size_t, Mdist>> dms(myargs.klist.size());
@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
       dms[i].second.assign(str, myargs.netcdf);
     }
 #pragma omp ordered
-    theInfo.output(dms[i].second.info() + " for K=" + to_string(dms[i].first));
+    theInfo(dms[i].second.info() + " for K=" + to_string(dms[i].first));
   }
 
   // Calculate the NAN distance
@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
 
     if (dm.hasNAN()) {
 
-      theInfo.output("Start calculate for K=" + to_string(k));
+      theInfo("Start calculate for K=" + to_string(k));
 
       // set the cvfile name
       vector<string> cvfile(myargs.glist);
@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
       // do the calculation of distance
       myargs.dmeth->execute(cvfile, dm);
 
-      theInfo.output("End the calculate distance for K=" + to_string(k));
+      theInfo("End the calculate distance for K=" + to_string(k));
     }
 
     // output the distance matrix
@@ -122,7 +122,7 @@ Args::Args(int argc, char **argv) : dmName(""), netcdf(false) {
       netcdf = true;
       break;
     case 'q':
-      theInfo.info = false;
+      theInfo.quiet = true;
       break;
     case 'g':
       gtype = optarg;

@@ -36,25 +36,20 @@ void CVmeth::checkK(const vector<size_t> &klist) {
   }
 }
 
-string CVmeth::gcSameDir(const string &str) { return str + cvsuff; };
-
-string CVmeth::gcDiffDir(const string &str) {
-  return cvdir + str.substr(str.find_last_of('/') + 1) + cvsuff;
-};
-
 void CVmeth::setCVdir(const string &str) {
   cvdir = str;
   if (str.empty()) {
-    getCVpref = &CVmeth::gcSameDir;
+    getCVname = [this](const string &str, size_t k) {
+      return str + cvsuff + to_string(k) + ".gz";
+    };
   } else {
     mkdir(cvdir.c_str(), 0755);
-    getCVpref = &CVmeth::gcDiffDir;
+    getCVname = [this](const string &str, size_t k) {
+      return cvdir + str.substr(str.find_last_of('/') + 1) + cvsuff +
+             to_string(k) + ".gz";
+    };
   }
 }
-
-string CVmeth::getCVname(const string &gname, size_t k) {
-  return (this->*getCVpref)(gname) + to_string(k) + ".gz";
-};
 
 void CVmeth::execute(const string &gname, const vector<size_t> &klist,
                      bool check) {
@@ -159,8 +154,8 @@ void HaoMethod::cv(const Genome &genome, vector<pair<int, CVmap>> &vcv) {
   }
 };
 
-void HaoMethod::markov(const CVmap &mck, const CVmap &mckM1,
-                          const CVmap &mckM2, double factor, CVmap &cv) {
+void HaoMethod::markov(const CVmap &mck, const CVmap &mckM1, const CVmap &mckM2,
+                       double factor, CVmap &cv) {
 
   CVmap::const_iterator iter;
   for (const auto &cd : mckM2) {
