@@ -303,7 +303,7 @@ int Mdist::chkNAN(const vector<size_t> &ndx,
 
     for (size_t j = 0; j < i; ++j) {
       if (std::isnan(getdist(ndx[i], ndx[j])))
-        nandist.emplace_back(i, j);
+        nandist.emplace_back(ndx[i], ndx[j]);
     }
   }
 
@@ -464,6 +464,10 @@ void Mdist::setdist(size_t i, size_t j, double d) {
 
 void Mdist::_setdist(size_t i, size_t j, double d) {
   dist[i + j * (j - 1) / 2] = d;
+};
+
+void Mdist::setdist(size_t i, double d){
+  dist[i] = d;
 };
 
 string Mdist::getname(size_t i) const { return name[i]; };

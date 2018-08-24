@@ -25,8 +25,12 @@
 #include <unordered_map>
 #include <vector>
 
-#include "info.h"
+#if defined(_OPENMP)
+#include <omp.h>
+#endif
+
 #include "distmatrix.h"
+#include "info.h"
 #include "kstring.h"
 #include "memory.h"
 #include "stringOpt.h"
@@ -40,7 +44,7 @@ struct CVitem {
   CVvec cv;
 
   CVitem() = default;
-  CVitem(size_t i, const string& str) : ndx(i), fname(str){};
+  CVitem(size_t i, const string &str) : ndx(i), fname(str){};
   void fill() { readcv(fname, cv); };
   void clear() { CVvec().swap(cv); };
 };
@@ -51,8 +55,8 @@ struct DistMeth {
   vector<CVitem *> interBlock;
   float maxM;
 
-  void setMaxMem(float ms, int ng, int nk=1);
-  void init(const vector<string>&);
+  void setMaxMem(float ms, int ng, int nk = 1);
+  void init(const vector<string> &);
 
   // divided task in steps
   float setStep(const Mdist &);
@@ -64,7 +68,7 @@ struct DistMeth {
   void fillBlock(); // TODO: mergin the readcv into calcInDist function
   void calcInDist(Mdist &);
   void calcOutDist(Mdist &);
-  void execute(const vector<string>&, Mdist &);
+  void execute(const vector<string> &, Mdist &);
 
   // the virtual function for different methods
   virtual double dist(const CVvec &, const CVvec &) = 0;

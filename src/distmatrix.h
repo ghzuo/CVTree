@@ -87,6 +87,7 @@ public:
   pair<size_t, size_t> getIndex(size_t) const;
   vector<string> getNameList() const;
   void setdist(size_t, size_t, double);
+  void setdist(size_t, double);
   void setname(size_t, const string &);
 
   // global options

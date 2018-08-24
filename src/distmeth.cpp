@@ -62,6 +62,14 @@ float DistMeth::setStep(const Mdist &dm) {
       interBlock.emplace_back(iter->second);
     }
   }
+
+#if defined(_OPENMP)
+  if (interBlock.size() < omp_get_max_threads()) {
+    introBlock.insert(introBlock.begin(), interBlock.begin(), interBlock.end());
+    vector<CVitem *>().swap(interBlock);
+  }
+#endif
+
   return size;
 }
 
