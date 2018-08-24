@@ -51,7 +51,7 @@ More detail of the command usage can be obtaion by `-h` option.
 ## Todo
 
 - More detail docuemt of the software.
-- Use C++ concurrency install of openmp
+- Replace netcdf by hdf5 for parallel.
 
 ## Reference
 
