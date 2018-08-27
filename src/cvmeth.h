@@ -39,6 +39,9 @@ struct CVmeth {
   int kmin = 1;
   int kmax = 14;
 
+  // the create function
+  static CVmeth* create(const string&, const string&, const string&);
+
   // initial method
   void init(const string &, const string &);
   void setCVdir(const string &);

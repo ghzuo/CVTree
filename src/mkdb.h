@@ -16,7 +16,6 @@
 #include "cvmeth.h"
 #include "distmeth.h"
 #include "info.h"
-#include "neighborJoint.h"
 using namespace std;
 
 // read arguments

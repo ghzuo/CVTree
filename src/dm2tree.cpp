@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
     dm.reduce(myargs.splist);
 
   // do the NJ algorithm and return the NJ tree
-  Node *aTree = neighborJoint(dm);
+  Node *aTree = myargs.meth->tree(dm);
 
   // output the Tree
   ofstream nwk(myargs.outfile.c_str());
@@ -44,9 +44,10 @@ Args::Args(int argc, char **argv)
   program = argv[0];
   string wkdir("");
   string listfile;
+  string methStr("NJ");
 
   char ch;
-  while ((ch = getopt(argc, argv, "i:d:o:D:Cqh")) != -1) {
+  while ((ch = getopt(argc, argv, "i:d:o:D:m:Cqh")) != -1) {
     switch (ch) {
     case 'i':
       listfile = optarg;
@@ -59,6 +60,9 @@ Args::Args(int argc, char **argv)
       break;
     case 'D':
       wkdir = optarg;
+      break;
+    case 'm':
+      methStr = optarg;
       break;
     case 'C':
       netcdf = true;
@@ -81,6 +85,8 @@ Args::Args(int argc, char **argv)
 
   if (!listfile.empty())
     readlist(listfile, splist);
+
+  meth = TreeMeth::create(methStr);
 }
 
 void Args::usage() {

@@ -16,7 +16,7 @@
 #include "cvmeth.h"
 #include "distmeth.h"
 #include "info.h"
-#include "neighborJoint.h"
+#include "treemeth.h"
 using namespace std;
 
 // read arguments
@@ -30,6 +30,7 @@ struct Args {
 
   CVmeth *cmeth;
   DistMeth *dmeth;
+  TreeMeth *tmeth;
 
   Args(int, char **);
   void usage();

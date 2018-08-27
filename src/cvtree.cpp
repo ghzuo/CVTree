@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
 
   // get the cvs for the NAN distances
   theInfo("Start check and calculate CVs for " +
-                 to_string(myargs.glist.size()) + " Genomes");
+          to_string(myargs.glist.size()) + " Genomes");
 #pragma omp parallel for
   for (size_t i = 0; i < myargs.glist.size(); ++i) {
     // get the missing K list
@@ -77,21 +77,21 @@ int main(int argc, char *argv[]) {
     dm.writemtx(fname, myargs.netcdf);
   }
 
-// check the genome number bigger than 3
-  if(myargs.glist.size() < 3){
-      theInfo("There are only " + to_string(myargs.glist.size()) + " genomes, no tree will output");
-      exit(2);
+  // check the genome number bigger than 3
+  if (myargs.glist.size() < 3) {
+    theInfo("There are only " + to_string(myargs.glist.size()) +
+            " genomes, no tree will output");
+    exit(2);
   }
 
 // get the nwk tree
 #pragma omp parallel for ordered
   for (size_t i = 0; i < dms.size(); ++i) {
     // do the NJ algorithm and return the NJ tree
-    Node *aTree = neighborJoint(dms[i].second);
+    Node *aTree = myargs.tmeth->tree(dms[i].second);
 
 #pragma omp ordered
-    theInfo("Get the Neighbor Joint tree for K=" +
-                   to_string(dms[i].first));
+    theInfo("Get the Neighbor Joint tree for K=" + to_string(dms[i].first));
 
     // output the Tree
     // output the distance matrix
@@ -177,19 +177,34 @@ Args::Args(int argc, char **argv) : treeName(""), dmName(""), netcdf(false) {
 
   // set the method
   if (methStr == "Hao" || methStr == "CVTree") {
-    cmeth = new HaoMethod;
-    dmeth = new Cosine;
-  } else if (methStr == "Li" || methStr == "InterSet") {
-    cmeth = new Counting;
-    dmeth = new InterSet;
-  } else if (methStr == "Zuo" || methStr == "InterList") {
-    cmeth = new Counting;
-    dmeth = new InterList;
+    cmeth = CVmeth::create("Hao", cvdir, gtype);
+    dmeth = DistMeth::create("Cosine");
+    tmeth = TreeMeth::create("NJ");
+  } else if (methStr == "InterSet") {
+    cmeth = CVmeth::create("Count", cvdir, gtype);
+    dmeth = DistMeth::create("InterSet");
+    tmeth = TreeMeth::create("NJ");
+
+  } else if (methStr == "InterList") {
+    cmeth = CVmeth::create("Count", cvdir, gtype);
+    dmeth = DistMeth::create("InterList");
+    tmeth = TreeMeth::create("NJ");
   } else {
-    cerr << "Unknow Method: " << methStr << endl;
-    exit(3);
+    vector<string> mlist;
+    separateWord(mlist, methStr);
+    if (mlist.size() > 1) {
+      cmeth = CVmeth::create(mlist[0], cvdir, gtype);
+      dmeth = DistMeth::create(mlist[1]);
+      if (mlist.size() > 2) {
+        tmeth = TreeMeth::create(mlist[2]);
+      } else {
+        tmeth = TreeMeth::create("NJ");
+      }
+    } else {
+      cerr << "Unknow Method: " << methStr << endl;
+      exit(3);
+    }
   }
-  cmeth->init(cvdir, gtype);
 
   // get the kvalue and check
   vector<string> wd;
@@ -228,7 +243,6 @@ Args::Args(int argc, char **argv) : treeName(""), dmName(""), netcdf(false) {
 
   //... Get The limit of memory size
   dmeth->setMaxMem(memorySize, glist.size(), klist.size());
-
 }
 
 void Args::usage() {

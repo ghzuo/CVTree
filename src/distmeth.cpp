@@ -13,6 +13,24 @@
 #include "distmeth.h"
 extern Info theInfo;
 
+/// the create function
+DistMeth *DistMeth::create(const string &methStr) {
+
+  DistMeth *meth;
+  if (methStr == "Cosine") {
+    meth = new Cosine;
+  } else if (methStr == "InterSet") {
+    meth = new InterSet;
+  } else if (methStr == "InterList") {
+    meth = new InterList;
+  } else {
+    cerr << "Unknow Distance Method: " << methStr << endl;
+    exit(3);
+  }
+
+  return meth;
+}
+
 //// set max memory
 void DistMeth::setMaxMem(float ms, int ng, int nk) {
   float maxNameLen = 2048.0;

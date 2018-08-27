@@ -16,14 +16,14 @@ SET(CVTREEHEADS
   readgenome.h kstring.h
   stringOpt.h  memory.h
   distmatrix.h info.h
-  neighborJoint.h
+  treemeth.h
   distmeth.h cvmeth.h)
 
 SET(LIBCVTREE_SRC ${CVTREEHEADS}
   readgenome.cpp kstring.cpp
   stringOpt.cpp  memory.cpp
   distmatrix.cpp tree.cpp
-  info.cpp neighborJoint.cpp 
+  info.cpp treemeth.cpp 
   distmeth.cpp cvmeth.cpp
   )
 

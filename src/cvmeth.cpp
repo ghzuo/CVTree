@@ -12,9 +12,22 @@
 
 #include "cvmeth.h"
 
-void CVmeth::init(const string &cvdir, const string &gtype) {
-  setCVdir(cvdir);
-  setg(gtype);
+CVmeth* CVmeth::create(const string& methStr, const string& cvdir, const string& gtype){
+
+  CVmeth* meth;
+  if (methStr == "Hao") {
+    meth = new HaoMethod;
+  } else if (methStr == "Count") {
+    meth = new Counting;
+  } else {
+    cerr << "Unknow CV Method: " << methStr << endl;
+    exit(3);
+  }
+
+  meth->setCVdir(cvdir);
+  meth->setg(gtype);
+
+  return meth;
 };
 
 void CVmeth::setg(const string &gtype) {

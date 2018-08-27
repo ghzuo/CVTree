@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
 
   // get the cvs for the NAN distances
   theInfo("Start check and calculate CVs for " +
-                 to_string(myargs.glist.size()) + " Genomes");
+          to_string(myargs.glist.size()) + " Genomes");
 #pragma omp parallel for
   for (size_t i = 0; i < myargs.glist.size(); ++i) {
     // get the CVs
@@ -142,19 +142,25 @@ Args::Args(int argc, char **argv) : dmName(""), netcdf(false) {
 
   // set the method
   if (methStr == "Hao" || methStr == "CVTree") {
-    cmeth = new HaoMethod;
-    dmeth = new Cosine;
-  } else if (methStr == "Li" || methStr == "InterSet") {
-    cmeth = new Counting;
-    dmeth = new InterSet;
-  } else if (methStr == "Zuo" || methStr == "InterList") {
-    cmeth = new Counting;
-    dmeth = new InterList;
+    cmeth = CVmeth::create("Hao", cvdir, gtype);
+    dmeth = DistMeth::create("Cosine");
+  } else if (methStr == "InterSet") {
+    cmeth = CVmeth::create("Count", cvdir, gtype);
+    dmeth = DistMeth::create("InterSet");
+  } else if (methStr == "InterList") {
+    cmeth = CVmeth::create("Count", cvdir, gtype);
+    dmeth = DistMeth::create("InterList");
   } else {
-    cerr << "Unknow Method: " << methStr << endl;
-    exit(3);
+    vector<string> mlist;
+    separateWord(mlist, methStr);
+    if (mlist.size() > 1) {
+      cmeth = CVmeth::create(mlist[0], cvdir, gtype);
+      dmeth = DistMeth::create(mlist[1]);
+    } else {
+      cerr << "Unknow Method: " << methStr << endl;
+      exit(3);
+    }
   }
-  cmeth->init(cvdir, gtype);
 
   // get the kvalue and check
   vector<string> wd;

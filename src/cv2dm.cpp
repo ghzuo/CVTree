@@ -106,17 +106,7 @@ Args::Args(int argc, char **argv)
   }
 
   // set the method
-    // set the method
-  if (methStr == "Cosine") {
-    meth = new Cosine;
-  } else if (methStr == "InterSet") {
-    meth = new InterSet;
-  } else if (methStr == "InterList") {
-    meth = new InterList;
-  } else {
-    cerr << "Unknow Method: " << methStr << endl;
-    exit(3);
-  }
+  DistMeth::create(methStr);
 
   // set the outfile name
   if (outfile.empty()) {

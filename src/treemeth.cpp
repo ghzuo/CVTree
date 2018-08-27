@@ -5,15 +5,39 @@
  * <ghzuo@fudan.edu.cn>
  *
  * @Author: Dr. Guanghong Zuo
+ * @Date: 2018-08-27 14:50:40
+ * @Last Modified By: Dr. Guanghong Zuo
+ * @Last Modified Time: 2018-08-27 14:50:40
+ */
+
+/*
+ * Copyright (c) 2018  T-Life Research Center, Fudan University, Shanghai,
+ * China. See the accompanying Manual for the contributors and the way to cite
+ * this work. Comments and suggestions welcome. Please contact Dr. Guanghong Zuo
+ * <ghzuo@fudan.edu.cn>
+ *
+ * @Author: Dr. Guanghong Zuo
  * @Date: 2016-04-19 11:37:42
  * @Last Modified By: Dr. Guanghong Zuo
  * @Last Modified Time: 2018-07-26 22:02:23
  */
 
-#include "neighborJoint.h"
+#include "treemeth.h"
+
+TreeMeth *TreeMeth::create(const string &methStr) {
+  TreeMeth *meth;
+  if (methStr == "NJ") {
+    meth = new NeighborJoint;
+  } else {
+    cerr << "Unknow Tree Method: " << methStr << endl;
+    exit(3);
+  }
+
+  return meth;
+};
 
 /// For neighborJoint
-Node *neighborJoint(Mdist &dm) {
+Node *NeighborJoint::tree(Mdist &dm) {
   // the function to neighbor joint the start tree
   // the distance matrix and leafs list are copy from the main program
   // so it will be changed in the main program
@@ -57,7 +81,7 @@ Node *neighborJoint(Mdist &dm) {
   return aTree;
 }
 
-void lenStar(const StarTree &vn, const Mdist &dm) {
+void NeighborJoint::lenStar(const StarTree &vn, const Mdist &dm) {
   for (auto &np : vn) {
     double len = 0.0;
     size_t idp = (*np).id;
@@ -69,7 +93,7 @@ void lenStar(const StarTree &vn, const Mdist &dm) {
   }
 };
 
-void njnearest(const Mdist &dm, StarTree &nodes, Neighbor &nb) {
+void NeighborJoint::njnearest(const Mdist &dm, StarTree &nodes, Neighbor &nb) {
 
   // get the nearest neighbor
   size_t nNode(nodes.size());
@@ -99,7 +123,7 @@ void njnearest(const Mdist &dm, StarTree &nodes, Neighbor &nb) {
   }
 };
 
-void joint(Mdist &dm, StarTree &nodes, Neighbor &nb) {
+void NeighborJoint::joint(Mdist &dm, StarTree &nodes, Neighbor &nb) {
 
   // reset the length branch
   Node *nx = nodes[nb.first];

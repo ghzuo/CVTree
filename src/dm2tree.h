@@ -25,7 +25,7 @@
 
 #include "distmatrix.h"
 #include "info.h"
-#include "neighborJoint.h"
+#include "treemeth.h"
 #include "stringOpt.h"
 #include "tree.h"
 using namespace std;
@@ -34,6 +34,7 @@ using namespace std;
 struct Args {
   string program, distfile, outfile;
   vector<size_t> splist;
+  TreeMeth* meth;
   bool netcdf;
 
   Args(int, char **);

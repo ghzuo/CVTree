@@ -78,15 +78,7 @@ Args::Args(int argc, char **argv) {
   }
 
   // set the method
-  if (methStr == "Hao") {
-    meth = new HaoMethod;
-  } else if (methStr == "Count") {
-    meth = new Counting;
-  } else {
-    cerr << "Unknow Method: " << methStr << endl;
-    exit(3);
-  }
-  meth->init(cvdir, gtype);
+  meth = CVmeth::create(methStr, cvdir, gtype);
 
   // get the kvalue
   vector<string> wd;
