@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
     dms[i].second.init(myargs.glist);
     if (!myargs.refdm.empty()) {
       string str = nameWithK(myargs.refdm, dms[i].first);
-      dms[i].second.assign(str, myargs.netcdf);
+      dms[i].second.assign(str);
     }
 #pragma omp ordered
     theInfo(dms[i].second.info() + " for K=" + to_string(dms[i].first));
@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
     // output the distance matrix
     string fname = nameWithK(myargs.dmName, k);
     mkpath(fname);
-    dm.writemtx(fname, myargs.netcdf);
+    dm.writemtx(fname);
   }
 }
 
@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
 /******************** End of Main programin **************************/
 /*********************************************************************/
 
-Args::Args(int argc, char **argv) : dmName(""), netcdf(false) {
+Args::Args(int argc, char **argv) : dmName("") {
 
   program = argv[0];
   memorySize = getMemorySize() * 0.8;
@@ -88,7 +88,7 @@ Args::Args(int argc, char **argv) : dmName(""), netcdf(false) {
   string listkval("5 6 7");
 
   char ch;
-  while ((ch = getopt(argc, argv, "i:G:V:k:d:m:M:r:g:Cqh")) != -1) {
+  while ((ch = getopt(argc, argv, "i:G:V:k:d:m:M:r:g:qh")) != -1) {
     switch (ch) {
     case 'i':
       listfile = optarg;
@@ -117,9 +117,6 @@ Args::Args(int argc, char **argv) : dmName(""), netcdf(false) {
       break;
     case 'd':
       dmName = optarg;
-      break;
-    case 'C':
-      netcdf = true;
       break;
     case 'q':
       theInfo.quiet = true;
@@ -189,7 +186,7 @@ Args::Args(int argc, char **argv) : dmName(""), netcdf(false) {
 
   // set the output dm name format
   if (dmName.empty()) {
-    dmName = "dm/" + methStr + cmeth->cvsuff + "$.nc";
+    dmName = "dm/" + methStr + cmeth->cvsuff + "$.h5";
   }
 
   //... Get The limit of memory size

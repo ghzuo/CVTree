@@ -22,6 +22,8 @@
 #include <string>
 #include <vector>
 
+#include "hdf5.h"
+#include "H5Cpp.h"
 #include "stringOpt.h"
 #include "tree.h"
 
@@ -41,13 +43,15 @@ public:
   double _getdist(size_t, size_t) const;
 
   // read the matrix
-  bool readmtx(const string &, const bool netcdf = false);
+  bool readmtx(const string &);
   void readmtxnc(const string &);
+  void readmtxh5(const string &);
   void readmtxtxt(const string &);
 
   // output the matrix
-  void writemtx(const string &, const bool netcdf = false);
+  void writemtx(const string &);
   void writemtxnc(const string &);
+  void writemtxh5(const string &);
   void writemtxtxt(const string &);
 
   // get exchange index and genome name
@@ -67,7 +71,7 @@ public:
   void cleanName();
   void assign(const Mdist &, vector<size_t> &);
   void assign(const Mdist &);
-  void assign(const string&, bool);
+  void assign(const string &);
 
   // check NAN distance
   int chkNAN(const vector<size_t> &, vector<pair<size_t, size_t>> &) const;

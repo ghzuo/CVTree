@@ -33,7 +33,7 @@ void getIndex(const string &file, const vector<string> &nmlist, vector<size_t> &
 {
 
     Mdist dm;
-    dm.readmtx(file, true);
+    dm.readmtx(file);
     map<string, int> names;
 
     for (int i = 0; i < dm.size(); ++i)
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
     if (list)
     {
         Mdist dm;
-        dm.readmtx(dmfile[0], true);
+        dm.readmtx(dmfile[0]);
         for (size_t i = 0; i < dm.size(); ++i)
         {
             string str = dm.getname(i);
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
         for (auto &fname : dmfile)
         {
             Mdist dm;
-            dm.readmtx(fname, true);
+            dm.readmtx(fname);
             dm.reduce(ndxlist);
             dmlist.emplace_back(dm);
         }

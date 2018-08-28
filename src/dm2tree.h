@@ -35,7 +35,6 @@ struct Args {
   string program, distfile, outfile;
   vector<size_t> splist;
   TreeMeth* meth;
-  bool netcdf;
 
   Args(int, char **);
   void usage();

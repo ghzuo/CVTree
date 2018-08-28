@@ -21,7 +21,6 @@ using namespace std;
 struct Args {
   string program, outfile, suffix, refdm;
   vector<string> glist;
-  bool netcdf;
   float maxM, memorySize;
   DistMeth *meth;
 

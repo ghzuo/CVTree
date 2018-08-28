@@ -56,11 +56,11 @@ struct DistMeth {
   float maxM;
 
   // the create function
-  static DistMeth* create(const string&);
+  static DistMeth *create(const string &);
 
   // the base function
-  void setMaxMem(float ms, int ng, int nk = 1);
-  void init(const vector<string> &);
+  void setMaxMem(float, size_t, size_t);
+  void setflist(const vector<string> &);
 
   // divided task in steps
   float setStep(const Mdist &);

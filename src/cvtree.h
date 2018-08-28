@@ -25,7 +25,6 @@ struct Args {
   string refdm;
   vector<string> glist;
   vector<size_t> klist;
-  bool netcdf;
   float memorySize;
 
   CVmeth *cmeth;

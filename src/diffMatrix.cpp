@@ -24,8 +24,8 @@ int main(int argc, char *argv[]) {
   // read the two matrix
   Mdist dm1, dm2;
 
-  dm1.readmtx(argv[1], false);
-  dm2.readmtx(argv[2], false);
+  dm1.readmtx(argv[1]);
+  dm2.readmtx(argv[2]);
 
   if (dm1.size() != dm1.size()) {
     cerr << "The two matrix have different size" << endl;

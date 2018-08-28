@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
   dm.init(myargs.glist);
 
   // assign the dm by reference DMs
-  dm.assign(myargs.refdm, myargs.netcdf);
+  dm.assign(myargs.refdm);
   theInfo(dm.info());
 
   if (dm.hasNAN()) {
@@ -30,8 +30,9 @@ int main(int argc, char *argv[]) {
 
     // set the cvfile name
     vector<string> cvfile(myargs.glist);
-    for (auto &str : cvfile)
+    for (auto &str : cvfile) {
       str += myargs.suffix + ".gz";
+    }
 
     // do the calculation of distance
     myargs.meth->execute(cvfile, dm);
@@ -40,15 +41,14 @@ int main(int argc, char *argv[]) {
   }
 
   // output the distance matrix
-  dm.writemtx(myargs.outfile, myargs.netcdf);
+  dm.writemtx(myargs.outfile);
 }
 
 /*********************************************************************/
 /******************** End of Main programin **************************/
 /*********************************************************************/
 
-Args::Args(int argc, char **argv)
-    : outfile(""), netcdf(false), suffix(".faa.cv6") {
+Args::Args(int argc, char **argv) : outfile(""), suffix(".faa.cv6") {
 
   program = argv[0];
   memorySize = getMemorySize() * 0.8;
@@ -57,7 +57,7 @@ Args::Args(int argc, char **argv)
   string cvdir("");
 
   char ch;
-  while ((ch = getopt(argc, argv, "i:V:s:o:m:M:r:Cqh")) != -1) {
+  while ((ch = getopt(argc, argv, "i:V:s:o:m:M:r:qh")) != -1) {
     switch (ch) {
     case 'i':
       listfile = optarg;
@@ -84,9 +84,6 @@ Args::Args(int argc, char **argv)
     case 'o':
       outfile = optarg;
       break;
-    case 'C':
-      netcdf = true;
-      break;
     case 'q':
       theInfo.quiet = true;
       break;
@@ -106,15 +103,15 @@ Args::Args(int argc, char **argv)
   }
 
   // set the method
-  DistMeth::create(methStr);
+  meth = DistMeth::create(methStr);
 
   // set the outfile name
   if (outfile.empty()) {
-    outfile = methStr + suffix;
+    outfile = methStr + suffix + ".h5";
   }
 
   //... Get The limit of memory size for cv
-  meth->setMaxMem(memorySize, glist.size());
+  meth->setMaxMem(memorySize, glist.size(), 1);
 }
 
 void Args::usage() {
@@ -123,7 +120,7 @@ void Args::usage() {
        << "\nProgram Usage: \n\n"
        << program << "\n"
        << " [ -o <dm> ]      Output distance matrix, defaut: "
-          "<Method><Suffix>\n"
+          "<Method><Suffix>.h5\n"
        << " [ -V <cvdir> ]   Super directory of extend cv files\n"
        << " [ -i list ]      Genome list for distance matrix, defaut: list\n"
        << " [ -s <Suffix> ]  Suffix of the cvfile, default: .faa.cv6\n"
@@ -131,7 +128,6 @@ void Args::usage() {
        << " [ -M <N> ]       Runing memory size as G roughly, \n"
        << "                  default 80% of physical memory\n"
        << " [ -m Cosine/InterList/InterSet] Method for cvtree, defaut: Cosine\n"
-       << " [ -C ]           Force use the netcdf compress distance matrix\n"
        << " [ -q ]           Run command in queit mode\n"
        << " [ -h ]           Disply this information\n"
        << endl;

@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
 
   // init the distance matrix and name list
   Mdist dm;
-  dm.readmtx(myargs.distfile, myargs.netcdf);
+  dm.readmtx(myargs.distfile);
 
   // made the star tree by listfile
   // if no, all items in distance matrix are used
@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
 }
 
 Args::Args(int argc, char **argv)
-    : distfile("infile"), outfile("Tree.nwk"), netcdf(false) {
+    : distfile("infile"), outfile("Tree.nwk") {
 
   program = argv[0];
   string wkdir("");
@@ -47,7 +47,7 @@ Args::Args(int argc, char **argv)
   string methStr("NJ");
 
   char ch;
-  while ((ch = getopt(argc, argv, "i:d:o:D:m:Cqh")) != -1) {
+  while ((ch = getopt(argc, argv, "i:d:o:D:m:Tqh")) != -1) {
     switch (ch) {
     case 'i':
       listfile = optarg;
@@ -63,9 +63,6 @@ Args::Args(int argc, char **argv)
       break;
     case 'm':
       methStr = optarg;
-      break;
-    case 'C':
-      netcdf = true;
       break;
     case 'q':
       theInfo.quiet = true;

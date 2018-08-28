@@ -18,11 +18,11 @@ DistMeth *DistMeth::create(const string &methStr) {
 
   DistMeth *meth;
   if (methStr == "Cosine") {
-    meth = new Cosine;
+    meth = new Cosine();
   } else if (methStr == "InterSet") {
-    meth = new InterSet;
+    meth = new InterSet();
   } else if (methStr == "InterList") {
-    meth = new InterList;
+    meth = new InterList();
   } else {
     cerr << "Unknow Distance Method: " << methStr << endl;
     exit(3);
@@ -32,7 +32,7 @@ DistMeth *DistMeth::create(const string &methStr) {
 }
 
 //// set max memory
-void DistMeth::setMaxMem(float ms, int ng, int nk) {
+void DistMeth::setMaxMem(float ms, size_t ng, size_t nk) {
   float maxNameLen = 2048.0;
   float giga = 1073741824.0;
   float bs = maxNameLen * ng + nk * ng * (ng - 1) * sizeof(double) / 2 + giga;
@@ -40,7 +40,7 @@ void DistMeth::setMaxMem(float ms, int ng, int nk) {
 };
 
 ////// for DistMeth
-void DistMeth::init(const vector<string> &flist) {
+void DistMeth::setflist(const vector<string> &flist) {
   cvlist.clear();
   for (size_t i = 0; i < flist.size(); ++i) {
     cvlist.emplace_back(CVitem(i, flist[i]));
@@ -146,7 +146,7 @@ void DistMeth::calcOutDist(Mdist &dm) {
 
 void DistMeth::execute(const vector<string> &flist, Mdist &dm) {
 
-  init(flist);
+  setflist(flist);
   int ndx(0);
 
   do {
