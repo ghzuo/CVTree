@@ -13,6 +13,7 @@ and http://tlife.fudan.edu.cn/cvtree (Fudan University, Shanghai).
 ## Main Programs
 
 - cvtree: the main program, it get the phylogeny tree based from the fasta file of genomes.
+- mkdb: Get the distance matrix and composition vectors but not nwk tree.
 - g2dv: Get the composition vector based on the fasta file of the genome.
 - cv2dm: Get the distance matrix based on the compostion vector
 - dm2tree: Get the phylogeny tree from the distance matrix by neighbor-joint method.
@@ -26,8 +27,9 @@ and http://tlife.fudan.edu.cn/cvtree (Fudan University, Shanghai).
 
 - cmake >= 2.6
 - g++ >= 4.8 or other compiler supporting C++11 standard
+- require ligrary: libz
 - compiler with support openmp for parallel (_option_)
-- Library: libz, netcdf, netcdf_cpp
+- Library (_option_): netcdf, netcdf_cpp
 
 #### Compiling
 
@@ -51,7 +53,6 @@ More detail of the command usage can be obtaion by `-h` option.
 ## Todo
 
 - More detail docuemt of the software.
-- Replace netcdf by hdf5 for parallel.
 
 ## Reference
 

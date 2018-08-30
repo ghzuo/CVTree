@@ -17,13 +17,18 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <netcdfcpp.h>
 #include <set>
 #include <string>
 #include <vector>
 
-#include "hdf5.h"
+#ifdef _NETCDF
+#include <netcdfcpp.h>
+#endif
+
+#ifdef _HDF5
 #include "H5Cpp.h"
+#endif
+
 #include "stringOpt.h"
 #include "tree.h"
 
@@ -42,17 +47,25 @@ public:
   void _setdist(size_t, size_t, double);
   double _getdist(size_t, size_t) const;
 
-  // read the matrix
+  // read/write the matrix
   bool readmtx(const string &);
-  void readmtxnc(const string &);
-  void readmtxh5(const string &);
-  void readmtxtxt(const string &);
-
-  // output the matrix
   void writemtx(const string &);
-  void writemtxnc(const string &);
-  void writemtxh5(const string &);
+
+  // txt format
+  void readmtxtxt(const string &);
   void writemtxtxt(const string &);
+
+#ifdef _NETCDF
+  // netcdf format
+  void readmtxnc(const string &);
+  void writemtxnc(const string &);
+#endif
+
+#ifdef _HDF5
+  // hdf5 format
+  void readmtxh5(const string &);
+  void writemtxh5(const string &);
+#endif
 
   // get exchange index and genome name
   bool name2ndx(const vector<string> &, vector<size_t> &) const;
