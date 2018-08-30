@@ -52,18 +52,18 @@ public:
   void writemtx(const string &);
 
   // txt format
-  void readmtxtxt(const string &);
+  bool readmtxtxt(const string &);
   void writemtxtxt(const string &);
 
 #ifdef _NETCDF
   // netcdf format
-  void readmtxnc(const string &);
+  bool readmtxnc(const string &);
   void writemtxnc(const string &);
 #endif
 
 #ifdef _HDF5
   // hdf5 format
-  void readmtxh5(const string &);
+  bool readmtxh5(const string &);
   void writemtxh5(const string &);
 #endif
 

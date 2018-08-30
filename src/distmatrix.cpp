@@ -23,29 +23,28 @@ void Mdist::init(const vector<string> &nmlist) {
 
 // read the tranditional infile for the distance matrix
 bool Mdist::readmtx(const string &file) {
+  bool done = false;
   if (!fileExists(file)) {
-    cerr << "Cannot find file: " << file << endl;
-    return false;
+#pragma omp critical
+    { cerr << "Cannot find file: " << file << endl; }
+    return done;
   }
 
 #ifdef _HDF5
-  if (H5::H5File::isHdf5(file.c_str())) {
 #pragma omp critical
-    { readmtxh5(file); }
-    return true;
-  }
+  { done = readmtxh5(file); }
+  if (done)
+    return done;
 #endif // _HDF5
 
 #ifdef _NETCDF
-  if (NcFile(file.c_str(), NcFile::ReadOnly).is_valid()) {
 #pragma omp critical
-    { readmtxnc(file); }
-    return true;
-  }
-#endif
+  { done = readmtxnc(file); }
+  if (done)
+    return done;
+#endif // _NETCDF
 
-  readmtxtxt(file);
-  return true;
+  return readmtxtxt(file);
 };
 
 // select the distance matrix file type
@@ -72,7 +71,7 @@ void Mdist::writemtx(const string &file) {
 };
 
 // read the tranditional infile for the distance matrix
-void Mdist::readmtxtxt(const string &file) {
+bool Mdist::readmtxtxt(const string &file) {
   ifstream dd(file.c_str());
   if (!dd.is_open()) {
     cerr << "Error opening file: " << file << endl;
@@ -94,6 +93,8 @@ void Mdist::readmtxtxt(const string &file) {
       idist++;
     }
   }
+
+  return true;
 };
 
 // write the tranditional infile for the distance matrix
@@ -115,8 +116,10 @@ void Mdist::writemtxtxt(const string &file) {
 
 #ifdef _NETCDF
 // read the netcdf file for the distance matrix
-void Mdist::readmtxnc(const string &file) {
+bool Mdist::readmtxnc(const string &file) {
   NcFile mtxFile(file.c_str(), NcFile::ReadOnly);
+  if (!mtxFile.is_valid())
+    return false;
 
   // get the dim information
   long lenWord = mtxFile.get_dim("word")->size();
@@ -158,6 +161,7 @@ void Mdist::readmtxnc(const string &file) {
   delete[] fdist;
 
   mtxFile.close();
+  return true;
 };
 
 // write netcdf format distance matrix
@@ -200,9 +204,12 @@ void Mdist::writemtxnc(const string &file) {
 
 #ifdef _HDF5
 // read hdf5 format distance matrix
-void Mdist::readmtxh5(const string &fname) {
-  H5::H5File file(fname, H5F_ACC_RDONLY);
+bool Mdist::readmtxh5(const string &fname) {
+  // check file
+  if (!H5::H5File::isHdf5(fname.c_str()))
+    return false;
 
+  H5::H5File file(fname, H5F_ACC_RDONLY);
   // get the name list
   H5::DataSet nmset = file.openDataSet("Name");
   H5::DataSpace nmspace = nmset.getSpace();
@@ -226,6 +233,8 @@ void Mdist::readmtxh5(const string &fname) {
   H5::DataSpace mdspace(1, ddims);
 
   dset.read(dist.data(), H5::PredType::NATIVE_DOUBLE, mdspace, dspace);
+
+  return true;
 };
 
 // write hdf5 format distance matrix
