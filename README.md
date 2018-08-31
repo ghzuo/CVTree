@@ -13,7 +13,6 @@ and http://tlife.fudan.edu.cn/cvtree (Fudan University, Shanghai).
 ## Main Programs
 
 - cvtree: the main program, it get the phylogeny tree based from the fasta file of genomes.
-- mkdb: Get the distance matrix and composition vectors but not nwk tree.
 - g2dv: Get the composition vector based on the fasta file of the genome.
 - cv2dm: Get the distance matrix based on the compostion vector
 - dm2tree: Get the phylogeny tree from the distance matrix by neighbor-joint method.
