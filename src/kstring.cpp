@@ -150,7 +150,9 @@ double readcv(const string &filename, CVvec &cv, bool normalize) {
 
   pair<double, mlong> tmp;
   gzread(fp, (char *)&tmp, sizeof(CVdim));
-  double m = sqrt(tmp.first);
+  double m = 1;
+  if(tmp.first != 0)
+    m = sqrt(tmp.first);
   mlong size = tmp.second;
 
   cv.resize(size);
