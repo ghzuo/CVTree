@@ -235,7 +235,7 @@ Args::Args(int argc, char **argv) : treeName(""), dmName("") {
 
   // set the output dm name format
   if (dmName.empty()) {
-    dmName = "dm/" + methStr + cmeth->cvsuff + "$.h5";
+    dmName = "dm/" + methStr + cmeth->cvsuff + "$.nc";
   }
 
   //... Get The limit of memory size
@@ -247,9 +247,9 @@ void Args::usage() {
        << " Byte\n"
        << "\nProgram Usage: \n\n"
        << program << "\n"
-       << " [ -d <dm> ]         Output distance matrix format, defaut: "
+       << " [ -d <dm> ]         Output distance matrix name, defaut: "
           "<Method><Suffix><K>\n"
-       << " [ -t <nwk> ]         Output distance matrix format, defaut: "
+       << " [ -t <nwk> ]        Output newick file name, defaut: "
           "<Method><Suffix><K>.nwk\n"
        << " [ -G <dir> ]        Input genome file directory\n"
        << " [ -g faa ]          the type of genome file, defaut: faa\n"

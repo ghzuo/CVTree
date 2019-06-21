@@ -12,9 +12,7 @@
 
 #include "readgenome.h"
 
-GeneType::GeneType(const string &str) {
-    init(str);
-};
+GeneType::GeneType(const string &str) { init(str); };
 
 void GeneType::init(const string &str) {
   for (int i = 0; i < 128; ++i)
@@ -83,7 +81,7 @@ size_t GeneType::readgene(string &file, Genome &genome) const {
 
     } else if (line[0] == '>') {
       genome.emplace_back();
-    } else {
+    } else if(!genome.empty()){
       genome.back().append(line);
     }
   }
