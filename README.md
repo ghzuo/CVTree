@@ -22,6 +22,8 @@ and http://tlife.fudan.edu.cn/cvtree (Fudan University, Shanghai).
 
 ## Installation
 
+### Compile with CMake
+
 #### Preparation
 
 - cmake >= 3.0
@@ -39,6 +41,24 @@ and http://tlife.fudan.edu.cn/cvtree (Fudan University, Shanghai).
 5. make manual (_option_)
 6. make install
 
+### Run Programms in Docker
+
+Docker allows users run programs on both Windows and Linux/MacOS.
+You can download docker free and reference https://docs.docker.com/install/
+to install it. After install docker, basic usages for CVTree are:
+
+1. Build/download docker image: `docker build -t="xxxxx/cvtree" .`
+   or `docker pull ghzuo/cvtree`. In this step, a image with cvtree programs
+   will obtained.
+2. Start container from image:
+   `docker run --rm -it -v $PWD/example:/root/data xxxxx/cpplearn`
+   In this step, you will enter the cvtree container, and the "example" folder
+   of this project will be find in the "data" folder. Enter the data folder,
+   and run `cvtree -G faa`. You will get the result for eight genomes in the "list"
+   file. You can change the path "$PWD/example" to your own data directory.
+3. Exit and stop container: `exit` in docker terminal.
+4. More usage for docker can reference https://docs.docker.com/.
+
 ## Run Programs with Example
 
 If this is the first time you use CVTree package, please go to the
@@ -48,23 +68,6 @@ the cvtree command to get the phylogeny tree by:
     ../build/cvtree -G faa
 
 More detail of the command usage can be obtaion by `-h` option.
-
-## Run with docker
-
-Docker allows users run programs on both Windows and Linux/MacOS.
-You can download docker free and reference https://docs.docker.com/install/
-to install it. After install docker, basic usages for CVTree are:
-
-1. Build/download docker image: `docker build -t="xxxxx/cvtree" .` 
-   or `docker pull ghzuo/cvtree`. In this step, a image with cvtree programs
-   will obtained.
-2. Start container from image: 
-   `docker run --rm -it -v $PWD/example:/root/data xxxxx/cpplearn`
-   In this step, you will enter the cvtree container, and example folder
-   will be find in the "data" folder. Enter the data folder, and run `cvtree -G faa`.
-   You will get the result for eight genomes. You can change the path "$PWD/example"
-   to your data directory.
-3. Exit and stop container: `exit` in docker terminal
 
 ## Todo
 
