@@ -31,6 +31,7 @@ and http://tlife.fudan.edu.cn/cvtree (Fudan University, Shanghai).
 - require ligrary: libz
 - compiler with support openmp for parallel (_option_)
 - Library (_option_): netcdf, netcdf_cpp
+- Library (_option_): libhdf5 for c++
 
 #### Compiling
 
@@ -48,8 +49,10 @@ You can download docker free and reference https://docs.docker.com/install/
 to install it. After install docker, basic usages for CVTree are:
 
 1. Build/download docker image: `docker build -t="xxxxx/cvtree" .`
-   or `docker pull ghzuo/cvtree`. In this step, a image with cvtree programs
-   will obtained.
+   or `docker pull ghzuo/cvtree`. In this step, a image with cvtree 
+   programs will obtained. A small docker image, named "ghzuo/cvtree-lite"
+   and have the size only 100M, can also obtained from docker hub. It 
+   contains only the binary cvtree tools.
 2. Start container from image:
    `docker run --rm -it -v $PWD/example:/root/data xxxxx/cpplearn`
    In this step, you will enter the cvtree container, and the "example" folder

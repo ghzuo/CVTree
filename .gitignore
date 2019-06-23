@@ -12,3 +12,7 @@ cvtreeManual.fls
 cvtreeManual.log
 cvtreeManual.synctex.gz
 __latexindent_temp.tex
+example/
+!exmaple/faa/
+!exmaple/list
+
