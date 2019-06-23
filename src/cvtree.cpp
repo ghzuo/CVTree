@@ -235,7 +235,13 @@ Args::Args(int argc, char **argv) : treeName(""), dmName("") {
 
   // set the output dm name format
   if (dmName.empty()) {
+#ifdef _NETCDF
     dmName = "dm/" + methStr + cmeth->cvsuff + "$.nc";
+#elif _HDF5
+    dmName = "dm/" + methStr + cmeth->cvsuff + "$.h5";
+#else
+    dmName = "dm/" + methStr + cmeth->cvsuff + "$.txt";
+#endif
   }
 
   //... Get The limit of memory size

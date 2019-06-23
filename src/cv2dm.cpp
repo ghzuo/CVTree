@@ -107,7 +107,13 @@ Args::Args(int argc, char **argv) : outfile(""), suffix(".faa.cv6") {
 
   // set the outfile name
   if (outfile.empty()) {
+#ifdef _NETCDF
+    outfile = methStr + suffix + ".nc";
+#elif _HDF5
     outfile = methStr + suffix + ".h5";
+#else
+    outfile = methStr + suffix + ".txt";
+#endif
   }
 
   //... Get The limit of memory size for cv
