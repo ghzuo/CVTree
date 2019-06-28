@@ -50,8 +50,8 @@ to install it. After install docker, basic usages for CVTree are:
 
 1. Build/download docker image: `docker build -t="cvtree" .`
    or `docker pull ghzuo/cvtree`. In this step, a image with cvtree 
-   programs will obtained. After build image, you can delete the cache
-   layers for build. And you can set your image name by option "-t".
+   programs will obtained. Here option "-t" set the image name. After build 
+   image, you can delete the dangling images for build by `docker image prune`.
 2. Start container from image:
    `docker run --rm -it -v $PWD/example:/root/data cvtree`
    In this step, you will enter the cvtree container, and the "example" folder
