@@ -48,18 +48,20 @@ Docker allows users run programs on both Windows and Linux/MacOS.
 You can download docker free and reference https://docs.docker.com/install/
 to install it. After install docker, basic usages for CVTree are:
 
-1. Build/download docker image: `docker build -t="cvtree" .`
+1. Build/download docker image: `docker build -t="cvtree-img" .`
    or `docker pull ghzuo/cvtree`. In this step, a image with cvtree 
    programs will obtained. Here option "-t" set the image name. After build 
    image, you can delete the dangling images for build by `docker image prune`.
 2. Start container from image:
-   `docker run --rm -it -v $PWD/example:/root/data cvtree`
+   `docker run --rm -it -v $PWD/example:/root/data cvtree-img`
    In this step, you will enter the cvtree container, and the "example" folder
    of this project will be find in the "data" folder. Change path to the data folder,
    and run `cvtree -G faa`. You will get the result for eight genomes in the "list"
    file. You can change the path "$PWD/example" to your own data directory.
 3. Exit and stop container: `exit` in docker terminal.
-4. More usage for docker can reference https://docs.docker.com/.
+4. Run cvtree in docker by one command: 
+   `docker run --rm -v $PWD:/data -w /data cvtree-img cvtree -G faa`
+5. More usage for docker can reference https://docs.docker.com/.
 
 ## Run Programs with Example
 
