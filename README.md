@@ -31,7 +31,7 @@ and http://tlife.fudan.edu.cn/cvtree (Fudan University, Shanghai).
 - require ligrary: libz
 - compiler with support openmp for parallel (_option_)
 - Library (_option_): netcdf, netcdf_cpp
-- Library (_option_): libhdf5 for c++
+- Library (_option_): libhdf5 for c++ (*Please don't use the hdf5 libraries in Anaconda*)
 
 #### Compiling
 
@@ -40,7 +40,7 @@ and http://tlife.fudan.edu.cn/cvtree (Fudan University, Shanghai).
 3. cmake .. or add some options you wanted
 4. make
 5. make manual (_option_)
-6. make install
+6. make install (_option_)
 
 ### Run Programms in Docker
 
