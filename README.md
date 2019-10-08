@@ -7,7 +7,7 @@ preferably whole-genome data, for phylogenetic studies.
 
 Please visit our webserve of CVTree, where you can use the cvtree tools
 more convenient. The CVTree3 Web Server have two identical but independent
-installations at http://cvtree.big.ac.cn (Beijing Institute of Genomics, Beijing)
+installations at http://bigd.big.ac.cn/cvtree (Beijing Institute of Genomics, Beijing)
 and http://tlife.fudan.edu.cn/cvtree (Fudan University, Shanghai).
 
 ## Main Programs
