@@ -118,9 +118,10 @@ Args::Args(int argc, char **argv) : treeName(""), dmName("") {
   string gdir("");
   string cvdir("cv/");
   string listkval("5 6 7");
+  bool refself(false);
 
   char ch;
-  while ((ch = getopt(argc, argv, "i:G:V:k:d:t:m:M:r:g:qh")) != -1) {
+  while ((ch = getopt(argc, argv, "i:G:V:k:d:t:m:M:r:g:Rqh")) != -1) {
     switch (ch) {
     case 'i':
       listfile = optarg;
@@ -136,6 +137,9 @@ Args::Args(int argc, char **argv) : treeName(""), dmName("") {
       break;
     case 'r':
       refdm = optarg;
+      break;
+    case 'R':
+      refself = true;
       break;
     case 'M':
       str2number(optarg, memorySize);
@@ -244,6 +248,15 @@ Args::Args(int argc, char **argv) : treeName(""), dmName("") {
 #endif
   }
 
+  // refer self distance matrix
+  if (refself) {
+    if (refdm.empty()) {
+      refdm = dmName;
+    } else {
+      refdm += "," + dmName;
+    }
+  }
+
   //... Get The limit of memory size
   dmeth->setMaxMem(memorySize, glist.size(), klist.size());
 }
@@ -267,6 +280,7 @@ void Args::usage() {
        << " [ -M <N> ]          Runing memory size as G roughly,\n"
        << "                     default 80% of physical memory\n"
        << " [ -m Hao/InterList/InterSet] Method for cvtree, defaut: Hao\n"
+       << " [ -R ]           Refer the output distance matrix\n"
        << " [ -q ]           Run command in queit mode\n"
        << " [ -h ]           Disply this information\n"
        << endl;

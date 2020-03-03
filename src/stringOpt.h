@@ -30,7 +30,7 @@ string Ltrim(const string &);
 string Rtrim(const string &);
 string trim(const string &);
 
-int separateWord(vector<string> &, string, const string& sep = " ,");
+int separateWord(vector<string> &, string, const string &sep = " ,");
 
 void addsuffix(string &, char);
 string chgsuffix(const string &, const string &);
@@ -65,16 +65,35 @@ bool fileExists(const string &);
 //    return res;
 // };
 
-template <class T> void readlist(const string &file, vector<T> &list) {
+template <class T>
+void readlist(const string &file, vector<T> &list, int ncol = 0) {
   ifstream infile(file.c_str());
   if (!infile) {
     cerr << "\nCannot found the input file " << file << endl;
     exit(1);
   }
 
-  T item;
-  while (infile >> item)
-    list.push_back(item);
+  if (ncol == 0) {
+    T item;
+    while (infile >> item)
+      list.push_back(item);
+  } else {
+    ncol --;
+    for (string line; getline(infile, line);) {
+      line = trim(line);
+      if (!line.empty()) {
+        vector<string> items;
+        separateWord(items, line);
+
+        if(items.size() > ncol){
+          T item;
+          istringstream iss(items[ncol]);
+          iss >> item;
+          list.emplace_back(item);
+        }
+      };
+    }
+  }
   infile.close();
 };
 
