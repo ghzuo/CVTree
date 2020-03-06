@@ -77,7 +77,7 @@ size_t GeneType::readgene(string &file, Genome &genome) const {
 
   for (string line; getline(infile, line);) {
     line = trim(line);
-    if (line.empty()) {
+    if (line.empty() || line[0] == ';') {
 
     } else if (line[0] == '>') {
       genome.emplace_back();
