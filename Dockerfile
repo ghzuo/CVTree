@@ -6,7 +6,7 @@ LABEL Version=0.1 \
 
 ## for develop environment
 RUN apk --update add --no-cache g++ make cmake zlib-dev
-RUN apk add hdf5-dev hdf5-static --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
+RUN apk --update add --no-cache hdf5-dev hdf5-static --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
 
 
 ## Build cvtree
