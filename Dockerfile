@@ -5,8 +5,9 @@ LABEL Version=0.1 \
   description="Docker image for CVTree" 
 
 ## for develop environment
-RUN echo "http://dl-4.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
-RUN apk --update add --no-cache g++ make cmake zlib-dev hdf5-dev hdf5-static
+RUN apk --update add --no-cache g++ make cmake zlib-dev
+RUN apk --update add --no-cache hdf5-dev hdf5-static --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
+
 
 ## Build cvtree
 WORKDIR /root
