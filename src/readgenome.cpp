@@ -77,7 +77,7 @@ size_t GeneType::readgene(string &file, Genome &genome) const {
 
   for (string line; getline(infile, line);) {
     line = trim(line);
-    if (line.empty()) {
+    if (line.empty() || line[0] == ';') {
 
     } else if (line[0] == '>') {
       genome.emplace_back();
@@ -86,6 +86,11 @@ size_t GeneType::readgene(string &file, Genome &genome) const {
     }
   }
   infile.close();
+
+  if(genome.size() <= 0){
+    cerr << "The genome of " << file << " is empty!" << endl;
+    exit(5);
+  }
 
   size_t len(0);
   for (auto &gene : genome) {

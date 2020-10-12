@@ -17,9 +17,9 @@
 void usage(string &program) {
   cerr << "\nProgram Usage: \n\n"
        << program << "  -i <cvfile>        input file name\n"
-       << " [ -g faa ]          the type of genome file, defaut: faa\n"
+       << " [ -g faa ]          the type of genome file, default: faa\n"
        << " [ -n ]              output the number code, default: the letters\n"
-       << " [ -h ]              disply this information\n"
+       << " [ -h ]              Display this information\n"
        << endl;
   exit(1);
 }

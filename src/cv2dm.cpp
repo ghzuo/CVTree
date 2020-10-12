@@ -125,17 +125,17 @@ void Args::usage() {
        << " Byte\n"
        << "\nProgram Usage: \n\n"
        << program << "\n"
-       << " [ -o <dm> ]      Output distance matrix, defaut: "
+       << " [ -o <dm> ]      Output distance matrix, default: "
           "<Method><Suffix>.h5\n"
        << " [ -V <cvdir> ]   Super directory of extend cv files\n"
-       << " [ -i list ]      Genome list for distance matrix, defaut: list\n"
+       << " [ -i list ]      Genome list for distance matrix, default: list\n"
        << " [ -s <Suffix> ]  Suffix of the cvfile, default: .faa.cv6\n"
        << " [ -r <matrix> ]  Reference distance matrixs, splite with ','\n"
        << " [ -M <N> ]       Runing memory size as G roughly, \n"
        << "                  default 80% of physical memory\n"
-       << " [ -m Cosine/InterList/InterSet] Method for cvtree, defaut: Cosine\n"
+       << " [ -m Cosine/InterList/InterSet] Method for cvtree, default: Cosine\n"
        << " [ -q ]           Run command in queit mode\n"
-       << " [ -h ]           Disply this information\n"
+       << " [ -h ]           Display this information\n"
        << endl;
   exit(1);
 }

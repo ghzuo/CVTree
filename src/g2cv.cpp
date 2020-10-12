@@ -114,13 +114,13 @@ void Args::usage() {
        << program << "\n"
        << " [ -G <dir> ]      input genome file directory\n"
        << " [ -V <dir> ]      output cv directory\n"
-       << " [ -i list ]       input species list, defaut: list\n"
+       << " [ -i list ]       input species list, default: list\n"
        << " [ -f <Fasta> ]    get cv for only one fasta \n"
-       << " [ -k '5 6 7' ]    values of k, defaut: K = 5 6 7\n"
-       << " [ -g faa ]        the type of genome file, defaut: faa\n"
-       << " [ -m Hao/Count ]  the method for cvtree, defaut: Hao\n"
+       << " [ -k '5 6 7' ]    values of k, default: K = 5 6 7\n"
+       << " [ -g faa ]        the type of genome file, default: faa\n"
+       << " [ -m Hao/Count ]  the method for cvtree, default: Hao\n"
        << " [ -q ]            Run command in queit mode\n"
-       << " [ -h ]            disply this information\n"
+       << " [ -h ]            Display this information\n"
        << endl;
 
   exit(1);

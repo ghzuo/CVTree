@@ -89,13 +89,13 @@ Args::Args(int argc, char **argv)
 void Args::usage() {
   cerr << "\nProgram Usage: \n\n"
        << program << "\n"
-       << " [ -d infile ]     Input distance matrix, defaut: dist.matrix\n"
-       << " [ -o Tree.nwk ]   Output newick tree, defaut: Tree.nwk\n"
+       << " [ -d infile ]     Input distance matrix, default: dist.matrix\n"
+       << " [ -o Tree.nwk ]   Output newick tree, default: Tree.nwk\n"
        << " [ -i <list> ]     selection index list of the distance matrix,\n"
        << "                   if no defined, whole distance matrix are used\n"
        << " [ -C ]            Use the netcdf input format, default false\n"
        << " [ -q ]            Run command in queit mode\n"
-       << " [ -h ]            Disply this information\n"
+       << " [ -h ]            Display this information\n"
        << endl;
   exit(1);
 }

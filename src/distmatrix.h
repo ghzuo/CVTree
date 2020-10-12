@@ -23,6 +23,10 @@
 
 #ifdef _NETCDF
 #include <netcdfcpp.h>
+#ifndef NCERR
+#define NCERR
+static const int NC_ERR = 10;
+#endif
 #endif
 
 #ifdef _HDF5
@@ -114,9 +118,4 @@ public:
   size_t capacity() const;
 };
 
-#endif
-
-#ifndef NCERR
-#define NCERR
-static const int NC_ERR = 10;
 #endif
