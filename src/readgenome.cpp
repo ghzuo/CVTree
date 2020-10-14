@@ -50,6 +50,9 @@ void GeneType::nainit() {
     letters.emplace_back(c);
   }
 
+  // for RNA Sequence
+  mc['U'] = 'T';
+
   // for the unfomrated na
   mc['R'] = 'A'; // AG
   mc['Y'] = 'T'; // CT
