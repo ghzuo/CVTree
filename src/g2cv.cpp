@@ -112,14 +112,14 @@ Args::Args(int argc, char **argv) {
 void Args::usage() {
   cerr << "\nProgram Usage: \n\n"
        << program << "\n"
-       << " [ -G <dir> ]      input genome file directory\n"
-       << " [ -V <dir> ]      output cv directory\n"
+       << " [ -G <gdir> ]     input genome file directory\n"
+       << " [ -V <cvdir> ]    output cv directory\n"
        << " [ -i list ]       input species list, default: list\n"
        << " [ -f <Fasta> ]    get cv for only one fasta \n"
        << " [ -k '5 6 7' ]    values of k, default: K = 5 6 7\n"
        << " [ -g faa ]        the type of genome file, default: faa\n"
        << " [ -m Hao/Count ]  the method for cvtree, default: Hao\n"
-       << " [ -q ]            Run command in queit mode\n"
+       << " [ -q ]            Run command in quiet mode\n"
        << " [ -h ]            Display this information\n"
        << endl;
 

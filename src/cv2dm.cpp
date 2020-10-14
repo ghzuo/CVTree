@@ -130,11 +130,11 @@ void Args::usage() {
        << " [ -V <cvdir> ]   Super directory of extend cv files\n"
        << " [ -i list ]      Genome list for distance matrix, default: list\n"
        << " [ -s <Suffix> ]  Suffix of the cvfile, default: .faa.cv6\n"
-       << " [ -r <matrix> ]  Reference distance matrixs, splite with ','\n"
-       << " [ -M <N> ]       Runing memory size as G roughly, \n"
+       << " [ -r <matrix> ]  Reference distance matrices, split with ','\n"
+       << " [ -M <N> ]       Running memory size as G roughly, \n"
        << "                  default 80% of physical memory\n"
        << " [ -m Cosine/InterList/InterSet] Method for cvtree, default: Cosine\n"
-       << " [ -q ]           Run command in queit mode\n"
+       << " [ -q ]           Run command in quiet mode\n"
        << " [ -h ]           Display this information\n"
        << endl;
   exit(1);

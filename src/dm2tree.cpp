@@ -94,7 +94,7 @@ void Args::usage() {
        << " [ -i <list> ]     selection index list of the distance matrix,\n"
        << "                   if no defined, whole distance matrix are used\n"
        << " [ -C ]            Use the netcdf input format, default false\n"
-       << " [ -q ]            Run command in queit mode\n"
+       << " [ -q ]            Run command in quiet mode\n"
        << " [ -h ]            Display this information\n"
        << endl;
   exit(1);
