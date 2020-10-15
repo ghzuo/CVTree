@@ -243,47 +243,31 @@ double InterList::dist(const CVvec &cv1, const CVvec &cv2) {
 
   // get the distance after reset bound with binary search
   if (fitBegin(block1, block2)) {
-    double n(0);
-    double sum(0);
+    double sumMin(0);
     for (;;) {
       if (block1.begin->first == block2.begin->first) {
-        n += min(block1.begin->second, block1.begin->second);
-        sum += block1.begin->second;
-        sum += block2.begin->second;
-        if (block1.pop()) {
-          while (!block2.pop()) {
-            sum += block2.begin->second;
-          }
+        sumMin += min(block1.begin->second, block1.begin->second);
+        if (block1.pop())
           break;
-        }
-        if (block2.pop()) {
-          while (!block1.pop()) {
-            sum += block1.begin->second;
-          }
+        else if (block2.pop())
           break;
-        }
+      } else if (block1.begin->first < block2.begin->first) {
+        if (block1.pop())
+          break;
       } else {
-        if (block1.begin->first < block2.begin->first) {
-          sum += block1.begin->second;
-          if (block1.pop()) {
-            while (!block2.pop()) {
-              sum += block2.begin->second;
-            }
-            break;
-          }
-        } else {
-          sum += block2.begin->second;
-          if (block2.pop()) {
-            while (!block1.pop()) {
-              sum += block1.begin->second;
-            }
-            break;
-          }
-        }
+        if (block2.pop())
+          break;
       }
     }
-    return 1.0 - 2 * n / sum;
+
+    // get the sum of two vector
+    double sum(0);
+    for (auto &item : cv1)
+      sum += item.second;
+    for (auto &item : cv2)
+      sum += item.second;
+    return 1.0 - 2 * sumMin / sum;
   } else {
     return 1.0;
   }
-}
+};
