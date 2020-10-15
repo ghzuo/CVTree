@@ -15,8 +15,6 @@
 GeneType::GeneType(const string &str) { init(str); };
 
 void GeneType::init(const string &str) {
-  for (int i = 0; i < 128; ++i)
-    mc[i] = 'A';
   if (str.compare("faa") == 0)
     aainit();
   else if (str.compare("ffn") == 0)
@@ -27,10 +25,17 @@ void GeneType::init(const string &str) {
     cerr << "unknown genome file type!\n" << endl;
     exit(1);
   }
+
+  // use the upper case letters
+  for(int i=97; i<123; ++i)
+    mc[i] = mc[i-32];
 };
 
 void GeneType::aainit() {
   string aa = "ACDEFGHIKLMNPQRSTVWY";
+  // set the default char
+  for (auto &c : mc)
+    c = aa[0];
   for (auto &c : aa) {
     mc[c] = c;
     letters.emplace_back(c);
@@ -45,6 +50,8 @@ void GeneType::aainit() {
 
 void GeneType::nainit() {
   string na = "ACGT";
+  for (auto &c : mc)
+    c = na[0];
   for (auto &c : na) {
     mc[c] = c;
     letters.emplace_back(c);
@@ -84,13 +91,13 @@ size_t GeneType::readgene(string &file, Genome &genome) const {
 
     } else if (line[0] == '>') {
       genome.emplace_back();
-    } else if(!genome.empty()){
+    } else if (!genome.empty()) {
       genome.back().append(line);
     }
   }
   infile.close();
 
-  if(genome.size() <= 0){
+  if (genome.size() <= 0) {
     cerr << "The genome of " << file << " is empty!" << endl;
     exit(5);
   }
@@ -110,7 +117,6 @@ size_t GeneType::readgene(string &file, Genome &genome) const {
 void GeneType::checkgene(string &str) const {
   if (*(str.rbegin()) == '*' || *(str.rbegin()) == '-')
     str.pop_back();
-  str = toUpper(str);
   for (auto &c : str)
     c = mc[c];
 };
