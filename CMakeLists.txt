@@ -10,7 +10,7 @@
 # @Last Modified Time: 2018-04-26 19:50:44
 ###
 
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.0)
 #cmake_policy(SET CMP0012 NEW)
 project (CVTree)
 enable_language(CXX)
@@ -37,10 +37,11 @@ foreach(LIB ${REQUIRED_LIBRARIES})
 endforeach()
 
 ### Check the OPENMP
-find_package(OpenMP)
+find_package(OpenMP REQUIRED)
 if (OPENMP_FOUND)
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+  set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L/usr/local/lib -lomp")
 endif()
 
 ### Check HDF5
