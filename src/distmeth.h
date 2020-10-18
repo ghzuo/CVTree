@@ -41,22 +41,27 @@ using namespace std;
 struct CVitem {
   size_t ndx;
   string fname;
+  double norm;
   CVvec cv;
 
   CVitem() = default;
   CVitem(size_t i, const string &str) : ndx(i), fname(str){};
-  void fill() { readcv(fname, cv); };
-  void clear() { CVvec().swap(cv); };
+  void fill();
+  void clear() {
+    CVvec().swap(cv);
+    norm = 0;
+  };
 };
 
 struct DistMeth {
+  static bool normalize;
   vector<CVitem> cvlist;
   vector<CVitem *> introBlock;
   vector<CVitem *> interBlock;
   float maxM;
 
   // the create function
-  static DistMeth *create(const string &);
+  static DistMeth *create(const string &, bool normal = false);
 
   // the base function
   void setMaxMem(float, size_t, size_t);
@@ -69,26 +74,40 @@ struct DistMeth {
   void cleanStep();
 
   // execute calculation
-  void fillBlock(); // TODO: mergin the readcv into calcInDist function
+  void fillBlock();
   void calcInDist(Mdist &);
   void calcOutDist(Mdist &);
   void execute(const vector<string> &, Mdist &);
 
   // the virtual function for different methods
-  virtual double dist(const CVvec &, const CVvec &) = 0;
+  virtual double dist(const CVitem &, const CVitem &) = 0;
 };
 
 // son class for different method
 struct Cosine : public DistMeth {
-  double dist(const CVvec &, const CVvec &) override;
+  Cosine(){normalize = true;}
+  double dist(const CVitem &, const CVitem &) override;
+};
+
+struct Euclidean: public DistMeth {
+  double dist(const CVitem &, const CVitem &) override;
+  double ddTail(CVblock&);
+};
+
+struct Tekanovsky : public DistMeth {
+  double dist(const CVitem &, const CVitem &) override;
 };
 
 struct InterSet : public DistMeth {
-  double dist(const CVvec &, const CVvec &) override;
+  double dist(const CVitem &, const CVitem &) override;
 };
 
-struct InterList : public DistMeth {
-  double dist(const CVvec &, const CVvec &) override;
+struct Dice : public DistMeth {
+  double dist(const CVitem &, const CVitem &) override;
+};
+
+struct ItoU : public DistMeth {
+  double dist(const CVitem &, const CVitem &) override;
 };
 
 #endif

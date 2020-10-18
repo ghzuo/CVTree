@@ -100,13 +100,14 @@ bool fitBoundary(CVblock&, CVblock&);
 bool fitBegin(CVblock&, CVblock&);
 bool fitEnd(CVblock&, CVblock&);
 double align(CVblock&, CVblock&);
+size_t nInterSection(CVblock&, CVblock&);
 double shrink(CVblock&, CVblock&);
 double binaryAlign(CVblock&, CVblock&);
 void _binaryAlign(CVblock&, CVblock&, double& d);
 
 void writecv(const CVmap&, const string&);
 void writecv(const CVvec&, const string&);
-double readcv(const string&, CVvec&, bool normalize=true);
+double readcv(const string&, CVvec&);
 size_t cvsize(const string&);
 
 void readvk(const string&, vector<Kstr>&);

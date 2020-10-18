@@ -141,36 +141,25 @@ void writecv(const CVvec &cv, const string &file) {
 // Read the cv from binary gz file
 // read the cv from operation on the cv vector
 // used for the distance calculate
-double readcv(const string &filename, CVvec &cv, bool normalize) {
+double readcv(const string &filename, CVvec &cv) {
   gzFile fp;
   if ((fp = gzopen(filename.c_str(), "rb")) == NULL) {
     cerr << "CV file not found: \"" << filename << '"' << endl;
     exit(1);
   }
 
+  // get the head (norm & size) of the cv file
   pair<double, mlong> tmp;
   gzread(fp, (char *)&tmp, sizeof(CVdim));
-  double m = 1;
-  if(tmp.first != 0)
-    m = sqrt(tmp.first);
+  double norm = sqrt(tmp.first);
   mlong size = tmp.second;
 
+  // read the cv
   cv.resize(size);
   gzread(fp, (char *)cv.data(), size * sizeof(CVdim));
-  if (normalize) {
-    for (auto &cvdim : cv) {
-      cvdim.second /= m;
-    }
-  }
-
-  // CVdim cdim;
-  // while(gzread(fp,(char*)&cdim, sizeof(CVdim))>0){
-  //     cdim.second /= m;
-  //     cv.emplace_back(cdim);
-  // }
   gzclose(fp);
 
-  return tmp.first;
+  return norm;
 }
 
 size_t cvsize(const string &filename) {
@@ -331,7 +320,35 @@ double align(CVblock &block1, CVblock &block2) {
   }
 };
 
-// get number of kstring intersection
+// get the number of intersection
+size_t nInterSection(CVblock &block1, CVblock &block2) {
+
+  // the number record
+  size_t nI(0);
+
+  // get the distance after reset bound with binary search
+  if (fitBegin(block1, block2)) {
+    for (;;) {
+      if (block1.begin->first == block2.begin->first) {
+        nI++;
+        if (block1.pop())
+          break;
+        if (block2.pop())
+          break;
+      } else {
+        if (block1.begin->first < block2.begin->first) {
+          if (block1.pop())
+            break;
+        } else {
+          if (block2.pop())
+            break;
+        }
+      }
+    }
+  }
+
+  return nI;
+};
 
 // get dot product by binary segment align
 double binaryAlign(CVblock &block1, CVblock &block2) {

@@ -133,7 +133,10 @@ void Args::usage() {
        << " [ -r <matrix> ]  Reference distance matrices, split with ','\n"
        << " [ -M <N> ]       Running memory size as G roughly, \n"
        << "                  default 80% of physical memory\n"
-       << " [ -m Cosine/InterList/InterSet] Method for cvtree, default: Cosine\n"
+       << " [ -m Cosine ]    Method for distance:\n"
+       << "                  Cosine/Tekanovsky/Euclidean based on vector;\n"
+       << "                  InterSet/Jaccard/Dice based set.\n"
+       << "                  default: Cosine\n"
        << " [ -q ]           Run command in quiet mode\n"
        << " [ -h ]           Display this information\n"
        << endl;

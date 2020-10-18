@@ -185,14 +185,13 @@ Args::Args(int argc, char **argv) : treeName(""), dmName("") {
     cmeth = CVmeth::create("Count", cvdir, gtype);
     dmeth = DistMeth::create("InterSet");
     tmeth = TreeMeth::create("NJ");
-
   } else if (methStr == "InterList") {
     cmeth = CVmeth::create("Count", cvdir, gtype);
-    dmeth = DistMeth::create("InterList");
+    dmeth = DistMeth::create("Tekanovsky");
     tmeth = TreeMeth::create("NJ");
   } else {
     vector<string> mlist;
-    separateWord(mlist, methStr);
+    separateWord(mlist, methStr, ":");
     if (mlist.size() > 1) {
       cmeth = CVmeth::create(mlist[0], cvdir, gtype);
       dmeth = DistMeth::create(mlist[1]);
@@ -266,22 +265,22 @@ void Args::usage() {
        << " Byte\n"
        << "\nProgram Usage: \n\n"
        << program << "\n"
-       << " [ -d <dm> ]         Output distance matrix name, default: "
-          "<Method><Suffix><K>\n"
-       << " [ -t <nwk> ]        Output newick file name, default: "
-          "<Method><Suffix><K>.nwk\n"
-       << " [ -G <gdir> ]       Super directory of Input genome file, default: "
+       << " [ -d <dm> ]      Output distance matrix name, default: "
+          "<Method>.<gtype>.<Suffix><K>\n"
+       << " [ -t <nwk> ]     Output newick file name, default: "
+          "<Method>.<gtype>.<Suffix><K>.nwk\n"
+       << " [ -G <gdir> ]    Super directory of Input genome file, default: "
           "<current directory> \n"
-       << " [ -g faa ]          the type of genome file, default: faa\n"
-       << " [ -V <cvdir> ]      Super directory of cv files\n"
-       << " [ -i list ]         Genome list for distance matrix, default: "
-          "list\n"
-       << " [ -k '5 6 7' ]      values of k, default: K = 5 6 7\n"
-       << " [ -r <matrix> ]     Reference distance matrices, split with ','\n"
-       << " [ -M <N> ]          Running memory size as G roughly,\n"
-       << "                     default 80% of physical memory\n"
-       << " [ -m Hao/InterList/InterSet] Method for cvtree, default: Hao\n"
+       << " [ -g faa ]       Type of genome file [faa/ffn/fna], "
+          "default: faa\n"
+       << " [ -V <cvdir> ]   Super directory of cv files\n"
+       << " [ -i list ]      Genome list for calculating, default: list\n"
+       << " [ -k '5 6 7' ]   Values of k, default: K = 5 6 7\n"
+       << " [ -r <matrix> ]  Reference distance matrices, split with ','\n"
        << " [ -R ]           Refer the output distance matrix\n"
+       << " [ -M <N> ]       Running memory size as G roughly,\n"
+       << "                  default 80% of physical memory\n"
+       << " [ -m Hao ]       Method for cvtree Hao/InterList/InterSet, default: Hao\n"
        << " [ -q ]           Run command in quiet mode\n"
        << " [ -h ]           Display this information\n"
        << endl;
