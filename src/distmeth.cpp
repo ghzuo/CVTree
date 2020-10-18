@@ -41,13 +41,13 @@ DistMeth *DistMeth::create(const string &methStr, bool normal) {
   DistMeth *meth;
   if (methStr == "Cosine") {
     meth = new Cosine();
-  } else if (methStr == "Tekanovsky") {
-    meth = new Tekanovsky();
+  } else if (methStr == "InterList") {
+    meth = new InterList();
   } else if (methStr == "Euclidean") {
     meth = new Euclidean();
   } else if (methStr == "InterSet") {
     meth = new InterSet();
-  } else if (methStr == "ItoU") {
+  } else if (methStr == "Jaccard" || methStr == "ItoU") {
     meth = new ItoU();
   } else if (methStr == "Dice") {
     meth = new ItoU();
@@ -236,7 +236,7 @@ double Cosine::dist(const CVitem &cv1, const CVitem &cv2) {
   // }
 };
 
-double Tekanovsky::dist(const CVitem &cv1, const CVitem &cv2) {
+double InterList::dist(const CVitem &cv1, const CVitem &cv2) {
   CVblock block1(cv1.cv.begin(), cv1.cv.end());
   CVblock block2(cv2.cv.begin(), cv2.cv.end());
 

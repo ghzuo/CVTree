@@ -134,7 +134,7 @@ void Args::usage() {
        << " [ -M <N> ]       Running memory size as G roughly, \n"
        << "                  default 80% of physical memory\n"
        << " [ -m Cosine ]    Method for distance:\n"
-       << "                  Cosine/Tekanovsky/Euclidean based on vector;\n"
+       << "                  Cosine/InterList/Euclidean based on vector;\n"
        << "                  InterSet/Jaccard/Dice based set.\n"
        << "                  default: Cosine\n"
        << " [ -q ]           Run command in quiet mode\n"

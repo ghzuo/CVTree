@@ -187,7 +187,7 @@ Args::Args(int argc, char **argv) : treeName(""), dmName("") {
     tmeth = TreeMeth::create("NJ");
   } else if (methStr == "InterList") {
     cmeth = CVmeth::create("Count", cvdir, gtype);
-    dmeth = DistMeth::create("Tekanovsky");
+    dmeth = DistMeth::create("InterList");
     tmeth = TreeMeth::create("NJ");
   } else {
     vector<string> mlist;

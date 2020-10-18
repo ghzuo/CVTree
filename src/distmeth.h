@@ -94,7 +94,7 @@ struct Euclidean: public DistMeth {
   double ddTail(CVblock&);
 };
 
-struct Tekanovsky : public DistMeth {
+struct InterList : public DistMeth {
   double dist(const CVitem &, const CVitem &) override;
 };
 
