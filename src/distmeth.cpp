@@ -19,8 +19,20 @@ void CVitem::fill() {
   //.. get the cv and its norm
   norm = readcv(fname, cv);
 
-  //.. do normlize if method required
-  // TODO: Add method to change the norm of the vector here
+  //.. revise norm according to lp of method
+  switch (DistMeth::lp) {
+  case L0:
+    norm = double(cv.size());
+    break;
+  case L1:
+    norm = 0;
+    for (auto &item : cv)
+      norm += abs(item.second);
+  case L2:
+    break;
+  }
+
+  // do normlize if method required
   if (DistMeth::normalize) {
     for (auto &cvdim : cv) {
       cvdim.second /= norm;
@@ -30,6 +42,9 @@ void CVitem::fill() {
 
 ///.. whether do normlize default
 bool DistMeth::normalize = false;
+
+///.. the type of norm in CVitem for the DistMeth
+LPnorm DistMeth::lp = L2;
 
 /// the create function
 DistMeth *DistMeth::create(const string &methStr, bool normal) {
@@ -43,6 +58,8 @@ DistMeth *DistMeth::create(const string &methStr, bool normal) {
     meth = new Cosine();
   } else if (methStr == "InterList") {
     meth = new InterList();
+  } else if (methStr == "Min2Max") {
+    meth = new Min2Max(); 
   } else if (methStr == "Euclidean") {
     meth = new Euclidean();
   } else if (methStr == "InterSet") {
@@ -240,44 +257,23 @@ double InterList::dist(const CVitem &cv1, const CVitem &cv2) {
   CVblock block1(cv1.cv.begin(), cv1.cv.end());
   CVblock block2(cv2.cv.begin(), cv2.cv.end());
 
-  // get the distance after reset bound with binary search
-  if (fitBegin(block1, block2)) {
-    double sumMin(0);
-    for (;;) {
-      if (block1.begin->first == block2.begin->first) {
-        sumMin += min(block1.begin->second, block1.begin->second);
-        if (block1.pop())
-          break;
-        else if (block2.pop())
-          break;
-      } else if (block1.begin->first < block2.begin->first) {
-        if (block1.pop())
-          break;
-      } else {
-        if (block2.pop())
-          break;
-      }
-    }
+  return 1.0 - 2.0 * overlap(block1, block2) / (cv1.norm + cv2.norm);
 
-    // get the sum of two vector
-    // TODO: move it  in fill function to avoid recalculation
-    double sum(0);
-    for (auto &item : cv1.cv)
-      sum += item.second;
-    for (auto &item : cv2.cv)
-      sum += item.second;
+};
 
-    // return the distance
-    return 1.0 - 2 * sumMin / sum;
-  } else {
-    return 1.0;
-  }
+double Min2Max::dist(const CVitem &cv1, const CVitem &cv2) {
+  CVblock block1(cv1.cv.begin(), cv1.cv.end());
+  CVblock block2(cv2.cv.begin(), cv2.cv.end());
+
+  double qOverlap = overlap(block1, block2);
+  double qTotal = cv1.norm + cv2.norm - qOverlap;
+  return 1.0 - qOverlap/qTotal;
 };
 
 /// function to summary the rest vector
-double Euclidean::ddTail(CVblock& blk){
+double Euclidean::ddTail(CVblock &blk) {
   double dd(0);
-  while(!blk.pop())
+  while (!blk.pop())
     dd += blk.begin->second * blk.begin->second;
   return dd;
 };
@@ -292,23 +288,20 @@ double Euclidean::dist(const CVitem &cv1, const CVitem &cv2) {
     if (block1.begin->first == block2.begin->first) {
       double dx = block1.begin->second - block2.begin->second;
       dd += dx * dx;
-      if (block1.pop()){
+      if (block1.pop()) {
         dd += ddTail(block2);
         break;
-      }
-      else if (block2.pop()){
+      } else if (block2.pop()) {
         dd += ddTail(block1);
         break;
       }
     } else if (block1.begin->first < block2.begin->first) {
-      //dd += block1.begin->second * block1.begin->second;
-      if (block1.pop()){
+      if (block1.pop()) {
         dd += ddTail(block2);
         break;
       }
     } else {
-      //dd += block1.begin->second * block1.begin->second;
-      if (block2.pop()){
+      if (block2.pop()) {
         dd += ddTail(block1);
         break;
       }
@@ -324,15 +317,14 @@ double InterSet::dist(const CVitem &cv1, const CVitem &cv2) {
   CVblock block2(cv2.cv.begin(), cv2.cv.end());
 
   return 1.0 - double(nInterSection(block1, block2)) /
-                   sqrt(double(cv1.cv.size()) * double(cv2.cv.size()));
+                   sqrt(cv1.norm * cv2.norm);
 }
 
 double Dice::dist(const CVitem &cv1, const CVitem &cv2) {
   CVblock block1(cv1.cv.begin(), cv1.cv.end());
   CVblock block2(cv2.cv.begin(), cv2.cv.end());
 
-  return 1.0 - 2.0 * double(nInterSection(block1, block2)) /
-                   sqrt(double(cv1.cv.size() + (cv2.cv.size())));
+  return 1.0 - 2.0 * double(nInterSection(block1, block2)) /(cv1.norm + cv2.norm);
 }
 
 double ItoU::dist(const CVitem &cv1, const CVitem &cv2) {

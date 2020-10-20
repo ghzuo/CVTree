@@ -350,6 +350,31 @@ size_t nInterSection(CVblock &block1, CVblock &block2) {
   return nI;
 };
 
+// get the overlap of kmer
+double overlap(CVblock& block1, CVblock& block2){
+
+  double sumMin(0);
+  if (fitBegin(block1, block2)) {
+    for (;;) {
+      if (block1.begin->first == block2.begin->first) {
+        sumMin += min(block1.begin->second, block1.begin->second);
+        if (block1.pop())
+          break;
+        else if (block2.pop())
+          break;
+      } else if (block1.begin->first < block2.begin->first) {
+        if (block1.pop())
+          break;
+      } else {
+        if (block2.pop())
+          break;
+      }
+    }
+  }
+  return sumMin; 
+};
+
+
 // get dot product by binary segment align
 double binaryAlign(CVblock &block1, CVblock &block2) {
 

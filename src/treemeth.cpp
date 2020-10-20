@@ -84,42 +84,43 @@ Node *NeighborJoint::tree(Mdist &dm) {
 void NeighborJoint::lenStar(const StarTree &vn, const Mdist &dm) {
   for (auto &np : vn) {
     double len = 0.0;
-    size_t idp = (*np).id;
+    size_t idp = np->id;
     for (auto &nd : vn) {
       if (np != nd)
         len += dm.getdist(idp, (*nd).id);
     }
-    (*np).length = len;
+    np->length = len;
   }
 };
+
+#pragma omp declare reduction(mindd:Neighbor                                   \
+                              : omp_out =                                      \
+                                    omp_in.dd < omp_out.dd ? omp_in : omp_out)
 
 void NeighborJoint::njnearest(const Mdist &dm, StarTree &nodes, Neighbor &nb) {
 
   // get the nearest neighbor
   size_t nNode(nodes.size());
   double m2star(nNode - 2);
+  nb.dd = numeric_limits<double>::max();
 
   vector<double> length(nNode);
-  vector<size_t> id(nNode);
   for (int i = 0; i < nNode; ++i) {
-    length[i] = (*(nodes[i])).length / m2star;
-    id[i] = (*(nodes[i])).id;
+    length[i] = nodes[i]->length / m2star;
   }
 
-  double minddxy(numeric_limits<double>::max());
-  double ddxy;
-  for (int i = 1; i < nNode; ++i) {
-    minddxy += length[i];
-    size_t Idi = id[i];
-    for (int j = 0; j < i; ++j) {
-      ddxy = dm._getdist(id[j], Idi) - length[j];
-      if (ddxy < minddxy) {
+#pragma omp parallel for reduction(mindd : nb) schedule(guided) num_threads(16)
+  for (size_t i = 1; i < nNode; ++i) {
+    nb.dd += length[i];
+    for (size_t j = 0; j < i; ++j) {
+      double ddxy = dm._getdist(nodes[j]->id, nodes[i]->id) - length[j];
+      if (ddxy < nb.dd) {
         nb.first = j;
         nb.second = i;
-        minddxy = ddxy;
+        nb.dd = ddxy;
       }
     }
-    minddxy -= length[i];
+    nb.dd -= length[i];
   }
 };
 
@@ -135,7 +136,7 @@ void NeighborJoint::joint(Mdist &dm, StarTree &nodes, Neighbor &nb) {
   double dx = (*nx).length;
   double dy = (*ny).length;
   double dxdy = (dx - dy) / (mstar - 2);
-  double dxy = dm.getdist(idx, idy);
+  double dxy = dm._getdist(idx, idy);
   (*nx).length = 0.5 * (dxy + dxdy);
   (*ny).length = 0.5 * (dxy - dxdy);
 
@@ -151,14 +152,19 @@ void NeighborJoint::joint(Mdist &dm, StarTree &nodes, Neighbor &nb) {
 
   // set the distrance between node z and other nodes
   // use the nx index to the index of nz in distrance matrix
-  for (auto &nu : nodes) {
-    if (nu != nz) {
-      size_t idu = (*nu).id;
-      double dux = dm.getdist(idx, idu);
-      double duy = dm.getdist(idy, idu);
-      double duz = 0.5 * (dux + duy - dxy);
-      dm.setdist(idx, idu, duz);
-      (*nu).length = (*nu).length - dux - duy + duz;
-    }
+  for (size_t i = 0; i < nb.first; ++i) {
+    size_t idu = nodes[i]->id;
+    double duxy = dm._getdist(idu, idx) + dm._getdist(idu, idy);
+    double duz = 0.5 * (duxy - dxy);
+    dm.setdist(idx, idu, duz);
+    nodes[i]->length += (duz - duxy);
+  }
+
+  for (size_t i = nb.first + 1; i < nodes.size(); ++i) {
+    size_t idu = nodes[i]->id;
+    double duxy = dm._getdist(idx, idu) + dm.getdist(idy, idu);
+    double duz = 0.5 * (duxy - dxy);
+    dm.setdist(idx, idu, duz);
+    nodes[i]->length += (duz - duxy);
   }
 }

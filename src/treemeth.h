@@ -28,11 +28,16 @@ using namespace std;
 
 // the starTree
 typedef vector<Node *> StarTree;
-typedef pair<int, int> Neighbor;
+struct Neighbor {
+  int first, second;
+  double dd;
+
+  Neighbor() : first(0), second(0), dd(numeric_limits<double>::max()){};
+};
 
 struct TreeMeth {
   // the create function
-  static TreeMeth* create(const string&);
+  static TreeMeth *create(const string &);
 
   // virtual function for different methods
   virtual Node *tree(Mdist &) = 0;

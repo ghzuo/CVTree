@@ -101,6 +101,7 @@ bool fitBegin(CVblock&, CVblock&);
 bool fitEnd(CVblock&, CVblock&);
 double align(CVblock&, CVblock&);
 size_t nInterSection(CVblock&, CVblock&);
+double overlap(CVblock&, CVblock&);
 double shrink(CVblock&, CVblock&);
 double binaryAlign(CVblock&, CVblock&);
 void _binaryAlign(CVblock&, CVblock&, double& d);

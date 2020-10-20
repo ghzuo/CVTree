@@ -38,6 +38,7 @@
 using namespace std;
 
 // read arguments
+enum LPnorm { L0, L1, L2 };
 struct CVitem {
   size_t ndx;
   string fname;
@@ -55,6 +56,7 @@ struct CVitem {
 
 struct DistMeth {
   static bool normalize;
+  static LPnorm lp;
   vector<CVitem> cvlist;
   vector<CVitem *> introBlock;
   vector<CVitem *> interBlock;
@@ -85,28 +87,37 @@ struct DistMeth {
 
 // son class for different method
 struct Cosine : public DistMeth {
-  Cosine(){normalize = true;}
+  Cosine() { normalize = true; }
   double dist(const CVitem &, const CVitem &) override;
 };
 
-struct Euclidean: public DistMeth {
+struct Euclidean : public DistMeth {
   double dist(const CVitem &, const CVitem &) override;
-  double ddTail(CVblock&);
+  double ddTail(CVblock &);
 };
 
 struct InterList : public DistMeth {
+  InterList() { lp = L1; };
+  double dist(const CVitem &, const CVitem &) override;
+};
+
+struct Min2Max : public DistMeth {
+  Min2Max() { lp = L1; };
   double dist(const CVitem &, const CVitem &) override;
 };
 
 struct InterSet : public DistMeth {
+  InterSet() { lp = L0; };
   double dist(const CVitem &, const CVitem &) override;
 };
 
 struct Dice : public DistMeth {
+  Dice() { lp = L0; };
   double dist(const CVitem &, const CVitem &) override;
 };
 
 struct ItoU : public DistMeth {
+  ItoU() { lp = L0; };
   double dist(const CVitem &, const CVitem &) override;
 };
 
