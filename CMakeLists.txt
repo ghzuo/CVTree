@@ -78,11 +78,5 @@ endif()
 ## include subdirectories
 ADD_SUBDIRECTORY(src)
 
-## for the latex manual
-find_package(LATEX)
-if(LATEX_FOUND)
-  ADD_SUBDIRECTORY(manual)
-endif()
-
 
 

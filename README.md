@@ -39,8 +39,7 @@ and http://tlife.fudan.edu.cn/cvtree (Fudan University, Shanghai).
 2. mkdir build and change into it
 3. cmake .. or add some options you wanted
 4. make
-5. make manual (_option_)
-6. make install (_option_)
+5. make install (_option_)
 
 ### Run Programms in Docker
 
@@ -72,10 +71,6 @@ the cvtree command to get the phylogeny tree by:
     ../build/cvtree -G faa
 
 More detail of the command usage can be obtaion by `-h` option.
-
-## Todo
-
-- More detail docuemt of the software.
 
 ## Reference
 
