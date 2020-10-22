@@ -162,6 +162,31 @@ double readcv(const string &filename, CVvec &cv) {
   return norm;
 }
 
+// read the cv file into a map
+double readcv(const string &filename, CVmap &cv) {
+  gzFile fp;
+  if ((fp = gzopen(filename.c_str(), "rb")) == NULL) {
+    cerr << "CV file not found: \"" << filename << '"' << endl;
+    exit(1);
+  }
+
+  // get the head (norm & size) of the cv file
+  pair<double, mlong> tmp;
+  gzread(fp, (char *)&tmp, sizeof(CVdim));
+  double norm = sqrt(tmp.first);
+  mlong size = tmp.second;
+
+  // read the cv
+  for (int i = 0; i < size; ++i) {
+    CVdim cd;
+    gzread(fp, (char *)&cd, sizeof(CVdim));
+    cv.insert(cv.end(), cd);
+  }
+  gzclose(fp);
+
+  return norm;
+}
+
 size_t cvsize(const string &filename) {
   gzFile fp;
   if ((fp = gzopen(filename.c_str(), "rb")) == NULL) {
@@ -351,7 +376,7 @@ size_t nInterSection(CVblock &block1, CVblock &block2) {
 };
 
 // get the overlap of kmer
-double overlap(CVblock& block1, CVblock& block2){
+double overlap(CVblock &block1, CVblock &block2) {
 
   double sumMin(0);
   if (fitBegin(block1, block2)) {
@@ -371,9 +396,8 @@ double overlap(CVblock& block1, CVblock& block2){
       }
     }
   }
-  return sumMin; 
+  return sumMin;
 };
-
 
 // get dot product by binary segment align
 double binaryAlign(CVblock &block1, CVblock &block2) {

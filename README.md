@@ -16,8 +16,9 @@ and http://tlife.fudan.edu.cn/cvtree (Fudan University, Shanghai).
 - g2dv: Get the composition vector based on the fasta file of the genome.
 - cv2dm: Get the distance matrix based on the compostion vector
 - dm2tree: Get the phylogeny tree from the distance matrix by neighbor-joint method.
-- getdist: Show select distances from the distamce matrix
 - cvdump: Show composition vector
+- mconv: convert format of dissimilarity matrix file
+- getdist: Show select distances from the distamce matrix
 - diffmtx: compare two distance matrixes
 
 ## Installation

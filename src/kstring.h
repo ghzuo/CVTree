@@ -109,6 +109,7 @@ void _binaryAlign(CVblock&, CVblock&, double& d);
 void writecv(const CVmap&, const string&);
 void writecv(const CVvec&, const string&);
 double readcv(const string&, CVvec&);
+double readcv(const string&, CVmap&);
 size_t cvsize(const string&);
 
 void readvk(const string&, vector<Kstr>&);

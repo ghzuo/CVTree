@@ -35,7 +35,9 @@ struct CVmeth {
   GeneType theg;
   string gsuff  = ".faa";
   string cvsuff = ".cv";
+  string ksuff = ".K";
   string cvdir;
+  bool check = true;
   int kmin = 1;
   int kmax = 14;
 
@@ -54,7 +56,7 @@ struct CVmeth {
   void checkK(const vector<size_t> &);
 
   // execute the caculate
-  void execute(const string &, const vector<size_t> &, bool check = true);
+  void execute(const string &, const vector<size_t> &, bool chk = true);
 
   // basic function for the method
   size_t count(const Genome &, size_t, CVmap &);

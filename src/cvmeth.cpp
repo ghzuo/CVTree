@@ -12,9 +12,10 @@
 
 #include "cvmeth.h"
 
-CVmeth* CVmeth::create(const string& methStr, const string& cvdir, const string& gtype){
+CVmeth *CVmeth::create(const string &methStr, const string &cvdir,
+                       const string &gtype) {
 
-  CVmeth* meth;
+  CVmeth *meth;
   if (methStr == "Hao") {
     meth = new HaoMethod;
   } else if (methStr == "Count") {
@@ -65,9 +66,10 @@ void CVmeth::setCVdir(const string &str) {
 }
 
 void CVmeth::execute(const string &gname, const vector<size_t> &klist,
-                     bool check) {
+                     bool chk) {
 
   vector<pair<int, CVmap>> mcv;
+  check = chk;
   // check the existed cvfile
   if (check) {
     for (auto k : klist) {
