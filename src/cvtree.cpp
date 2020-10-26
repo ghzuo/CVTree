@@ -84,9 +84,16 @@ int main(int argc, char *argv[]) {
     exit(2);
   }
 
-// get the nwk tree
+  // get the nwk tree
+  omp_set_max_active_levels(2); // set the number of levels of openmp nested
+  omp_set_dynamic(0);     // Explicitly disable dynamic teams
+  omp_set_num_threads(dms.size()); // Use 4 threads for all consecutive parallel regions
 #pragma omp parallel for ordered
   for (size_t i = 0; i < dms.size(); ++i) {
+
+#pragma omp ordered
+    theInfo("Start Neighbor Joint for K=" + to_string(dms[i].first));
+
     // do the NJ algorithm and return the NJ tree
     Node *aTree = myargs.tmeth->tree(dms[i].second);
 
@@ -280,7 +287,8 @@ void Args::usage() {
        << " [ -R ]           Refer the output distance matrix\n"
        << " [ -M <N> ]       Running memory size as G roughly,\n"
        << "                  default 80% of physical memory\n"
-       << " [ -m Hao ]       Method for cvtree Hao/InterList/InterSet, default: Hao\n"
+       << " [ -m Hao ]       Method for cvtree Hao/InterList/InterSet, "
+          "default: Hao\n"
        << " [ -q ]           Run command in quiet mode\n"
        << " [ -h ]           Display this information\n"
        << endl;

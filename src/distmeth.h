@@ -85,17 +85,20 @@ struct DistMeth {
   virtual double dist(const CVitem &, const CVitem &) = 0;
 };
 
-// son class for different method
+// ... son class for different method
+// ... distance scaling at L2
 struct Cosine : public DistMeth {
-  Cosine() { normalize = true; }
+  Cosine() { normalize = true; };
   double dist(const CVitem &, const CVitem &) override;
 };
 
 struct Euclidean : public DistMeth {
+  Euclidean() { normalize = true; };
   double dist(const CVitem &, const CVitem &) override;
   double ddTail(CVblock &);
 };
 
+// ... distance scaling at L1
 struct InterList : public DistMeth {
   InterList() { lp = L1; };
   double dist(const CVitem &, const CVitem &) override;
@@ -106,6 +109,7 @@ struct Min2Max : public DistMeth {
   double dist(const CVitem &, const CVitem &) override;
 };
 
+// ... distance scaling at L0
 struct InterSet : public DistMeth {
   InterSet() { lp = L0; };
   double dist(const CVitem &, const CVitem &) override;
