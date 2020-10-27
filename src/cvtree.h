@@ -17,7 +17,10 @@
 #include "distmeth.h"
 #include "info.h"
 #include "treemeth.h"
+#ifdef _OPENMP
 #include <omp.h>
+#endif
+
 using namespace std;
 
 // read arguments

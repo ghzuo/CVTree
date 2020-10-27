@@ -84,11 +84,11 @@ int main(int argc, char *argv[]) {
     exit(2);
   }
 
-  // get the nwk tree
+// get the nwk tree
+#ifdef _OPENMP
   omp_set_max_active_levels(2); // set the number of levels of openmp nested
-  omp_set_dynamic(0);     // Explicitly disable dynamic teams
-  omp_set_num_threads(dms.size()); // Use 4 threads for all consecutive parallel regions
-#pragma omp parallel for ordered
+#endif
+#pragma omp parallel for ordered num_threads(dms.size())
   for (size_t i = 0; i < dms.size(); ++i) {
 
 #pragma omp ordered

@@ -59,7 +59,7 @@ DistMeth *DistMeth::create(const string &methStr, bool normal) {
   } else if (methStr == "InterList") {
     meth = new InterList();
   } else if (methStr == "Min2Max") {
-    meth = new Min2Max(); 
+    meth = new Min2Max();
   } else if (methStr == "Euclidean") {
     meth = new Euclidean();
   } else if (methStr == "InterSet") {
@@ -126,7 +126,7 @@ float DistMeth::setStep(const Mdist &dm) {
     }
   }
 
-#if defined(_OPENMP)
+#ifdef _OPENMP
   if (interBlock.size() < omp_get_max_threads()) {
     introBlock.insert(introBlock.begin(), interBlock.begin(), interBlock.end());
     vector<CVitem *>().swap(interBlock);
@@ -258,7 +258,6 @@ double InterList::dist(const CVitem &cv1, const CVitem &cv2) {
   CVblock block2(cv2.cv.begin(), cv2.cv.end());
 
   return 1.0 - 2.0 * overlap(block1, block2) / (cv1.norm + cv2.norm);
-
 };
 
 double Min2Max::dist(const CVitem &cv1, const CVitem &cv2) {
@@ -267,7 +266,7 @@ double Min2Max::dist(const CVitem &cv1, const CVitem &cv2) {
 
   double qOverlap = overlap(block1, block2);
   double qTotal = cv1.norm + cv2.norm - qOverlap;
-  return 1.0 - qOverlap/qTotal;
+  return 1.0 - qOverlap / qTotal;
 };
 
 /// function to summary the rest vector
@@ -316,15 +315,16 @@ double InterSet::dist(const CVitem &cv1, const CVitem &cv2) {
   CVblock block1(cv1.cv.begin(), cv1.cv.end());
   CVblock block2(cv2.cv.begin(), cv2.cv.end());
 
-  return 1.0 - double(nInterSection(block1, block2)) /
-                   sqrt(cv1.norm * cv2.norm);
+  return 1.0 -
+         double(nInterSection(block1, block2)) / sqrt(cv1.norm * cv2.norm);
 }
 
 double Dice::dist(const CVitem &cv1, const CVitem &cv2) {
   CVblock block1(cv1.cv.begin(), cv1.cv.end());
   CVblock block2(cv2.cv.begin(), cv2.cv.end());
 
-  return 1.0 - 2.0 * double(nInterSection(block1, block2)) /(cv1.norm + cv2.norm);
+  return 1.0 -
+         2.0 * double(nInterSection(block1, block2)) / (cv1.norm + cv2.norm);
 }
 
 double ItoU::dist(const CVitem &cv1, const CVitem &cv2) {
