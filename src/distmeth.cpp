@@ -56,18 +56,18 @@ DistMeth *DistMeth::create(const string &methStr, bool normal) {
   DistMeth *meth;
   if (methStr == "Cosine") {
     meth = new Cosine();
+  } else if (methStr == "Euclidean") {
+    meth = new Euclidean();
   } else if (methStr == "InterList") {
     meth = new InterList();
   } else if (methStr == "Min2Max") {
     meth = new Min2Max();
-  } else if (methStr == "Euclidean") {
-    meth = new Euclidean();
   } else if (methStr == "InterSet") {
     meth = new InterSet();
   } else if (methStr == "Jaccard" || methStr == "ItoU") {
     meth = new ItoU();
   } else if (methStr == "Dice") {
-    meth = new ItoU();
+    meth = new Dice();
   } else {
     cerr << "Unknow Distance Method: " << methStr << endl;
     exit(3);
@@ -153,19 +153,21 @@ void DistMeth::fillBlock() {
 };
 
 void DistMeth::calcInDist(Mdist &dm) {
-// for the intro-distances between the genomes
-#pragma omp parallel
-#pragma omp single
-  {
-    for (auto i = 0; i < introBlock.size(); ++i) {
-      for (auto j = i + 1; j < introBlock.size(); ++j) {
-#pragma omp task
-        if (dm.isNAN(introBlock[i]->ndx, introBlock[j]->ndx)) {
-          dm.setdist(introBlock[i]->ndx, introBlock[j]->ndx,
-                     dist(*introBlock[i], *introBlock[j]));
-        }
+  // for the intro-distances between the genomes
+  vector<pair<size_t, size_t>> nanList;
+  for (auto i = 0; i < introBlock.size(); ++i) {
+    for (auto j = i + 1; j < introBlock.size(); ++j) {
+      if (dm.isNAN(introBlock[i]->ndx, introBlock[j]->ndx)) {
+        nanList.emplace_back(make_pair(i, j));
       }
     }
+  }
+
+#pragma omp parallel for
+  for (auto i = 0; i < nanList.size(); ++i) {
+    dm.setdist(
+        introBlock[nanList[i].first]->ndx, introBlock[nanList[i].second]->ndx,
+        dist(*introBlock[nanList[i].first], *introBlock[nanList[i].second]));
   }
   return;
 };

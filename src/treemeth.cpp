@@ -5,18 +5,6 @@
  * <ghzuo@fudan.edu.cn>
  *
  * @Author: Dr. Guanghong Zuo
- * @Date: 2018-08-27 14:50:40
- * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2018-08-27 14:50:40
- */
-
-/*
- * Copyright (c) 2018  T-Life Research Center, Fudan University, Shanghai,
- * China. See the accompanying Manual for the contributors and the way to cite
- * this work. Comments and suggestions welcome. Please contact Dr. Guanghong Zuo
- * <ghzuo@fudan.edu.cn>
- *
- * @Author: Dr. Guanghong Zuo
  * @Date: 2016-04-19 11:37:42
  * @Last Modified By: Dr. Guanghong Zuo
  * @Last Modified Time: 2018-07-26 22:02:23
@@ -102,25 +90,46 @@ void NeighborJoint::njnearest(const Mdist &dm, StarTree &nodes, Neighbor &nb) {
   // get the nearest neighbor
   size_t nNode(nodes.size());
   double m2star(nNode - 2);
+  auto half = nNode / 2;
   nb.dd = numeric_limits<double>::max();
-
   vector<double> length(nNode);
-  for (int i = 0; i < nNode; ++i) {
-    length[i] = nodes[i]->length / m2star;
-  }
 
-#pragma omp parallel for reduction(mindd : nb) schedule(guided) num_threads(16)
-  for (size_t i = 1; i < nNode; ++i) {
-    nb.dd += length[i];
-    for (size_t j = 0; j < i; ++j) {
-      double ddxy = dm._getdist(nodes[j]->id, nodes[i]->id) - length[j];
-      if (ddxy < nb.dd) {
-        nb.first = j;
-        nb.second = i;
-        nb.dd = ddxy;
-      }
+#pragma omp parallel
+  {
+#pragma omp for
+    for (int i = 0; i < nNode; ++i) {
+      length[i] = nodes[i]->length / m2star;
     }
-    nb.dd -= length[i];
+#pragma omp barrier
+
+    //... for parallel rearranged the triangle loop into retangle loop
+#pragma omp for reduction(mindd : nb)
+    for (size_t i = 1; i <= half; ++i) {
+      //.. one half
+      nb.dd += length[i];
+      for (size_t j = 0; j < i; ++j) {
+        double ddxy = dm._getdist(nodes[j]->id, nodes[i]->id) - length[j];
+        if (ddxy < nb.dd) {
+          nb.first = j;
+          nb.second = i;
+          nb.dd = ddxy;
+        }
+      }
+      nb.dd -= length[i];
+
+      //.. other half
+      auto ni = nNode - i;
+      nb.dd += length[ni];
+      for (size_t j = 0; j < ni; ++j) {
+        double ddxy = dm._getdist(nodes[j]->id, nodes[ni]->id) - length[j];
+        if (ddxy < nb.dd) {
+          nb.first = j;
+          nb.second = ni;
+          nb.dd = ddxy;
+        }
+      }
+      nb.dd -= length[ni];
+    }
   }
 };
 
