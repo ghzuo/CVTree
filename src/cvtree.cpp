@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
     // get the CVs
     myargs.cmeth->execute(myargs.glist[i], klist);
   }
-  theInfo("All CVs are obtained");
+  theInfo("CV Section: All CVs are obtained");
 
   // Calculate the NAN distance
   for (size_t j = 0; j < myargs.klist.size(); ++j) {
@@ -76,6 +76,7 @@ int main(int argc, char *argv[]) {
     mkpath(fname);
     dm.writemtx(fname);
   }
+  theInfo("DM Section: All Distance Matrices obtained");
 
   // check the genome number bigger than 3
   if (myargs.glist.size() < 3) {
@@ -84,20 +85,12 @@ int main(int argc, char *argv[]) {
     exit(2);
   }
 
-// get the nwk tree
-#ifdef _OPENMP
-  omp_set_max_active_levels(2); // set the number of levels of openmp nested
-#endif
-#pragma omp parallel for ordered num_threads(dms.size())
+  // get the nwk tree
   for (size_t i = 0; i < dms.size(); ++i) {
 
-#pragma omp ordered
-    theInfo("Start Neighbor Joint for K=" + to_string(dms[i].first));
-
     // do the NJ algorithm and return the NJ tree
+    theInfo("Start Neighbor Joint for K=" + to_string(dms[i].first));
     Node *aTree = myargs.tmeth->tree(dms[i].second);
-
-#pragma omp ordered
     theInfo("Get the Neighbor Joint tree for K=" + to_string(dms[i].first));
 
     // output the Tree
@@ -108,6 +101,7 @@ int main(int argc, char *argv[]) {
     (*aTree).outnwk(nwk);
     nwk.close();
   }
+  theInfo("TREE Section: All Phylogenetic Tree obtained");
 }
 
 /*********************************************************************/

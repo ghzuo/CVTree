@@ -16,7 +16,7 @@ Info::Info() : dep(0), quiet(false){};
 Info::~Info() {
   //... destroy the lock
   if (! quiet)
-    cerr << "*** Complete Program, Time Elapsed: " << mytimer.elapsed() << "s"
+    cerr << "*** ALL Section: Complete Program, Time Elapsed: " << mytimer.elapsed() << " s"
          << endl;
 }
 
@@ -35,7 +35,7 @@ void Info::operator()(const string &str, int idep) {
       ++npos;
       sstr.insert(npos, indent);
     }
-    cerr << indent << sstr << ", Time Elapsed: " << mytimer.elapsed() << "s"
+    cerr << indent << sstr << ", Time Elapsed: " << mytimer.elapsed() << " s"
          << endl;
   }
 };
