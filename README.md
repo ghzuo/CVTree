@@ -12,14 +12,14 @@ and http://tlife.fudan.edu.cn/cvtree (Fudan University, Shanghai).
 
 ## Main Programs
 
-- cvtree: the main program, it get the phylogeny tree based from the fasta file of genomes.
-- g2dv: Get the composition vector based on the fasta file of the genome.
-- cv2dm: Get the distance matrix based on the compostion vector
-- dm2tree: Get the phylogeny tree from the distance matrix by neighbor-joint method.
+- cvtree: the main program, it get the phylogenetic tree from the fasta files of genomes.
+- g2dv: Get the composition vectors based on the fasta files of genomes.
+- cv2dm: Get the distance matrix based on the compostion vectors
+- dm2tree: Get the phylogenetic tree based the dissimilarity matrix.
 - cvdump: Show composition vector
-- mconv: convert format of dissimilarity matrix file
-- getdist: Show select distances from the distamce matrix
-- diffmtx: compare two distance matrixes
+- mconv: convert formats of dissimilarity matrix file
+- getdist: Show select dissimilarity from the disimilarity matrix
+- diffmtx: compare two dissimilarity matrixes
 
 ## Installation
 
@@ -32,7 +32,7 @@ and http://tlife.fudan.edu.cn/cvtree (Fudan University, Shanghai).
 - require ligrary: libz
 - compiler with support openmp for parallel (_option_)
 - Library (_option_): netcdf, netcdf_cpp
-- Library (_option_): libhdf5 for c++ (*Please don't use the hdf5 libraries in Anaconda*)
+- Library (_option_): libhdf5 for c++ (_Please don't use the hdf5 libraries in Anaconda_)
 
 #### Compiling
 
@@ -49,17 +49,17 @@ You can download docker free and reference https://docs.docker.com/install/
 to install it. After install docker, basic usages for CVTree are:
 
 1. Build/download docker image: `docker build -t="cvtree-img" .`
-   or `docker pull ghzuo/cvtree`. In this step, a image with cvtree 
-   programs will obtained. Here option "-t" set the image name. After build 
+   or `docker pull ghzuo/cvtree`. In this step, a image with cvtree
+   programs will obtained. Here option "-t" set the image name. After build
    image, you can delete the dangling images for build by `docker image prune`.
 2. Start container from image:
    `docker run --rm -it -v $PWD/example:/root/data cvtree-img`
    In this step, you will enter the cvtree container, and the "example" folder
    of this project will be find in the "data" folder. Change path to the data folder,
    and run `cvtree -G faa`. You will get the result for eight genomes in the "list"
-   file. You can change the path "$PWD/example" to your own data directory.
+   file. You can change the path "\$PWD/example" to your own data directory.
 3. Exit and stop container: `exit` in docker terminal.
-4. Run cvtree in docker by one command: 
+4. Run cvtree in docker by one command:
    `docker run --rm -v $PWD:/data -w /data cvtree-img cvtree -G faa`
 5. More usage for docker can reference https://docs.docker.com/.
 
