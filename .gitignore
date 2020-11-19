@@ -5,6 +5,7 @@ built
 CMakeLists.txt.user
 .vscode
 .vstags
+.history
 cache
 cvtreeManual.aux
 cvtreeManual.fdb_latexmk
