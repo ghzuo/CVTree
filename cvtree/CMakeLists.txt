@@ -7,23 +7,24 @@
 # @Author: Dr. Guanghong Zuo
 # @Date: 2017-09-01 15:55:03
 # @Last Modified By: Dr. Guanghong Zuo
-# @Last Modified Time: 2018-04-26 19:51:32
+# @Last Modified Time: 2020-11-26 09:16:35
 ###
 
+INCLUDE_DIRECTORIES("../kit")
 LINK_LIBRARIES(libcvtr.a)
+LINK_LIBRARIES(libkit.a)
 
 SET(CVTREEHEADS 
   readgenome.h kstring.h
-  stringOpt.h  memory.h
-  distmatrix.h info.h
-  treemeth.h
-  distmeth.h cvmeth.h)
+  cvmeth.h
+  distmatrix.h distmeth.h 
+  tree.h treemeth.h  
+  )
 
 SET(LIBCVTREE_SRC ${CVTREEHEADS}
   readgenome.cpp kstring.cpp
-  stringOpt.cpp  memory.cpp
   distmatrix.cpp tree.cpp
-  info.cpp treemeth.cpp 
+  treemeth.cpp 
   distmeth.cpp cvmeth.cpp
   )
 

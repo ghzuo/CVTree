@@ -46,7 +46,7 @@ class Mdist {
 
 public:
   Mdist();
-  void init(const vector<string> &);
+  void init(const vector<string> &, bool chk=true);
 
   void _setdist(size_t, size_t, double);
   double _getdist(size_t, size_t) const;

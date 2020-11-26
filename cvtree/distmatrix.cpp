@@ -14,11 +14,12 @@
 
 Mdist::Mdist() : ng(0){};
 
-void Mdist::init(const vector<string> &nmlist) {
+void Mdist::init(const vector<string> &nmlist, bool chk) {
   ng = nmlist.size();
   name = nmlist;
   dist.resize(msize(), NAN);
-  cleanName();
+  if (chk)
+    cleanName();
 };
 
 // read the tranditional infile for the distance matrix

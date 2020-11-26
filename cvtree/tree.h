@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2017-03-17 15:39:23
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2018-07-26 22:03:45
+ * @Last Modified Time: 2020-11-26 21:15:25
  */
 
 #ifndef TREE_H
@@ -33,12 +33,9 @@ struct Node {
   string name;
   size_t id;
   double length;
+  double bootstrap;
   Node *parent;
   Children children;
-
-  size_t taxSize, taxLevel, nleaf, nxleaf,
-      nUpLeaf; // nxleaf is the number of unclassfied leafs
-  bool unclassified, uploaded;
 
   Node();
   Node(size_t);
@@ -52,36 +49,16 @@ struct Node {
   void getLeafs(vector<Node *> &);
   bool isLeaf();
 
-  void checkUnclassified();
-  void checkUploaded();
-  void getDefineLeafs(vector<Node *> &);
-  void getUndefineLeafs(vector<Node *> &);
-  void getUndefineNames(vector<string> &);
-  void chkLeafsName(vector<string> &, vector<string> &, bool);
-
-  string getStrainName();
-  void _getPrediction(string &);
-  void outPrediction(ostream &);
-
   Node *resetroot(const string &);
   Node *resetroot(Node *);
 
   void _outnwk(ostream &);
   void outnwk(ostream &);
   void _innwk(istream &);
+  void _nwkItem(const string&);
   void innwk(istream &);
 
-  void _injson(istream &);
-  void _getStr(istream &, string &);
-  void _getKeyValue(string &, string &);
-  void injson(istream &);
-  void injson(const string&);
-  void outjson(ostream &);
-  void outjsonAbbr(ostream &);
-
   void renewId(const unordered_map<string, size_t> &);
-  void reinitTree();
-  void chgLeafName(const str2str &);
 };
 
 #endif

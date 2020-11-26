@@ -7,7 +7,7 @@
 # @Author: Dr. Guanghong Zuo
 # @Date: 2017-09-01 16:22:53
 # @Last Modified By: Dr. Guanghong Zuo
-# @Last Modified Time: 2018-04-26 19:50:44
+# @Last Modified Time: 2020-11-26 21:30:05
 ###
 
 cmake_minimum_required(VERSION 3.0)
@@ -76,7 +76,8 @@ else()
 endif()
 
 ## include subdirectories
-ADD_SUBDIRECTORY(src)
+ADD_SUBDIRECTORY(kit)
+ADD_SUBDIRECTORY(cvtree)
 
 
 
