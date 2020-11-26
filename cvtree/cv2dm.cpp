@@ -7,11 +7,10 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2018-04-26 10:40:55
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2018-07-16 19:50:27
+ * @Last Modified Time: 2020-11-27 07:03:15
  */
 
 #include "cv2dm.h"
-Info theInfo;
 
 int main(int argc, char *argv[]) {
   // get the input arguments

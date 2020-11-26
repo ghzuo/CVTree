@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2018-08-01 22:27:43
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2018-08-01 22:27:43
+ * @Last Modified Time: 2020-11-27 07:00:02
  */
 #ifndef INFO_H
 #define INFO_H
@@ -26,4 +26,10 @@ struct Info {
   void operator()(const string&, int idep=0);
 };
 
+
+#endif
+
+#ifndef THEINFO
+#define THEINFO 
+extern Info theInfo;
 #endif

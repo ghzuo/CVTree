@@ -7,11 +7,10 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2016-11-14 11:46:28
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2018-07-26 21:57:25
+ * @Last Modified Time: 2020-11-27 07:03:47
  */
 
 #include "dm2tree.h"
-Info theInfo;
 
 int main(int argc, char *argv[]) {
   // set a timer

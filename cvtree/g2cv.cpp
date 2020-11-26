@@ -7,11 +7,10 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2016-04-19 11:37:42
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2018-07-19 23:18:09
+ * @Last Modified Time: 2020-11-27 07:03:36
  */
 
 #include "g2cv.h"
-Info theInfo;
 
 int main(int argc, char *argv[]) {
 

@@ -7,9 +7,12 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2018-08-01 22:28:21
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2018-08-01 22:28:21
+ * @Last Modified Time: 2020-11-27 07:05:35
  */
+
+#define THEINFO
 #include "info.h"
+Info theInfo;
 
 Info::Info() : dep(0), quiet(false){};
 
