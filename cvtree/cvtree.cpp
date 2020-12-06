@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2018-04-26 10:40:55
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2020-11-27 07:04:08
+ * @Last Modified Time: 2020-12-06 10:40:28
  */
 
 #include "cvtree.h"
@@ -287,14 +287,7 @@ void Args::usage() {
 }
 
 string nameWithK(const string &str, size_t k) {
-
   string kstr = to_string(k);
-  if (str.empty())
-    return kstr;
-
-  if (str.find("$", 0) == std::string::npos)
-    return str + "$";
-
   string sstr = str;
   size_t npos = 0;
   while ((npos = sstr.find("$", npos)) != std::string::npos) {
