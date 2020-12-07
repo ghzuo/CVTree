@@ -7,8 +7,8 @@ preferably whole-genome data, for phylogenetic studies.
 
 Please visit our webserve of CVTree, where you can use the cvtree tools
 more convenient. The CVTree3 Web Server have two identical but independent
-installations at http://bigd.big.ac.cn/cvtree (Beijing Institute of Genomics, Beijing)
-and http://tlife.fudan.edu.cn/cvtree (Fudan University, Shanghai).
+installations at [Beijing Institute of Genomics, Beijing](http://bigd.big.ac.cn/cvtree)
+and  [Fudan University, Shanghai](http://tlife.fudan.edu.cn/cvtree).
 
 ## Main Programs
 
@@ -45,7 +45,7 @@ and http://tlife.fudan.edu.cn/cvtree (Fudan University, Shanghai).
 ### Run Programms in Docker
 
 Docker allows users run programs on both Windows and Linux/MacOS.
-You can download docker free and reference https://docs.docker.com/install/
+You can download docker free and reference [docker document](https://docs.docker.com/install/)
 to install it. After install docker, basic usages for CVTree are:
 
 1. Build/download docker image: `docker build -t="cvtree-img" .`
@@ -61,7 +61,7 @@ to install it. After install docker, basic usages for CVTree are:
 3. Exit and stop container: `exit` in docker terminal.
 4. Run cvtree in docker by one command:
    `docker run --rm -v $PWD:/data -w /data cvtree-img cvtree -G faa`
-5. More usage for docker can reference https://docs.docker.com/.
+5. More usage for docker can reference [docker document](https://docs.docker.com/).
 
 ## Run Programs with Example
 

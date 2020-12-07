@@ -1,3 +1,15 @@
+###
+# Copyright (c) 2020  T-Life Research Center, Fudan University, Shanghai, China.
+# See the accompanying Manual for the contributors and the way to cite this work.
+# Comments and suggestions welcome. Please contact
+# Dr. Guanghong Zuo <ghzuo@fudan.edu.cn>
+# 
+# @Author: Dr. Guanghong Zuo
+# @Date: 2020-10-12 14:35:55
+# @Last Modified By: Dr. Guanghong Zuo
+# @Last Modified Time: 2020-12-07 10:02:53
+###
+
 ## Stage for build cvtree
 FROM alpine AS dev
 LABEL Version=0.1 \
@@ -11,7 +23,8 @@ RUN apk --update add --no-cache hdf5-dev hdf5-static --repository=http://dl-cdn.
 
 ## Build cvtree
 WORKDIR /root
-COPY ./src /root/cvtree/src
+COPY ./cvtree /root/cvtree/cvtree
+COPY ./kit /root/cvtree/kit
 COPY ./CMakeLists.txt /root/cvtree/
 RUN mkdir cvtree/build/ && cd cvtree/build/ && cmake .. && make 
 
