@@ -7,14 +7,13 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2017-11-15 20:20:23
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2018-04-26 19:47:16
+ * @Last Modified Time: 2020-12-08 14:57:55
  */
 
 #ifndef STRINGOPT_H
 #define STRINGOPT_H
 
 #include <cctype>
-#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <set>
@@ -26,32 +25,32 @@
 
 using namespace std;
 
+/********************************************************************************
+ * @brief string options
+ * 
+ * @return string 
+ ********************************************************************************/
 string Ltrim(const string &);
 string Rtrim(const string &);
 string trim(const string &);
 
 int separateWord(vector<string> &, string, const string &sep = " ,");
 
-void addsuffix(string &, char);
-string chgsuffix(const string &, const string &);
-string getsuffix(const string &);
-string delsuffix(const string &);
+template <class T, class A>
+string strjoin(const A &begin, const A &end, const T &t) {
+  ostringstream buf;
+  A iter = begin;
+  buf << *iter;
+  for (++iter; iter != end; iter++) {
+    buf << t;
+    buf << *iter;
+  }
+
+  return buf.str();
+}
 
 string toUpper(const string &);
 string toLower(const string &);
-
-int str2int(const string &);
-float str2float(const string &);
-double str2double(const string &str);
-
-template <class T> void str2number(const string &str, T &v) {
-  istringstream iss(str);
-  iss >> v;
-};
-
-long getFileSize(const string &);
-
-bool fileExists(const string &);
 
 // template <typename T>
 // bool isValid(const string& str){
@@ -65,6 +64,38 @@ bool fileExists(const string &);
 //    return res;
 // };
 
+/********************************************************************************
+ * @brief option on the suffix of file name
+ * 
+ ********************************************************************************/
+
+void addsuffix(string &, char);
+string addsuffix(const string&, char);
+string addsuffix(const string&, const string&);
+string chgsuffix(const string &, const string &);
+string getsuffix(const string &);
+string delsuffix(const string &);
+
+/********************************************************************************
+ * @brief option on convert string to number
+ * 
+ ********************************************************************************/
+int str2int(const string &);
+float str2float(const string &);
+double str2double(const string &str);
+
+template <class T> void str2number(const string &str, T &v) {
+  istringstream iss(str);
+  iss >> v;
+};
+
+/********************************************************************************
+ * @brief options on read columns file
+ * 
+ ********************************************************************************/
+int nColumns(const string&);
+
+//read column-style file 
 template <class T>
 void readlist(const string &file, vector<T> &list, int ncol = 0) {
   ifstream infile(file.c_str());
@@ -97,6 +128,7 @@ void readlist(const string &file, vector<T> &list, int ncol = 0) {
   infile.close();
 };
 
+// unique the vetor
 template <class T> void uniqueWithOrder(vector<T> &list) {
   vector<T> tmpVector;
   set<T> tmpSet;
@@ -109,29 +141,11 @@ template <class T> void uniqueWithOrder(vector<T> &list) {
   list.swap(tmpVector);
 };
 
-template <class T, class A>
-string strjoin(const A &begin, const A &end, const T &t) {
-  ostringstream buf;
-  A iter = begin;
-  buf << *iter;
-  for (++iter; iter != end; iter++) {
-    buf << t;
-    buf << *iter;
-  }
+/********************************************************************************
+ * @brief function by sys stat
+ ********************************************************************************/
+long getFileSize(const string &);
+bool fileExists(const string &);
+bool isDirectory(const string &);
 
-  return buf.str();
-}
-
-struct Timer {
-  std::chrono::system_clock::time_point start;
-
-  Timer() : start(std::chrono::system_clock::now()){};
-
-  double elapsed() {
-    auto now = std::chrono::system_clock::now();
-    double time=std::chrono::duration_cast<std::chrono::milliseconds>(now - start)
-        .count();
-    return time/1000.0;
-  };
-};
 #endif
