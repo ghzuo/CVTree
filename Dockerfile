@@ -7,7 +7,7 @@
 # @Author: Dr. Guanghong Zuo
 # @Date: 2020-10-12 14:35:55
 # @Last Modified By: Dr. Guanghong Zuo
-# @Last Modified Time: 2021-02-03 08:24:47
+# @Last Modified Time: 2021-02-03 16:15:13
 ###
 
 ## Stage for build cvtree
@@ -18,7 +18,7 @@ LABEL Version=0.2 \
 
 ## for develop environment
 RUN apk --update add --no-cache g++ make cmake zlib-dev
-RUN apk --update add --no-cache hdf5-dev hdf5-static --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
+RUN apk --update add --no-cache hdf5-dev --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
 
 
 ## Build cvtree
