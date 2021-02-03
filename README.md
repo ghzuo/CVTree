@@ -84,5 +84,4 @@ More detail of the command usage can be obtaion by `-h` option.
 
 ## License
 
-This software is free for non-commercial use. For commercial use,
-a software agreement is required.
+MIT license
