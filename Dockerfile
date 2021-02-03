@@ -7,12 +7,12 @@
 # @Author: Dr. Guanghong Zuo
 # @Date: 2020-10-12 14:35:55
 # @Last Modified By: Dr. Guanghong Zuo
-# @Last Modified Time: 2020-12-07 10:02:53
+# @Last Modified Time: 2021-02-03 08:24:47
 ###
 
 ## Stage for build cvtree
 FROM alpine AS dev
-LABEL Version=0.1 \
+LABEL Version=0.2 \
   MAINTAINER="Guanghong Zuo<ghzuo@fudan.edu.cn>"\
   description="Docker image for CVTree" 
 
@@ -32,6 +32,7 @@ RUN mkdir cvtree/build/ && cd cvtree/build/ && cmake .. && make
 FROM alpine AS run
 COPY --from=dev /root/cvtree/build/bin/* /usr/local/bin/
 RUN apk --update add --no-cache libgomp libstdc++
+RUN apk --update add --no-cache hdf5 --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
 
 ## for workplace
 WORKDIR /root/data
