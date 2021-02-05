@@ -75,6 +75,9 @@ More detail of the command usage can be obtaion by `-h` option.
 
 ## Reference
 
+- Guanghong Zuo (2021) CVTree: A Parallel Alignment-free Phylogeny
+  and Taxonomy Tool based on Composition Vectors of Genomes,
+  BioRxiv doi:10.1101/2021.02.04.429726
 - Ji Qi, Bin Wang, Bailin Hao (2004) Whole proteome prokaryote phylogeny
   without sequence alignment: a K-string composition approach, J Mol
   Evol, 58: 1–11
