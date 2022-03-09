@@ -7,7 +7,7 @@
 # @Author: Dr. Guanghong Zuo
 # @Date: 2017-09-01 16:22:53
 # @Last Modified By: Dr. Guanghong Zuo
-# @Last Modified Time: 2020-11-26 21:30:05
+# @Last Modified Time: 2022-03-09 13:00:29
 ###
 
 cmake_minimum_required(VERSION 3.0)
@@ -69,7 +69,7 @@ if(NETCDF_INCLUDE AND NETCDF_LIBRARY)
   ADD_DEFINITIONS("-D_NETCDF")
   message("-- Found NETCDF_CPP Include file: " ${NETCDF_INCLUDE})
   INCLUDE_DIRECTORIES(${NETCDF_INCLUDE})
-  message("-- Found NETCDF Library: " ${HDF5_LIBRARY})
+  message("-- Found NETCDF Library: " ${NETCDF_LIBRARY})
   LINK_LIBRARIES(${NETCDF_LIBRARY})
 else()
   message("-- netCDF format will not support!")
@@ -78,6 +78,4 @@ endif()
 ## include subdirectories
 ADD_SUBDIRECTORY(kit)
 ADD_SUBDIRECTORY(cvtree)
-
-
 
