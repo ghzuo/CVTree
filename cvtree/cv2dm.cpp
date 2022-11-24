@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2018  T-Life Research Center, Fudan University, Shanghai,
- * China. See the accompanying Manual for the contributors and the way to cite
- * this work. Comments and suggestions welcome. Please contact Dr. Guanghong Zuo
- * <ghzuo@fudan.edu.cn>
- *
+ * Copyright (c) 2022  Wenzhou Institute, University of Chinese Academy of Sciences.
+ * See the accompanying Manual for the contributors and the way to cite this work.
+ * Comments and suggestions welcome. Please contact
+ * Dr. Guanghong Zuo <ghzuo@ucas.ac.cn>
+ * 
  * @Author: Dr. Guanghong Zuo
- * @Date: 2018-04-26 10:40:55
+ * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2020-11-27 07:03:15
+ * @Last Modified Time: 2022-03-16 12:25:15
  */
 
 #include "cv2dm.h"
@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
     theInfo("Start distance calculate");
 
     // set the cvfile name
-    vector<string> cvfile(myargs.glist);
+    vector<string> cvfile(myargs.flist);
     for (auto &str : cvfile) {
       str += myargs.suffix + ".gz";
     }
@@ -94,10 +94,30 @@ Args::Args(int argc, char **argv) : outfile(""), suffix(".faa.cv6") {
   }
 
   // read the genome list
-  readlist(listfile, glist);
-  uniqueWithOrder(glist);
+  map<string, string> nameMap;
+  readNameMap(listfile, flist, nameMap);
+  uniqueWithOrder(flist);
+
+  // get the glist by flist and nameMap
+  string suffstr = suffix.substr(1);
+  for (auto &fname : flist) {
+    auto iter = nameMap.find(fname);
+
+    // delete the suffix of file
+    if (getsuffix(fname) == suffstr)
+      fname = delsuffix(fname);
+
+    // set the genome name
+    if (iter != nameMap.end()) {
+      glist.emplace_back(iter->second);
+    } else {
+      glist.emplace_back(fname);
+    }
+  }
+
+  // add the super folder
   if (!cvdir.empty()) {
-    for (auto &f : glist)
+    for (auto &f : flist)
       f = cvdir + f;
   }
 
@@ -116,7 +136,7 @@ Args::Args(int argc, char **argv) : outfile(""), suffix(".faa.cv6") {
   }
 
   //... Get The limit of memory size for cv
-  meth->setMaxMem(memorySize, glist.size(), 1);
+  meth->setMaxMem(memorySize, flist.size(), 1);
 }
 
 void Args::usage() {

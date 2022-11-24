@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2018  T-Life Research Center, Fudan University, Shanghai,
- * China. See the accompanying Manual for the contributors and the way to cite
- * this work. Comments and suggestions welcome. Please contact Dr. Guanghong Zuo
- * <ghzuo@fudan.edu.cn>
- *
+ * Copyright (c) 2022  Wenzhou Institute, University of Chinese Academy of Sciences.
+ * See the accompanying Manual for the contributors and the way to cite this work.
+ * Comments and suggestions welcome. Please contact
+ * Dr. Guanghong Zuo <ghzuo@ucas.ac.cn>
+ * 
  * @Author: Dr. Guanghong Zuo
- * @Date: 2016-04-19 11:37:42
+ * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2018-07-19 10:53:57
+ * @Last Modified Time: 2022-11-23 23:57:44
  */
 
 #include "distmatrix.h"
@@ -27,7 +27,7 @@ bool Mdist::readmtx(const string &file) {
   bool done = false;
   if (!fileExists(file)) {
 #pragma omp critical
-    { cerr << "Cannot find file: " << file << endl; }
+    { theInfo("Cannot find dm file " + file); }
     return done;
   }
 
@@ -50,7 +50,6 @@ bool Mdist::readmtx(const string &file) {
 
 // select the distance matrix file type
 void Mdist::writemtx(const string &file) {
-
 #ifdef _NETCDF
   if (getsuffix(file) != "txt" && getsuffix(file) != "h5") {
 #pragma omp critical
@@ -100,6 +99,7 @@ bool Mdist::readmtxtxt(const string &file) {
 
 // write the tranditional infile for the distance matrix
 void Mdist::writemtxtxt(const string &file) {
+  mkpath(file);
   ofstream dd(file.c_str());
   if (!dd.is_open()) {
     cerr << "Error opening file: " << file << endl;
@@ -167,6 +167,7 @@ bool Mdist::readmtxnc(const string &file) {
 
 // write netcdf format distance matrix
 void Mdist::writemtxnc(const string &file) {
+  mkpath(file);
   NcFile mtxFile(file.c_str(), NcFile::Replace);
   if (!mtxFile.is_valid()) {
     cout << "Couldn't open file!\n";
@@ -209,7 +210,7 @@ bool Mdist::readmtxh5(const string &fname) {
   // check file
   if (!H5::H5File::isHdf5(fname.c_str()))
     return false;
-
+  
   H5::H5File file(fname, H5F_ACC_RDONLY);
   // get the name list
   H5::DataSet nmset = file.openDataSet("Name");
@@ -241,6 +242,7 @@ bool Mdist::readmtxh5(const string &fname) {
 // write hdf5 format distance matrix
 void Mdist::writemtxh5(const string &fname) {
   // open a h5 file to write
+  mkpath(fname);
   H5::H5File file(fname, H5F_ACC_TRUNC);
 
   // for the name list
@@ -560,6 +562,9 @@ void Mdist::_setdist(size_t i, size_t j, double d) {
 void Mdist::setdist(size_t i, double d) { dist[i] = d; };
 
 string Mdist::getname(size_t i) const { return name[i]; };
+string Mdist::getcode(size_t i) const {
+  return  name[i].substr(0, name[i].find_first_of('-'));
+}
 
 void Mdist::setname(size_t i, const string &str) { name[i] = str; };
 
@@ -572,13 +577,20 @@ void Mdist::cleanName() {
   }
 };
 
+// reinitial the distance to NAN
+void Mdist::resetDist(){
+  for(auto& d : dist)
+    d = NAN;
+}
+
 // assign distance by other distance matrix
 void Mdist::assign(const Mdist &dm, vector<size_t> &hit) {
 
   // get the name-index map of the reference DM
   unordered_map<string, size_t> mapMI;
-  for (size_t i = 0; i < dm.size(); ++i)
+  for (size_t i = 0; i < dm.size(); ++i){
     mapMI[dm.getname(i)] = i;
+  }
 
   // find the match items
   vector<pair<size_t, size_t>> mlist;
@@ -625,6 +637,32 @@ void Mdist::assign(const Mdist &dm) {
   }
 };
 
+// assign distance by other distance matrix by code
+void Mdist::assignByCode(const Mdist &dm) {
+
+  // get the name-index map of the reference DM
+  unordered_map<string, size_t> mapMI;
+  for (size_t i = 0; i < dm.size(); ++i)
+    mapMI[dm.getcode(i)] = i;
+
+  // find the match items
+  vector<pair<size_t, size_t>> mlist;
+  for (size_t i = 0; i < ng; ++i) {
+    if (hasNAN(i)) {
+      auto iter = mapMI.find(getcode(i));
+      if (iter != mapMI.end())
+        mlist.emplace_back(make_pair(i, iter->second));
+    }
+  }
+
+  // renew the match distance
+  for (auto ita = mlist.begin(); ita != mlist.end(); ++ita) {
+    for (auto itb = ita + 1; itb != mlist.end(); ++itb) {
+      setdist(ita->first, itb->first, dm.getdist(ita->second, itb->second));
+    }
+  }
+};
+
 // assign distance by alist of distance matrix
 void Mdist::assign(const string &refdm) {
   // assign distance by reference DM
@@ -642,6 +680,25 @@ void Mdist::assign(const string &refdm) {
     }
   }
 };
+
+// assign distance by alist of distance matrix by code
+void Mdist::assignByCode(const string &refdm) {
+  // assign distance by reference DM
+  vector<string> dmlist;
+  separateWord(dmlist, refdm);
+  for (auto &fnm : dmlist) {
+    Mdist xdm;
+    bool readxdm;
+    readxdm = xdm.readmtx(fnm);
+    if (readxdm) {
+      xdm.cleanName();
+      assignByCode(xdm);
+      if (!hasNAN())
+        return;
+    }
+  }
+};
+
 
 // global options
 size_t Mdist::size() const { return ng; };

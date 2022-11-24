@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2018  T-Life Research Center, Fudan University, Shanghai,
- * China. See the accompanying Manual for the contributors and the way to cite
- * this work. Comments and suggestions welcome. Please contact Dr. Guanghong Zuo
- * <ghzuo@fudan.edu.cn>
- *
+ * Copyright (c) 2022  Wenzhou Institute, University of Chinese Academy of Sciences.
+ * See the accompanying Manual for the contributors and the way to cite this work.
+ * Comments and suggestions welcome. Please contact
+ * Dr. Guanghong Zuo <ghzuo@ucas.ac.cn>
+ * 
  * @Author: Dr. Guanghong Zuo
- * @Date: 2017-11-15 20:20:23
+ * @Date: 2022-03-16 12:10:28
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2020-12-08 14:57:55
+ * @Last Modified Time: 2022-11-23 15:38:30
  */
 
 #ifndef STRINGOPT_H
@@ -19,9 +19,10 @@
 #include <set>
 #include <sstream>
 #include <string>
-#include <sys/stat.h>
 #include <unistd.h>
 #include <vector>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 using namespace std;
 
@@ -75,6 +76,10 @@ string addsuffix(const string&, const string&);
 string chgsuffix(const string &, const string &);
 string getsuffix(const string &);
 string delsuffix(const string &);
+string addnamelabel(const string&, const string&);
+bool hasSuffix(const string&, const string&);
+string getFileName(const string&);
+string getDirName(const string&);
 
 /********************************************************************************
  * @brief option on convert string to number
@@ -89,6 +94,7 @@ template <class T> void str2number(const string &str, T &v) {
   iss >> v;
 };
 
+string int2lenStr(int, size_t, char c='0');
 /********************************************************************************
  * @brief options on read columns file
  * 
@@ -148,4 +154,10 @@ long getFileSize(const string &);
 bool fileExists(const string &);
 bool isDirectory(const string &);
 
+/********************************************************************************
+ * @brief for color wheel
+ * 
+ ********************************************************************************/
+
+void hsv2rgb(vector<int>&);
 #endif

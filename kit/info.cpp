@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2018  T-Life Research Center, Fudan University, Shanghai,
- * China. See the accompanying Manual for the contributors and the way to cite
- * this work. Comments and suggestions welcome. Please contact Dr. Guanghong Zuo
- * <ghzuo@fudan.edu.cn>
- *
+ * Copyright (c) 2022  Wenzhou Institute, University of Chinese Academy of Sciences.
+ * See the accompanying Manual for the contributors and the way to cite this work.
+ * Comments and suggestions welcome. Please contact
+ * Dr. Guanghong Zuo <ghzuo@ucas.ac.cn>
+ * 
  * @Author: Dr. Guanghong Zuo
- * @Date: 2018-08-01 22:28:21
+ * @Date: 2022-03-16 12:10:28
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2020-12-08 14:59:37
+ * @Last Modified Time: 2022-11-24 00:27:58
  */
 
 #define THEINFO
@@ -38,7 +38,7 @@ Info::~Info() {
   //... destroy the lock
   if (!quiet)
     cerr << "*** ALL Section: Complete Program, Time Elapsed: "
-         << mytimer.elapsed() << " s" << endl;
+         << mytimer.elapsed() << " s\n" << endl;
 }
 
 void Info::operator()(const string &str, int idep) {
@@ -60,3 +60,7 @@ void Info::operator()(const string &str, int idep) {
          << endl;
   }
 };
+
+void Info::indent(int n){
+  dep += n;
+}

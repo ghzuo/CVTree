@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2018  T-Life Research Center, Fudan University, Shanghai,
- * China. See the accompanying Manual for the contributors and the way to cite
- * this work. Comments and suggestions welcome. Please contact Dr. Guanghong Zuo
- * <ghzuo@fudan.edu.cn>
- *
+ * Copyright (c) 2022  Wenzhou Institute, University of Chinese Academy of Sciences.
+ * See the accompanying Manual for the contributors and the way to cite this work.
+ * Comments and suggestions welcome. Please contact
+ * Dr. Guanghong Zuo <ghzuo@ucas.ac.cn>
+ * 
  * @Author: Dr. Guanghong Zuo
- * @Date: 2016-11-14 11:46:28
+ * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2020-11-27 07:03:47
+ * @Last Modified Time: 2022-11-19 17:27:19
  */
 
 #include "dm2tree.h"
@@ -29,7 +29,8 @@ int main(int argc, char *argv[]) {
     dm.reduce(myargs.splist);
 
   // do the NJ algorithm and return the NJ tree
-  Node *aTree = myargs.meth->tree(dm);
+  Node* aTree = Node::initial();
+  myargs.meth->tree(aTree, dm);
 
   // output the Tree
   ofstream nwk(myargs.outfile.c_str());
@@ -37,8 +38,7 @@ int main(int argc, char *argv[]) {
   nwk.close();
 }
 
-Args::Args(int argc, char **argv)
-    : distfile("infile"), outfile("Tree.nwk") {
+Args::Args(int argc, char **argv) : distfile("infile"), outfile("Tree.nwk") {
 
   program = argv[0];
   string wkdir("");
@@ -79,8 +79,9 @@ Args::Args(int argc, char **argv)
     outfile = wkdir + outfile;
   }
 
+  // read list file and name map
   if (!listfile.empty())
-    readlist(listfile, splist);
+    readlist(listfile, splist, 1);
 
   meth = TreeMeth::create(methStr);
 }
@@ -90,6 +91,7 @@ void Args::usage() {
        << program << "\n"
        << " [ -d infile ]     Input distance matrix, default: dist.matrix\n"
        << " [ -o Tree.nwk ]   Output newick tree, default: Tree.nwk\n"
+       << " [ -m NJ ]         Select the tree method, NJ or UPGMA, default: NJ\n"
        << " [ -i <list> ]     selection index list of the distance matrix,\n"
        << "                   if no defined, whole distance matrix are used\n"
        << " [ -C ]            Use the netcdf input format, default false\n"

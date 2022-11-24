@@ -1,22 +1,23 @@
 /*
- * Copyright (c) 2018  T-Life Research Center, Fudan University, Shanghai,
- * China. See the accompanying Manual for the contributors and the way to cite
- * this work. Comments and suggestions welcome. Please contact Dr. Guanghong Zuo
- * <ghzuo@fudan.edu.cn>
- *
+ * Copyright (c) 2022  Wenzhou Institute, University of Chinese Academy of Sciences.
+ * See the accompanying Manual for the contributors and the way to cite this work.
+ * Comments and suggestions welcome. Please contact
+ * Dr. Guanghong Zuo <ghzuo@ucas.ac.cn>
+ * 
  * @Author: Dr. Guanghong Zuo
- * @Date: 2017-03-08 20:30:43
+ * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2018-07-26 21:55:04
+ * @Last Modified Time: 2022-11-24 00:12:26
  */
 
 #ifndef CVTREE_H
 #define CVTREE_H
 
+#include "kit.h"
 #include "cvmeth.h"
 #include "distmeth.h"
-#include "info.h"
 #include "treemeth.h"
+#include "marktree.h"
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -28,6 +29,8 @@ struct Args {
   string program, dmName, treeName;
   string refdm;
   vector<string> glist;
+  vector<string> flist;
+  vector<string> blist;
   vector<size_t> klist;
   float memorySize;
 
@@ -39,7 +42,13 @@ struct Args {
   void usage();
 };
 
-string nameWithK(const string &, size_t);
-void mkpath(const string &);
+void maintree(const Args&);
+void initMainDM(const Args&, vector<pair<size_t, Mdist>> &);
+void getMainCV(const Args&, const vector<pair<size_t, Mdist>> &);
+
+void bootstrap(const Args&);
+void getBootCV(const Args&);
+
+void onetree(const Args&, pair<size_t, Mdist> &, Node*&);
 
 #endif

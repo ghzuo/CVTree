@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2018  T-Life Research Center, Fudan University, Shanghai,
- * China. See the accompanying Manual for the contributors and the way to cite
- * this work. Comments and suggestions welcome. Please contact Dr. Guanghong Zuo
- * <ghzuo@fudan.edu.cn>
- *
+ * Copyright (c) 2022  Wenzhou Institute, University of Chinese Academy of Sciences.
+ * See the accompanying Manual for the contributors and the way to cite this work.
+ * Comments and suggestions welcome. Please contact
+ * Dr. Guanghong Zuo <ghzuo@ucas.ac.cn>
+ * 
  * @Author: Dr. Guanghong Zuo
- * @Date: 2018-07-26 15:58:26
+ * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2018-07-26 22:00:05
+ * @Last Modified Time: 2022-11-24 09:16:11
  */
 
 #include "kstring.h"
@@ -16,7 +16,8 @@
 
 void usage(string &program) {
   cerr << "\nProgram Usage: \n\n"
-       << program << "  -i <cvfile>        input file name\n"
+       << program << "\n"
+       << "  -i <cvfile>        input file name\n"
        << " [ -g faa ]          the type of genome file, default: faa\n"
        << " [ -n ]              output the number code, default: the letters\n"
        << " [ -h ]              Display this information\n"

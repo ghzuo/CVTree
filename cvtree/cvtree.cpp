@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2018  T-Life Research Center, Fudan University, Shanghai,
- * China. See the accompanying Manual for the contributors and the way to cite
- * this work. Comments and suggestions welcome. Please contact Dr. Guanghong Zuo
- * <ghzuo@fudan.edu.cn>
+ * Copyright (c) 2022  Wenzhou Institute, University of Chinese Academy of
+ * Sciences. See the accompanying Manual for the contributors and the way to
+ * cite this work. Comments and suggestions welcome. Please contact Dr.
+ * Guanghong Zuo <ghzuo@ucas.ac.cn>
  *
  * @Author: Dr. Guanghong Zuo
- * @Date: 2018-04-26 10:40:55
+ * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2020-12-06 10:40:28
+ * @Last Modified Time: 2022-11-24 14:35:46
  */
 
 #include "cvtree.h"
@@ -16,89 +16,12 @@ int main(int argc, char *argv[]) {
   // get the input arguments
   Args myargs(argc, argv);
 
-  // init domains
-  vector<pair<size_t, Mdist>> dms(myargs.klist.size());
-#pragma omp parallel for ordered
-  for (size_t i = 0; i < myargs.klist.size(); ++i) {
-    dms[i].first = myargs.klist[i];
-    dms[i].second.init(myargs.glist);
-    if (!myargs.refdm.empty()) {
-      string str = nameWithK(myargs.refdm, dms[i].first);
-      dms[i].second.assign(str);
-    }
-#pragma omp ordered
-    theInfo(dms[i].second.info() + " for K=" + to_string(dms[i].first));
-  }
+  // get the main trees
+  maintree(myargs);
 
-  // get the cvs for the NAN distances
-  theInfo("Start check and calculate CVs for " +
-          to_string(myargs.glist.size()) + " Genomes");
-#pragma omp parallel for
-  for (size_t i = 0; i < myargs.glist.size(); ++i) {
-    // get the missing K list
-    vector<size_t> klist;
-    for (size_t j = 0; j < myargs.klist.size(); ++j) {
-      if (dms[j].second.hasNAN(i))
-        klist.emplace_back(myargs.klist[j]);
-    }
-
-    // get the CVs
-    myargs.cmeth->execute(myargs.glist[i], klist);
-  }
-  theInfo("CV Section: All CVs are obtained");
-
-  // Calculate the NAN distance
-  for (size_t j = 0; j < myargs.klist.size(); ++j) {
-    Mdist &dm = dms[j].second;
-    size_t k = dms[j].first;
-
-    if (dm.hasNAN()) {
-
-      theInfo("Start calculate for K=" + to_string(k));
-
-      // set the cvfile name
-      vector<string> cvfile(myargs.glist);
-      for (auto &str : cvfile) {
-        str = myargs.cmeth->getCVname(str, k);
-      }
-
-      // do the calculation of distance
-      myargs.dmeth->execute(cvfile, dm);
-
-      theInfo("End the calculate distance for K=" + to_string(k));
-    }
-
-    // output the distance matrix
-    string fname = nameWithK(myargs.dmName, k);
-    mkpath(fname);
-    dm.writemtx(fname);
-  }
-  theInfo("DM Section: All Distance Matrices obtained");
-
-  // check the genome number bigger than 3
-  if (myargs.glist.size() < 3) {
-    theInfo("There are only " + to_string(myargs.glist.size()) +
-            " genomes, no tree will output");
-    exit(2);
-  }
-
-  // get the nwk tree
-  for (size_t i = 0; i < dms.size(); ++i) {
-
-    // do the NJ algorithm and return the NJ tree
-    theInfo("Start Neighbor Joint for K=" + to_string(dms[i].first));
-    Node *aTree = myargs.tmeth->tree(dms[i].second);
-    theInfo("Get the Neighbor Joint tree for K=" + to_string(dms[i].first));
-
-    // output the Tree
-    // output the distance matrix
-    string fname = nameWithK(myargs.treeName, dms[i].first);
-    mkpath(fname);
-    ofstream nwk(fname.c_str());
-    (*aTree).outnwk(nwk);
-    nwk.close();
-  }
-  theInfo("TREE Section: All Phylogenetic Tree obtained");
+  // do the bootstrap
+  if (!myargs.blist.empty())
+    bootstrap(myargs);
 }
 
 /*********************************************************************/
@@ -110,16 +33,19 @@ Args::Args(int argc, char **argv) : treeName(""), dmName("") {
   program = argv[0];
   memorySize = getMemorySize() * 0.8;
 
+  string pdir("cvtree/");
   string listfile("list");
   string methStr("Hao");
   string gtype("faa");
   string gdir("");
-  string cvdir("cv/");
+  string cvdir(pdir + "cv/");
   string listkval("5 6 7");
   bool refself(false);
+  string btdir("resample/");
+  int nBoot(0);
 
   char ch;
-  while ((ch = getopt(argc, argv, "i:G:V:k:d:t:m:M:r:g:Rqh")) != -1) {
+  while ((ch = getopt(argc, argv, "i:G:V:P:k:d:t:m:M:r:g:S:b:Rqh")) != -1) {
     switch (ch) {
     case 'i':
       listfile = optarg;
@@ -132,6 +58,10 @@ Args::Args(int argc, char **argv) : treeName(""), dmName("") {
     case 'G':
       gdir = optarg;
       addsuffix(gdir, '/');
+      break;
+    case 'P':
+      pdir = optarg;
+      addsuffix(pdir, '/');
       break;
     case 'r':
       refdm = optarg;
@@ -160,6 +90,13 @@ Args::Args(int argc, char **argv) : treeName(""), dmName("") {
       break;
     case 'g':
       gtype = optarg;
+      break;
+    case 'S':
+      btdir = optarg;
+      addsuffix(btdir, '/');
+      break;
+    case 'b':
+      nBoot = str2int(optarg);
       break;
     case 'h':
       usage();
@@ -214,34 +151,53 @@ Args::Args(int argc, char **argv) : treeName(""), dmName("") {
   uniqueWithOrder(klist);
   cmeth->checkK(klist);
 
-  // get the input file name
-  readlist(listfile, glist);
-  uniqueWithOrder(glist);
-
-  for (auto &gname : glist) {
-    if (getsuffix(gname) == gtype)
-      gname = delsuffix(gname);
+  // get the input file name and genome name
+  map<string, string> nameMap;
+  readNameMap(listfile, flist, nameMap);
+  uniqueWithOrder(flist);
+  if (flist.size() < 3) {
+    theInfo(
+        "The number of species should be more than three.\nThere are only " +
+        to_string(flist.size()) + " unique items in the list");
+    exit(3);
   }
 
+  // get the glist by flist and nameMap
+  for (auto &fname : flist) {
+    auto iter = nameMap.find(fname);
+
+    // delete the suffix of file
+    if (getsuffix(fname) == gtype)
+      fname = delsuffix(fname);
+
+    // set the genome name
+    if (iter != nameMap.end()) {
+      glist.emplace_back(iter->second);
+    } else {
+      glist.emplace_back(fname);
+    }
+  }
+
+  // add the super folder
   if (!gdir.empty()) {
-    for (auto &gname : glist) {
-      gname = gdir + gname;
+    for (auto &fname : flist) {
+      fname = gdir + fname;
     }
   }
 
   // set the output tree name format
   if (treeName.empty()) {
-    treeName = "tree/" + methStr + cmeth->cvsuff + "$.nwk";
+    treeName = pdir + "tree/" + methStr + cmeth->cvsuff + "$.nwk";
   }
 
   // set the output dm name format
   if (dmName.empty()) {
 #ifdef _NETCDF
-    dmName = "dm/" + methStr + cmeth->cvsuff + "$.nc";
+    dmName = pdir + "dm/" + methStr + cmeth->cvsuff + "$.nc";
 #elif _HDF5
-    dmName = "dm/" + methStr + cmeth->cvsuff + "$.h5";
+    dmName = pdir + "dm/" + methStr + cmeth->cvsuff + "$.h5";
 #else
-    dmName = "dm/" + methStr + cmeth->cvsuff + "$.txt";
+    dmName = pdir + "dm/" + methStr + cmeth->cvsuff + "$.txt";
 #endif
   }
 
@@ -255,7 +211,13 @@ Args::Args(int argc, char **argv) : treeName(""), dmName("") {
   }
 
   //... Get The limit of memory size
-  dmeth->setMaxMem(memorySize, glist.size(), klist.size());
+  dmeth->setMaxMem(memorySize, flist.size(), klist.size());
+
+  //... for bootstrap
+  for (int i = 0; i < nBoot; ++i) {
+    string sdir = btdir + int2lenStr(i, 4) + "/";
+    blist.emplace_back(sdir);
+  }
 }
 
 void Args::usage() {
@@ -278,30 +240,200 @@ void Args::usage() {
        << " [ -R ]           Refer the output distance matrix\n"
        << " [ -M <N> ]       Running memory size as G roughly,\n"
        << "                  default 80% of physical memory\n"
-       << " [ -m Hao ]       Method for cvtree Hao/InterList/InterSet, "
+       << " [ -m Hao ]       Select CVTree Method from Hao/InterList/InterSet, "
           "default: Hao\n"
+       << " [ -S resample ]  Cache folder for resample, default: resample/\n"
+       << " [ -b <n> ]       bootstrap times, default: no bootstrape\n"
        << " [ -q ]           Run command in quiet mode\n"
        << " [ -h ]           Display this information\n"
        << endl;
   exit(1);
 }
 
-string nameWithK(const string &str, size_t k) {
-  string kstr = to_string(k);
-  string sstr = str;
-  size_t npos = 0;
-  while ((npos = sstr.find("$", npos)) != std::string::npos) {
-    sstr.replace(npos, 1, kstr);
-    npos += kstr.length();
+/********************************************************************************
+ * @brief functions for obtaining main tree
+ * 
+ * @param myargs 
+ ********************************************************************************/
+
+void maintree(const Args &myargs) {
+  // init distance matrixes
+  vector<pair<size_t, Mdist>> dms(myargs.klist.size());
+  initMainDM(myargs, dms);
+
+  // get the cvs for the NAN distances
+  getMainCV(myargs, dms);
+
+  // initial the tree
+  Node *aTree = Node::initial();
+
+  for (auto &kdm : dms) {
+    // do the dm and tree
+    onetree(myargs, kdm, aTree);
+
+    // output the distance matrix
+    string dname = nameWithK(myargs.dmName, kdm.first);
+    kdm.second.writemtx(dname);
+
+    // output the Tree
+    string tname = nameWithK(myargs.treeName, kdm.first);
+    (*aTree).outnwk(tname);
+    aTree->clear();
   }
-  return sstr;
 }
 
-void mkpath(const string &nm) {
-  size_t npos = 0;
-  while ((npos = nm.find("/", npos)) != std::string::npos) {
-    string dir = nm.substr(0, npos);
-    mkdir(dir.c_str(), 0755);
-    npos++;
+void initMainDM(const Args &myargs, vector<pair<size_t, Mdist>> &dms) {
+#pragma omp parallel for ordered
+  for (size_t i = 0; i < myargs.klist.size(); ++i) {
+    dms[i].first = myargs.klist[i];
+    dms[i].second.init(myargs.glist);
+    if (!myargs.refdm.empty()) {
+      string str = nameWithK(myargs.refdm, dms[i].first);
+      dms[i].second.assign(str);
+    }
+#pragma omp ordered
+    theInfo(dms[i].second.info() + " for K=" + to_string(dms[i].first));
   }
+}
+
+void getMainCV(const Args &myargs, const vector<pair<size_t, Mdist>> &dms) {
+  theInfo("Start check and calculate CVs for " +
+          to_string(myargs.flist.size()) + " Genomes");
+#pragma omp parallel for
+  for (size_t i = 0; i < myargs.flist.size(); ++i) {
+    // get the missing K list
+    vector<size_t> klist;
+    for (size_t j = 0; j < myargs.klist.size(); ++j) {
+      if (dms[j].second.hasNAN(i))
+        klist.emplace_back(myargs.klist[j]);
+    }
+
+    // get the CVs
+    myargs.cmeth->execute(myargs.flist[i], klist);
+  }
+  theInfo("CV Section: All CVs are obtained");
+}
+
+
+/********************************************************************************
+ * @brief Functions for bootstrap
+ * 
+ * @param myargs 
+ ********************************************************************************/
+
+void bootstrap(const Args &myargs) {
+  theInfo("\n============ Start Bootstrap Section ==========");
+
+  // get the cv for bootstrap
+  getBootCV(myargs);
+
+  // get matrix, tree, and bootstrap value
+  // initial the tree
+  MarkNode *aTree = MarkNode::initial();
+  Node *bTree = MarkNode::initial();
+
+  for (auto &k : myargs.klist) {
+    // get main matrix and tree name
+    string dname = nameWithK(myargs.dmName, k);
+    string tname = nameWithK(myargs.treeName, k);
+
+    // initial k and matrix
+    pair<size_t, Mdist> kdm;
+    kdm.first = k;
+    kdm.second.init(myargs.glist);
+
+    // initial the main tree for bootstrap
+    aTree->innwk(tname);
+    map<string, SetSym> mgi;
+    aTree->initContent(mgi);
+    aTree->resetBootstrap();
+    float nTree(1.0);
+
+    for (auto &sdir : myargs.blist) {
+      theInfo("For the bootstrap " + sdir);
+      theInfo.indent(1);
+
+      // get the dm and tree anme
+      string sdname = sdir + "dm/" + getFileName(dname);
+      string stname = sdir + "tree/" + getFileName(tname);
+
+      // initial the distance matrix
+      kdm.second.assign(sdname);
+
+      // reset the cvdir
+      myargs.cmeth->setCVdir(sdir + "cv/");
+
+      // do the dm and tree
+      onetree(myargs, kdm, bTree);
+
+      // output the distance matrix
+      kdm.second.writemtx(sdname);
+      kdm.second.resetDist();
+
+      // bootstrap do a boot tree
+      MarkNode* tTree = dynamic_cast<MarkNode*>(bTree);
+      if (tTree->setAllContents(mgi)) {
+        nTree += 1.0;
+        set<SetSym> bset;
+        tTree->getBranchContents(bset);
+        aTree->bootTree(bset);
+      } else {
+        cerr<< stname << " , and skip it" << endl;
+      }
+
+      // output the Tree
+      bTree->outnwk(stname);
+      bTree->clear();
+      theInfo.indent(-1);
+    }
+
+    // output result
+    aTree->ratioBootstrap(nTree);
+    aTree->outnwk(addnamelabel(tname, "-bootstrap"));
+    aTree->clear();
+  }
+  theInfo("============ End Bootstrap Section ==========");
+}
+
+void getBootCV(const Args &myargs) {
+  theInfo("Start " + to_string(myargs.blist.size()) + " bootstrap CVs for " +
+          to_string(myargs.flist.size()) + " Genomes");
+  vector<string> btdirs;
+  for (auto &dir : myargs.blist) {
+    string cdir = dir + "cv/";
+    btdirs.emplace_back(cdir);
+    mkpath(cdir);
+  }
+#pragma omp parallel for
+  for (int i = 0; i < myargs.flist.size(); ++i) {
+    myargs.cmeth->bootstrap(myargs.flist[i], myargs.klist, btdirs);
+  }
+  theInfo("CV Section: All bootstrap CVs are obtained");
+}
+
+/********************************************************************************
+ * @brief the comman functions
+ * 
+ * @param myargs 
+ ********************************************************************************/
+
+void onetree(const Args &myargs, pair<size_t, Mdist> &kdm, Node *&aTree) {
+  // Calculate the NAN distance
+  if (kdm.second.hasNAN()) {
+    theInfo("Start calculate distance for K=" + to_string(kdm.first));
+    // set the cvfile name
+    vector<string> cvfile(myargs.flist);
+    for (auto &str : cvfile) {
+      str = myargs.cmeth->getCVname(str, kdm.first);
+    }
+
+    // do the calculation of distance
+    myargs.dmeth->execute(cvfile, kdm.second);
+    theInfo("End the calculate distance for K=" + to_string(kdm.first));
+  }
+
+  // do the NJ algorithm and return the NJ tree
+  theInfo("Start infer tree for K=" + to_string(kdm.first));
+  myargs.tmeth->tree(aTree, kdm.second);
+  theInfo("Get phylogenetic tree for K=" + to_string(kdm.first));
 }
