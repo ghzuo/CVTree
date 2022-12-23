@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-11-24 14:35:46
+ * @Last Modified Time: 2022-12-23 21:11:28
  */
 
 #include "cvtree.h"
@@ -242,8 +242,8 @@ void Args::usage() {
        << "                  default 80% of physical memory\n"
        << " [ -m Hao ]       Select CVTree Method from Hao/InterList/InterSet, "
           "default: Hao\n"
-       << " [ -S resample ]  Cache folder for resample, default: resample/\n"
-       << " [ -b <n> ]       bootstrap times, default: no bootstrape\n"
+       << " [ -S resample/ ]  cache folder for resample, default: resample/\n"
+       << " [ -b <n> ]        bootstrap times, default: no bootstrape\n"
        << " [ -q ]           Run command in quiet mode\n"
        << " [ -h ]           Display this information\n"
        << endl;
@@ -252,8 +252,8 @@ void Args::usage() {
 
 /********************************************************************************
  * @brief functions for obtaining main tree
- * 
- * @param myargs 
+ *
+ * @param myargs
  ********************************************************************************/
 
 void maintree(const Args &myargs) {
@@ -269,11 +269,8 @@ void maintree(const Args &myargs) {
 
   for (auto &kdm : dms) {
     // do the dm and tree
-    onetree(myargs, kdm, aTree);
-
-    // output the distance matrix
     string dname = nameWithK(myargs.dmName, kdm.first);
-    kdm.second.writemtx(dname);
+    onetree(myargs, dname, kdm, aTree);
 
     // output the Tree
     string tname = nameWithK(myargs.treeName, kdm.first);
@@ -314,11 +311,10 @@ void getMainCV(const Args &myargs, const vector<pair<size_t, Mdist>> &dms) {
   theInfo("CV Section: All CVs are obtained");
 }
 
-
 /********************************************************************************
  * @brief Functions for bootstrap
- * 
- * @param myargs 
+ *
+ * @param myargs
  ********************************************************************************/
 
 void bootstrap(const Args &myargs) {
@@ -354,31 +350,26 @@ void bootstrap(const Args &myargs) {
       theInfo.indent(1);
 
       // get the dm and tree anme
+      // reset the cvdir
       string sdname = sdir + "dm/" + getFileName(dname);
       string stname = sdir + "tree/" + getFileName(tname);
-
-      // initial the distance matrix
-      kdm.second.assign(sdname);
-
-      // reset the cvdir
       myargs.cmeth->setCVdir(sdir + "cv/");
 
+      // initial the distance matrix
       // do the dm and tree
-      onetree(myargs, kdm, bTree);
-
-      // output the distance matrix
-      kdm.second.writemtx(sdname);
       kdm.second.resetDist();
+      kdm.second.assign(sdname);
+      onetree(myargs, sdname, kdm, bTree);
 
       // bootstrap do a boot tree
-      MarkNode* tTree = dynamic_cast<MarkNode*>(bTree);
+      MarkNode *tTree = dynamic_cast<MarkNode *>(bTree);
       if (tTree->setAllContents(mgi)) {
         nTree += 1.0;
         set<SetSym> bset;
         tTree->getBranchContents(bset);
         aTree->bootTree(bset);
       } else {
-        cerr<< stname << " , and skip it" << endl;
+        cerr << stname << " , and skip it" << endl;
       }
 
       // output the Tree
@@ -413,11 +404,12 @@ void getBootCV(const Args &myargs) {
 
 /********************************************************************************
  * @brief the comman functions
- * 
- * @param myargs 
+ *
+ * @param myargs
  ********************************************************************************/
 
-void onetree(const Args &myargs, pair<size_t, Mdist> &kdm, Node *&aTree) {
+void onetree(const Args &myargs, const string &dname, pair<size_t, Mdist> &kdm,
+             Node *&aTree) {
   // Calculate the NAN distance
   if (kdm.second.hasNAN()) {
     theInfo("Start calculate distance for K=" + to_string(kdm.first));
@@ -431,6 +423,9 @@ void onetree(const Args &myargs, pair<size_t, Mdist> &kdm, Node *&aTree) {
     myargs.dmeth->execute(cvfile, kdm.second);
     theInfo("End the calculate distance for K=" + to_string(kdm.first));
   }
+
+  if (!dname.empty())
+    kdm.second.writemtx(dname);
 
   // do the NJ algorithm and return the NJ tree
   theInfo("Start infer tree for K=" + to_string(kdm.first));

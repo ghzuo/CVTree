@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-11-24 00:12:26
+ * @Last Modified Time: 2022-12-23 21:07:43
  */
 
 #ifndef CVTREE_H
@@ -49,6 +49,6 @@ void getMainCV(const Args&, const vector<pair<size_t, Mdist>> &);
 void bootstrap(const Args&);
 void getBootCV(const Args&);
 
-void onetree(const Args&, pair<size_t, Mdist> &, Node*&);
+void onetree(const Args&, const string&, pair<size_t, Mdist> &, Node*&);
 
 #endif
