@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2018  T-Life Research Center, Fudan University, Shanghai,
- * China. See the accompanying Manual for the contributors and the way to cite
- * this work. Comments and suggestions welcome. Please contact Dr. Guanghong Zuo
- * <ghzuo@fudan.edu.cn>
- *
+ * Copyright (c) 2022  Wenzhou Institute, University of Chinese Academy of Sciences.
+ * See the accompanying Manual for the contributors and the way to cite this work.
+ * Comments and suggestions welcome. Please contact
+ * Dr. Guanghong Zuo <ghzuo@ucas.ac.cn>
+ * 
  * @Author: Dr. Guanghong Zuo
- * @Date: 2017-02-13 20:15:20
+ * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2018-07-26 21:55:12
+ * @Last Modified Time: 2022-11-23 15:35:47
  */
 
 #ifndef DISTMATRIX_H
@@ -33,7 +33,7 @@ static const int NC_ERR = 10;
 #include "H5Cpp.h"
 #endif
 
-#include "stringOpt.h"
+#include "kit.h"
 #include "tree.h"
 
 using namespace std;
@@ -86,9 +86,13 @@ public:
 
   // get the distance from other distance matrix
   void cleanName();
+  void resetDist();
   void assign(const Mdist &, vector<size_t> &);
   void assign(const Mdist &);
+  void assignByCode(const Mdist &);
   void assign(const string &);
+  void assignByCode(const string &);
+
 
   // check NAN distance
   int chkNAN(const vector<size_t> &, vector<pair<size_t, size_t>> &) const;
@@ -105,6 +109,7 @@ public:
   // get/set value of matrix
   double getdist(size_t, size_t) const;
   string getname(size_t) const;
+  string getcode(size_t) const;
   pair<size_t, size_t> getIndex(size_t) const;
   vector<string> getNameList() const;
   void setdist(size_t, size_t, double);

@@ -1,39 +1,55 @@
 /*
- * Copyright (c) 2018  T-Life Research Center, Fudan University, Shanghai,
- * China. See the accompanying Manual for the contributors and the way to cite
- * this work. Comments and suggestions welcome. Please contact Dr. Guanghong Zuo
- * <ghzuo@fudan.edu.cn>
+ * Copyright (c) 2022  Wenzhou Institute, University of Chinese Academy of
+ * Sciences. See the accompanying Manual for the contributors and the way to
+ * cite this work. Comments and suggestions welcome. Please contact Dr.
+ * Guanghong Zuo <ghzuo@ucas.ac.cn>
  *
  * @Author: Dr. Guanghong Zuo
- * @Date: 2017-03-17 15:39:23
+ * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2020-11-26 21:14:14
+ * @Last Modified Time: 2022-11-24 14:29:00
  */
 
 #include "tree.h"
 const size_t N_FORKS(2);
 
 /*******************************************************************/
+/********** Basic Functions For Node Class *************************/
+/*******************************************************************/
+
+// the constructe function
+Node::Node()
+    : name(""), id(0), nleaf(1), length(NAN), bootstrap(1.0), parent(NULL) {
+  children.reserve(N_FORKS);
+};
+
+// the initial/reproduct function
+Node *Node::initial() { return new Node(); };
+Node *Node::reproduct() { return new Node(); };
+Node *Node::reproduct(size_t n) {
+  Node *p = new Node();
+  p->id = n;
+  return p;
+};
+
+Node *Node::reproduct(size_t n, const string &str) {
+  Node *p = new Node();
+  p->id = n;
+  p->name = str;
+  return p;
+};
+
+Node *Node::reproduct(size_t n, const vector<Node *> &vn) {
+  Node *p = new Node();
+  p->id = n;
+  p->children = vn;
+  p->children.shrink_to_fit();
+  return p;
+};
+
+/*******************************************************************/
 /********* Member Functions For Node Class *************************/
 /*******************************************************************/
-Node::Node() : name(""), id(0), length(NAN), parent(NULL) {
-  children.reserve(N_FORKS);
-};
-
-Node::Node(size_t n) : name(""), id(n), length(NAN), parent(NULL) {
-  children.reserve(N_FORKS);
-};
-
-Node::Node(size_t n, const string &str)
-    : name(str), id(n), length(NAN), parent(NULL) {
-  children.reserve(N_FORKS);
-};
-
-Node::Node(size_t n, const vector<Node *> &vn)
-    : name(""), id(n), length(NAN), parent(NULL), children(vn) {
-  children.reserve(N_FORKS);
-};
-
 bool Node::isLeaf() { return children.empty(); };
 
 void Node::addChild(Node *nd) {
@@ -46,14 +62,22 @@ void Node::deleteChild(Node *nd) {
   children.erase(iter);
 };
 
+void Node::_initial() {
+  children.clear();
+  nleaf = 0;
+  name.clear();
+  id = 0;
+  length = 0;
+  bootstrap = 1.0;
+  parent = NULL;
+}
+
 void Node::clear() {
   vector<Node *> nodes;
   getDescendants(nodes);
-  vector<Node *>::iterator iter = nodes.begin();
-  vector<Node *>::iterator iterEnd = nodes.end();
-  for (; iter != iterEnd; ++iter)
-    delete *iter;
-  children.clear();
+  for (auto &nd : nodes)
+    delete nd;
+  _initial();
 }
 
 void Node::getDescendants(vector<Node *> &nds) {
@@ -62,6 +86,14 @@ void Node::getDescendants(vector<Node *> &nds) {
       nds.emplace_back(nd);
       (*nd).getDescendants(nds);
     }
+  }
+};
+
+void Node::getBranches(vector<Node *> &nds) {
+  if (!isLeaf()) {
+    nds.push_back(this);
+    for (auto &nd : children)
+      nd->getBranches(nds);
   }
 };
 
@@ -141,13 +173,28 @@ void Node::_outnwk(ostream &os) {
   else
     os << '"' << forename << '"';
 
-  if (!std::isnan(length))
+  if (!std::isnan(length)) {
     os << ":" << fixed << setprecision(5) << length;
+    if (!isLeaf())
+      os << "[" << fixed << setprecision(3) << bootstrap << "]";
+  }
 };
 
 void Node::outnwk(ostream &os) {
   _outnwk(os);
   os << ";" << endl;
+};
+
+void Node::outnwk(const string &str) {
+  mkpath(str);
+  ofstream onwk(str.c_str());
+  if (!onwk) {
+    cerr << "\nCannot found the output file " << str << endl;
+    exit(1);
+  }
+
+  outnwk(onwk);
+  onwk.close();
 };
 
 void Node::_nwkItem(const string &str) {
@@ -162,11 +209,19 @@ void Node::_nwkItem(const string &str) {
       name = words.front();
     }
   }
-  length = str2double(words.back());
+
+  try {
+    length = str2double(words.back());
+  } catch (exception e) {
+    vector<string> subwords;
+    separateWord(subwords, words.back(), "[]");
+    length = str2double(subwords.front());
+    bootstrap = str2double(subwords.at(1));
+  }
 };
 
 void Node::_innwk(istream &is) {
-  Node *np = new Node;
+  Node *np = reproduct();
   addChild(np);
   string brStr;
 
@@ -178,7 +233,7 @@ void Node::_innwk(istream &is) {
         brStr.clear();
       }
 
-      np = new Node;
+      np = reproduct();
       addChild(np);
     } else if (c == ')') {
       if (!brStr.empty()) {
@@ -214,11 +269,53 @@ void Node::innwk(istream &is) {
   }
 };
 
+void Node::innwk(const string &str) {
+  ifstream inwk(str.c_str());
+  if (!inwk) {
+    cerr << "\nCannot found the input file " << str << endl;
+    exit(1);
+  }
+
+  innwk(inwk);
+  inwk.close();
+};
+
+void Node::resetBootstrap(float bv) {
+  bootstrap = bv;
+  if (!isLeaf()) {
+    for (auto &nd : children)
+      nd->resetBootstrap(bv);
+  }
+}
+
+void Node::ratioBootstrap(float nTree) {
+  bootstrap /= nTree;
+  if (!isLeaf()) {
+    for (auto &nd : children)
+      nd->ratioBootstrap(nTree);
+  }
+}
+
 void Node::renewId(const unordered_map<string, size_t> &mgi) {
   if (isLeaf()) {
     id = mgi.find(name)->second;
   } else {
     for (auto &nd : children)
       (*nd).renewId(mgi);
+  }
+};
+
+void Node::replaceLeafName(const map<string, string> &nameMap) {
+  if (nameMap.empty())
+    return;
+
+  // replace the file name to genome name
+  vector<Node *> allLeafs;
+  getLeafs(allLeafs);
+  for (auto &nd : allLeafs) {
+    auto iter = nameMap.find(nd->name);
+    if (iter != nameMap.end()) {
+      nd->name = iter->second;
+    }
   }
 };

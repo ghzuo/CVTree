@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2018  T-Life Research Center, Fudan University, Shanghai,
- * China. See the accompanying Manual for the contributors and the way to cite
- * this work. Comments and suggestions welcome. Please contact Dr. Guanghong Zuo
- * <ghzuo@fudan.edu.cn>
+ * Copyright (c) 2022  Wenzhou Institute, University of Chinese Academy of
+ * Sciences. See the accompanying Manual for the contributors and the way to
+ * cite this work. Comments and suggestions welcome. Please contact Dr.
+ * Guanghong Zuo <ghzuo@ucas.ac.cn>
  *
  * @Author: Dr. Guanghong Zuo
- * @Date: 2018-08-21 14:04:38
+ * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2018-08-21 14:04:38
+ * @Last Modified Time: 2022-11-24 12:50:36
  */
 
 #include "cvmeth.h"
@@ -57,10 +57,9 @@ void CVmeth::setCVdir(const string &str) {
       return str + cvsuff + to_string(k) + ".gz";
     };
   } else {
-    mkdir(cvdir.c_str(), 0755);
+    mkpath(cvdir);
     getCVname = [this](const string &str, size_t k) {
-      return cvdir + str.substr(str.find_last_of('/') + 1) + cvsuff +
-             to_string(k) + ".gz";
+      return cvdir + getFileName(str) + cvsuff + to_string(k) + ".gz";
     };
   }
 }
@@ -69,12 +68,11 @@ void CVmeth::execute(const string &gname, const vector<size_t> &klist,
                      bool chk) {
 
   vector<pair<int, CVmap>> mcv;
-  check = chk;
   // check the existed cvfile
-  if (check) {
+  if (chk) {
     for (auto k : klist) {
       string cvfile = getCVname(gname, k);
-      if (!fileExists(cvfile)) {
+      if (!gzvalid(cvfile)) {
         CVmap cv;
         mcv.emplace_back(make_pair(k, cv));
       }
@@ -104,6 +102,64 @@ void CVmeth::execute(const string &gname, const vector<size_t> &klist,
   }
 };
 
+/** do bootstrape */
+void CVmeth::bootstrap(const string &gname, const vector<size_t> &klist,
+                       const vector<string> &btdirs, bool chk) {
+  // read genomes
+  string gfile = gname + gsuff;
+  Genome genome;
+  theg.readgene(gfile, genome);
+
+  // get cv for samples
+  for (auto &dir : btdirs) {
+    // initial cv container
+    vector<pair<int, CVmap>> mcv;
+    if (chk) {
+      for (auto k : klist) {
+        string cvfile = bootCVname(dir, gname, k);
+        if (!gzvalid(cvfile)) {
+          CVmap cv;
+          mcv.emplace_back(make_pair(k, cv));
+        }
+      }
+    } else {
+      for (auto k : klist) {
+        CVmap cv;
+        mcv.emplace_back(make_pair(k, cv));
+      }
+    }
+
+    // get the cv of all K for the bootstrap genome
+    cv(bootGenome(genome), mcv);
+
+    // write down CVs
+    for (auto item : mcv) {
+      string outfile = bootCVname(dir, gname, item.first);
+      writecv(item.second, outfile);
+    }
+  }
+};
+
+Genome CVmeth::bootGenome(const Genome &org) {
+  int ng = org.size();
+  random_device rd;
+  mt19937 gen(rd());
+  uniform_int_distribution<> distrib(0, ng - 1);
+
+  Genome gs(ng);
+  for (auto &g : gs){
+    int ndx = distrib(gen);
+    g = org[ndx];
+  }
+  
+  return gs;
+};
+
+string CVmeth::bootCVname(const string &sdir, const string &gname, size_t k) {
+  return sdir + getFileName(gname) + cvsuff + to_string(k) + ".gz";
+}
+
+// count the kmers
 size_t CVmeth::count(const Genome &genome, size_t k, CVmap &cv) {
   size_t n(0);
   for (const auto &gene : genome) {
@@ -134,14 +190,14 @@ size_t CVmeth::count(const Genome &genome, size_t k, CVmap &cv) {
   return n;
 };
 
-//////// For the Markov Method
+// The Markov Method
 void Counting::cv(const Genome &genome, vector<pair<int, CVmap>> &vcv) {
   for (auto &item : vcv) {
     count(genome, item.first, item.second);
   }
 };
 
-//////// For Hao method based the Markov Model
+// Hao method based the Markov Model
 void HaoMethod::cv(const Genome &genome, vector<pair<int, CVmap>> &vcv) {
 
   // require k to count

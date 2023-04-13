@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2018  T-Life Research Center, Fudan University, Shanghai,
- * China. See the accompanying Manual for the contributors and the way to cite
- * this work. Comments and suggestions welcome. Please contact Dr. Guanghong Zuo
- * <ghzuo@fudan.edu.cn>
+ * Copyright (c) 2022  Wenzhou Institute, University of Chinese Academy of
+ * Sciences. See the accompanying Manual for the contributors and the way to
+ * cite this work. Comments and suggestions welcome. Please contact Dr.
+ * Guanghong Zuo <ghzuo@ucas.ac.cn>
  *
  * @Author: Dr. Guanghong Zuo
- * @Date: 2018-08-21 14:05:27
+ * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2018-08-21 14:05:27
+ * @Last Modified Time: 2022-11-21 15:13:19
  */
 
 #ifndef CVMETH_H
@@ -18,6 +18,7 @@
 #include <iomanip>
 #include <iostream>
 #include <numeric>
+#include <random>
 #include <regex>
 #include <set>
 #include <sstream>
@@ -26,6 +27,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "kit.h"
 #include "kstring.h"
 #include "readgenome.h"
 #include "stringOpt.h"
@@ -33,16 +35,15 @@
 struct CVmeth {
 
   GeneType theg;
-  string gsuff  = ".faa";
+  string gsuff = ".faa";
   string cvsuff = ".cv";
   string ksuff = ".K";
   string cvdir;
-  bool check = true;
   int kmin = 1;
   int kmax = 14;
 
   // the create function
-  static CVmeth* create(const string&, const string&, const string&);
+  static CVmeth *create(const string &, const string &, const string &);
 
   // initial method
   void init(const string &, const string &);
@@ -50,13 +51,19 @@ struct CVmeth {
   void setg(const string &);
 
   // get the cvname for diffent cvdir
-  function<string(const string&, size_t)> getCVname;
+  function<string(const string &, size_t)> getCVname;
 
   // from genome to cv
   void checkK(const vector<size_t> &);
 
   // execute the caculate
   void execute(const string &, const vector<size_t> &, bool chk = true);
+
+  // bootstrap genome
+  Genome bootGenome(const Genome &);
+  string bootCVname(const string&, const string&, size_t);
+  void bootstrap(const string &, const vector<size_t> &, const vector<string> &,
+                 bool chk = true);
 
   // basic function for the method
   size_t count(const Genome &, size_t, CVmap &);

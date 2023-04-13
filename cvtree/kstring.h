@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2018  T-Life Research Center, Fudan University, Shanghai, China.
+ * Copyright (c) 2018  Wenzhou Institute, University of Chinese Academy of Sciences.
  * See the accompanying Manual for the contributors and the way to cite this work.
  * Comments and suggestions welcome. Please contact
- * Dr. Guanghong Zuo <ghzuo@fudan.edu.cn>
+ * Dr. Guanghong Zuo <ghzuo@ucas.ac.cn>
  * 
  * @Author: Dr. Guanghong Zuo
  * @Date: 2017-03-17 15:39:23

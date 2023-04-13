@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2018  T-Life Research Center, Fudan University, Shanghai,
- * China. See the accompanying Manual for the contributors and the way to cite
- * this work. Comments and suggestions welcome. Please contact Dr. Guanghong Zuo
- * <ghzuo@fudan.edu.cn>
+ * Copyright (c) 2022  Wenzhou Institute, University of Chinese Academy of
+ * Sciences. See the accompanying Manual for the contributors and the way to
+ * cite this work. Comments and suggestions welcome. Please contact Dr.
+ * Guanghong Zuo <ghzuo@ucas.ac.cn>
  *
  * @Author: Dr. Guanghong Zuo
- * @Date: 2018-08-27 14:15:00
+ * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2018-08-27 14:15:00
+ * @Last Modified Time: 2022-11-19 17:56:01
  */
 
 #ifndef TREEMETH_H
@@ -39,13 +39,16 @@ struct TreeMeth {
   // the create function
   static TreeMeth *create(const string &);
 
+  // the creat star tree
+  void startree(const Mdist&, Node*, StarTree&);
+
   // virtual function for different methods
-  virtual Node *tree(Mdist &) = 0;
+  virtual void tree(Node*&, Mdist &) = 0;
 };
 
 // The neighbor Joint Method
 struct NeighborJoint : TreeMeth {
-  Node *tree(Mdist &) override;
+  void tree(Node*&, Mdist &) override;
 
   // the distance from the star point
   void lenStar(const StarTree &, const Mdist &);
@@ -56,6 +59,21 @@ struct NeighborJoint : TreeMeth {
   // joint the two neighbors
   // reset the distance of the nearest neighbor
   void joint(Mdist &, StarTree &, Neighbor &);
+};
+
+// unweighted pair-group method with arithmetic means
+struct UPGMA : TreeMeth {
+  void tree(Node*&, Mdist &) override;
+
+  // get the the nearest neighbor nodes
+  void closest(const Mdist &, StarTree &, Neighbor &);
+
+  // combine the two neighbors into a nodes
+  // reset the distance of the nearest neighbor
+  void combine(Mdist &, StarTree &, Neighbor &);
+
+  // reset the length of tree
+  void resetLength(Node*);
 };
 
 #endif
