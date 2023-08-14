@@ -8,7 +8,7 @@
 # @Author: Dr. Guanghong Zuo
 # @Date: 2022-08-02 16:45:57
 # @Last Modified By: Dr. Guanghong Zuo
-# @Last Modified Time: 2023-08-14 10:37:14
+# @Last Modified Time: 2023-08-14 14:19:35
 ###
 
 
@@ -37,6 +37,9 @@ foreach(LIB ${REQUIRED_LIBRARIES})
     message(FATAL_ERROR ${LIB} " library not found!")
   endif()
 endforeach()
+
+### find the nlohmann json
+find_package(nlohmann_json 3.6 REQUIRED)
 
 ### Check the OPENMP
 find_package(OpenMP REQUIRED)
