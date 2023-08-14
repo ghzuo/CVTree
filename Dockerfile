@@ -34,7 +34,7 @@ RUN mkdir cvtree/build/ && cd cvtree/build/ && cmake .. && make
 FROM alpine AS run
 COPY --from=dev /root/cvtree/build/bin/* /usr/local/bin/
 RUN apk --update add --no-cache libgomp libstdc++
-RUN apk --update add --no-cache hdf5 --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
+RUN apk --update add --no-cache hdf5 hdf5-cpp --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
 
 ## for workplace
 WORKDIR /root/data
