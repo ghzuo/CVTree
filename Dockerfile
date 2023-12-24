@@ -17,7 +17,7 @@ LABEL Version=0.2 \
   description="Docker image for CVTree" 
 
 ## for develop environment
-RUN apk --update add --no-cache g++ make cmake zlib-dev
+RUN apk --update add --no-cache g++ make cmake zlib-dev boost-dev
 RUN apk --update add --no-cache hdf5-dev --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
 RUN apk --update add --no-cache nlohmann-json --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
 
