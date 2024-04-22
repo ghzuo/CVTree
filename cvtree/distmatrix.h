@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-11-23 15:35:47
+ * @Last Modified Time: 2024-04-23 00:05:05
  */
 
 #ifndef DISTMATRIX_H
@@ -40,7 +40,7 @@ using namespace std;
 
 // ... only distance matrix
 class Mdist {
-  int ng;
+  size_t ng;
   vector<double> dist;
   vector<string> name;
 
