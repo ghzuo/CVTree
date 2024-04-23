@@ -141,14 +141,14 @@ void CVmeth::bootstrap(const string &gname, const vector<size_t> &klist,
 };
 
 Genome CVmeth::bootGenome(const Genome &org) {
-  int ng = org.size();
+  long ng = org.size();
   random_device rd;
   mt19937 gen(rd());
   uniform_int_distribution<> distrib(0, ng - 1);
 
   Genome gs(ng);
   for (auto &g : gs){
-    int ndx = distrib(gen);
+    long ndx = distrib(gen);
     g = org[ndx];
   }
   
@@ -176,7 +176,7 @@ size_t CVmeth::count(const Genome &genome, size_t k, CVmap &cv) {
     }
 
     // get the next kstring
-    for (int i = k; i < gene.size(); ++i) {
+    for (long i = k; i < gene.size(); ++i) {
       ks.behead();
       ks.append(gene[i]);
       CVmap::iterator iter = cv.find(ks);
@@ -219,7 +219,7 @@ void HaoMethod::cv(const Genome &genome, vector<pair<int, CVmap>> &vcv) {
 
   // get the cv with subtract
   for (auto &item : vcv) {
-    int k = item.first;
+    long k = item.first;
     double factor = nstr[k] * nstr[k - 2] / (nstr[k - 1] * nstr[k - 1]);
     markov(mvc[k], mvc[k - 1], mvc[k - 2], factor, item.second);
   }

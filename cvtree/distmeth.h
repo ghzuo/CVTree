@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-03-16 12:22:53
+ * @Last Modified Time: 2024-04-23 10:26:47
  */
 
 #ifndef DISTMETH_H
@@ -71,7 +71,7 @@ struct DistMeth {
 
   // divided task in steps
   float setStep(const Mdist &);
-  string infoStep(int, float);
+  string infoStep(long, float);
   size_t length() const;
   void cleanStep();
 

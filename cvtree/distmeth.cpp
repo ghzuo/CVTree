@@ -97,7 +97,7 @@ float DistMeth::setStep(const Mdist &dm) {
   // get the cvitem sort by NAN
   vector<pair<int, CVitem *>> nanItems;
   for (size_t i = 0; i < dm.size(); ++i) {
-    int n = dm.nNAN(i);
+    long n = dm.nNAN(i);
     if (n > 0) {
       nanItems.emplace_back(make_pair(n, &cvlist[i]));
     }
@@ -194,7 +194,7 @@ void DistMeth::calcOutDist(Mdist &dm) {
 void DistMeth::execute(const vector<string> &flist, Mdist &dm) {
 
   setflist(flist);
-  int ndx(0);
+  long ndx(0);
 
   do {
     // check the memory and set steps
@@ -224,7 +224,7 @@ void DistMeth::execute(const vector<string> &flist, Mdist &dm) {
   } while (dm.hasNAN());
 }
 
-string DistMeth::infoStep(int ndx, float size) {
+string DistMeth::infoStep(long ndx, float size) {
   string str = "Start the calculate step " + to_string(ndx);
   str += "\n" + to_string(introBlock.size()) + "/" +
          to_string(introBlock.size() + interBlock.size()) +

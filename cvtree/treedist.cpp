@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2018-04-26 09:00:28
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-11-20 12:02:11
+ * @Last Modified Time: 2024-04-23 10:27:50
  */
 
 #include "treedist.h"
@@ -48,8 +48,8 @@ int main(int argc, char *argv[]) {
     
     for(auto& syb : aset)
       bset.erase(syb);
-    int nTotal = aset.size();
-    int nDiff  = bset.size();
+    long nTotal = aset.size();
+    long nDiff  = bset.size();
     cout << nDiff * 2 << " " << float(nDiff)/nTotal << endl;
   }else{
     cerr << myargs.bfile << endl;

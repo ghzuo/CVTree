@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-11-21 23:24:12
+ * @Last Modified Time: Tue Apr 23 2024
  */
 
 #include "treemeth.h"
@@ -55,10 +55,10 @@ void NeighborJoint::tree(Node*& aTree, Mdist &dm) {
 
   // get the new length of the star tree
   lenStar(nodes, dm);
-  int nNode = nodes.size() - 3;
+  long nNode = nodes.size() - 3;
 
   // get the nj tree
-  for (int i = 0; i < nNode; ++i) {
+  for (long i = 0; i < nNode; ++i) {
     // get two nearest items and set length and distance matrix
     Neighbor nb;
     njnearest(dm, nodes, nb);
@@ -112,7 +112,7 @@ void NeighborJoint::njnearest(const Mdist &dm, StarTree &nodes, Neighbor &nb) {
 #pragma omp parallel
   {
 #pragma omp for
-    for (int i = 0; i < nNode; ++i) {
+    for (long i = 0; i < nNode; ++i) {
       length[i] = nodes[i]->length / m2star;
     }
 #pragma omp barrier
@@ -206,8 +206,8 @@ void UPGMA::tree(Node*& aTree, Mdist &dm) {
   startree(dm, aTree, nodes);
 
   // run the task for combine into tree
-  int nNode = nodes.size();
-  for (int i = 1; i < nNode; ++i) {
+  long nNode = nodes.size();
+  for (long i = 1; i < nNode; ++i) {
     // get the closest node pair
     Neighbor nb;
     closest(dm, nodes, nb);
@@ -224,11 +224,11 @@ void UPGMA::tree(Node*& aTree, Mdist &dm) {
 
 // get the closest node pair
 void UPGMA::closest(const Mdist &dm, StarTree &nodes, Neighbor &nb) {
-  int nNode = nodes.size();
+  long nNode = nodes.size();
   nb.dd = numeric_limits<double>::max();
-  for (int i = 0; i < nNode - 1; ++i) {
+  for (long i = 0; i < nNode - 1; ++i) {
     size_t idx = nodes[i]->id;
-    for (int j = i + 1; j < nNode; ++j) {
+    for (long j = i + 1; j < nNode; ++j) {
       size_t idy = nodes[j]->id;
       double dist = dm.getdist(idx, idy);
       if (dist < nb.dd) {

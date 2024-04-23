@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2024-04-23 00:05:05
+ * @Last Modified Time: 2024-04-23 10:33:07
  */
 
 #ifndef DISTMATRIX_H
@@ -40,7 +40,7 @@ using namespace std;
 
 // ... only distance matrix
 class Mdist {
-  size_t ng;
+  long ng;
   vector<double> dist;
   vector<string> name;
 
@@ -95,11 +95,11 @@ public:
 
 
   // check NAN distance
-  int chkNAN(const vector<size_t> &, vector<pair<size_t, size_t>> &) const;
-  int chkNAN(const vector<string> &, vector<pair<size_t, size_t>> &) const;
-  int chkAllNAN(vector<pair<size_t, size_t>> &) const;
-  int nNAN(size_t) const;
-  int nNAN() const;
+  long chkNAN(const vector<size_t> &, vector<pair<size_t, size_t>> &) const;
+  long chkNAN(const vector<string> &, vector<pair<size_t, size_t>> &) const;
+  long chkAllNAN(vector<pair<size_t, size_t>> &) const;
+  long nNAN(size_t) const;
+  long nNAN() const;
   bool isNAN(size_t, size_t) const;
   bool isNAN(size_t) const;
   bool hasNAN(size_t) const;

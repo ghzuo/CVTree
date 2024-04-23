@@ -39,8 +39,8 @@ struct CVmeth {
   string cvsuff = ".cv";
   string ksuff = ".K";
   string cvdir;
-  int kmin = 1;
-  int kmax = 14;
+  long kmin = 1;
+  long kmax = 14;
 
   // the create function
   static CVmeth *create(const string &, const string &, const string &);

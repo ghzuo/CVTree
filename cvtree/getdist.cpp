@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-03-16 12:21:46
+ * @Last Modified Time: 2024-04-23 10:21:45
  */
 
 #include "distmatrix.h"
@@ -37,7 +37,7 @@ void getIndex(const string &file, const vector<string> &nmlist,
   dm.readmtx(file);
   map<string, int> names;
 
-  for (int i = 0; i < dm.size(); ++i) {
+  for (long i = 0; i < dm.size(); ++i) {
     string str = dm.getname(i);
     size_t pos = str.find_last_of('>');
     if (pos != string::npos) {
@@ -168,8 +168,8 @@ int main(int argc, char *argv[]) {
     }
 
     if (html) {
-      for (int i = 0; i < splist.size(); ++i) {
-        for (int j = i + 1; j < splist.size(); ++j) {
+      for (long i = 0; i < splist.size(); ++i) {
+        for (long j = i + 1; j < splist.size(); ++j) {
           cout << "<tr>"
                << "<td>" << splist[i] << "</td>"
                << "<td>" << splist[j] << "</td>";
@@ -179,8 +179,8 @@ int main(int argc, char *argv[]) {
         }
       }
     } else {
-      for (int i = 0; i < splist.size(); ++i) {
-        for (int j = i + 1; j < splist.size(); ++j) {
+      for (long i = 0; i < splist.size(); ++i) {
+        for (long j = i + 1; j < splist.size(); ++j) {
           cout << splist[i] << "\t" << splist[j] << "\t";
           for (auto &dm : dmlist)
             cout << dm.getdist(i, j) << "\t";

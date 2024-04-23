@@ -93,7 +93,11 @@ void mkpath(const string &nm) {
   size_t npos = 0;
   while ((npos = nm.find("/", npos)) != std::string::npos) {
     string dir = nm.substr(0, npos);
+#ifdef _WIN32
+    mkdir(dir.c_str());
+#else
     mkdir(dir.c_str(), 0755);
+#endif
     npos++;
   }
 }

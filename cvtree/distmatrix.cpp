@@ -82,13 +82,13 @@ bool Mdist::readmtxtxt(const string &file) {
   getline(dd, line);
   resize(stoi(line));
 
-  int idist(0);
+  long idist(0);
   for (size_t i = 0; i < ng; ++i) {
     string line;
     if (getline(dd, line) && !line.empty()) {
       istringstream iss(line);
       iss >> name[i];
-      for (int j = 0; j < i; ++j)
+      for (long j = 0; j < i; ++j)
         iss >> dist[idist++];
       idist++;
     }
@@ -134,7 +134,7 @@ bool Mdist::readmtxnc(const string &file) {
   NcVar *spname = mtxFile.get_var("spname");
   long counts[2] = {1, lenWord};
   char aname[lenWord];
-  for (int i = 0; i < ngenome; ++i) {
+  for (long i = 0; i < ngenome; ++i) {
     spname->set_cur(i, 0);
     spname->get(aname, counts);
     name[i] = aname;
@@ -147,14 +147,14 @@ bool Mdist::readmtxnc(const string &file) {
 
   // set the distance
   if (nmtx == ngenome * (ngenome - 1) / 2) {
-    for (int i = 0; i < nmtx; ++i)
+    for (long i = 0; i < nmtx; ++i)
       dist[i] = fdist[i];
   } else {
     // when the size is ng*(ng+1)/2
     size_t ndx(0);
-    for (int i = 1; i < ng; ++i) {
-      int m = (i + 1) * i / 2;
-      for (int j = 0; j < i; ++j) {
+    for (long i = 1; i < ng; ++i) {
+      long m = (i + 1) * i / 2;
+      for (long j = 0; j < i; ++j) {
         dist[ndx++] = fdist[m + j];
       }
     }
@@ -195,7 +195,7 @@ void Mdist::writemtxnc(const string &file) {
   NcDim *mtxdist = mtxFile.add_dim("matrix", dist.size());
   NcVar *distance = mtxFile.add_var("distance", ncFloat, mtxdist);
   float *vdm = new float[dist.size()];
-  for (int i = 0; i < dist.size(); ++i)
+  for (long i = 0; i < dist.size(); ++i)
     vdm[i] = dist[i];
   distance->put(vdm, dist.size());
   delete[] vdm;
@@ -275,7 +275,7 @@ void Mdist::reduce(const vector<size_t> &ndx) {
 
   // resize the matrix
   resize(ndx.size());
-  for (int i = 0; i < ng; ++i) {
+  for (long i = 0; i < ng; ++i) {
     if (ndx[i] >= tmpName.size()) {
       cerr << "The index " << ndx[i] << " is out the size of matrix "
            << tmpName.size() << endl;
@@ -283,7 +283,7 @@ void Mdist::reduce(const vector<size_t> &ndx) {
     }
 
     name[i] = tmpName[ndx[i]];
-    for (int j = 0; j <= i; ++j) {
+    for (long j = 0; j <= i; ++j) {
       size_t itmp = ndx[i] < ndx[j] ? ndx[i] + ndx[j] * (ndx[j] - 1) / 2
                                     : ndx[j] + ndx[i] * (ndx[i] - 1) / 2;
       _setdist(j, i, tmpDist[itmp]);
@@ -314,10 +314,10 @@ void Mdist::reduce(const vector<string> &nlist) {
 // ... extend the matrix
 void Mdist::extend(const vector<string> &nlist, const vector<double> &dd) {
 
-  int orgSize = ng;
-  int orgDistSize = dist.size();
-  int newSize = ng + nlist.size();
-  int newDistsize = newSize * (newSize + 1) / 2;
+  long orgSize = ng;
+  long orgDistSize = dist.size();
+  long newSize = ng + nlist.size();
+  long newDistsize = newSize * (newSize + 1) / 2;
 
   if (dd.size() != newDistsize - orgDistSize) {
     cerr << "Error: the number of the append vector is unmatched!!" << endl;
@@ -328,21 +328,21 @@ void Mdist::extend(const vector<string> &nlist, const vector<double> &dd) {
   resize(newSize);
 
   // add the name
-  for (int i = 0; i < nlist.size(); ++i)
+  for (long i = 0; i < nlist.size(); ++i)
     name[orgSize + i] = nlist[i];
 
   // add the distance
-  for (int i = 0; i < dd.size(); ++i)
+  for (long i = 0; i < dd.size(); ++i)
     dist[orgDistSize + i] = dd[i];
 };
 
 // ... extend matrix by name list
 void Mdist::extend(const vector<string> &nlist) {
-  int orgSize = ng;
-  int newSize = ng + nlist.size();
+  long orgSize = ng;
+  long newSize = ng + nlist.size();
 
   resize(newSize);
-  for (int i = 0; i < nlist.size(); ++i)
+  for (long i = 0; i < nlist.size(); ++i)
     name[orgSize + i] = nlist[i];
 };
 
@@ -356,7 +356,7 @@ bool Mdist::name2ndx(const vector<string> &nm, vector<size_t> &ndx) const {
 
   // resize the matrix
   ndx.resize(name.size());
-  for (int i = 0; i < nm.size(); ++i) {
+  for (long i = 0; i < nm.size(); ++i) {
     if (mapMI.find(nm[i]) == mapMI.end()) {
       cerr << "\nCannot find the genome " << nm[i] << "in the matrix file\n"
            << endl;
@@ -370,13 +370,13 @@ bool Mdist::name2ndx(const vector<string> &nm, vector<size_t> &ndx) const {
 
 bool Mdist::ndx2name(const vector<size_t> &ndx, vector<string> &nm) const {
   nm.resize(ndx.size());
-  for (int i = 0; i < ndx.size(); ++i)
+  for (long i = 0; i < ndx.size(); ++i)
     nm[i] = getname(i);
   return true;
 };
 
 // for check NAN distance
-int Mdist::chkNAN(const vector<string> &gname,
+long Mdist::chkNAN(const vector<string> &gname,
                   vector<pair<size_t, size_t>> &nandist) const {
 
   vector<size_t> ndx;
@@ -384,7 +384,7 @@ int Mdist::chkNAN(const vector<string> &gname,
   return chkNAN(ndx, nandist);
 };
 
-int Mdist::chkNAN(const vector<size_t> &ndx,
+long Mdist::chkNAN(const vector<size_t> &ndx,
                   vector<pair<size_t, size_t>> &nandist) const {
 
   for (size_t i = 0; i < ndx.size(); ++i) {
@@ -403,7 +403,7 @@ int Mdist::chkNAN(const vector<size_t> &ndx,
   return nandist.size();
 };
 
-int Mdist::chkAllNAN(vector<pair<size_t, size_t>> &nandist) const {
+long Mdist::chkAllNAN(vector<pair<size_t, size_t>> &nandist) const {
   for (size_t i = 0; i < ng; ++i) {
     for (size_t j = 0; j < i; ++j) {
       if (std::isnan(_getdist(j, i)))
@@ -414,8 +414,8 @@ int Mdist::chkAllNAN(vector<pair<size_t, size_t>> &nandist) const {
 };
 
 //.... the number of NAN of ith line
-int Mdist::nNAN(size_t i) const {
-  int n(0);
+long Mdist::nNAN(size_t i) const {
+  long n(0);
   size_t j = 0;
   for (; j < i; ++j) {
     if (std::isnan(_getdist(j, i)))
@@ -430,8 +430,8 @@ int Mdist::nNAN(size_t i) const {
 };
 
 //.... number of NAN in the matrix
-int Mdist::nNAN() const {
-  int n(0);
+long Mdist::nNAN() const {
+  long n(0);
   for (size_t i = 0; i < ng; ++i) {
     for (size_t j = i + 1; j < ng; ++j) {
       if (std::isnan(_getdist(i, j)))
@@ -478,7 +478,7 @@ string Mdist::info() const {
   string str("The dimension of the distance matrix is: ");
   str += to_string(ng);
 
-  int n = nNAN();
+  long n = nNAN();
   size_t m = msize();
   if (n == 0) {
     str += "\nAll distances are filled";
@@ -572,7 +572,7 @@ vector<string> Mdist::getNameList() const { return name; };
 
 // format the genome name
 void Mdist::cleanName() {
-  for (int i = 0; i < ng; ++i) {
+  for (long i = 0; i < ng; ++i) {
     name[i] = name[i].substr(name[i].find_last_of("/>") + 1);
   }
 };
