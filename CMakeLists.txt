@@ -24,6 +24,13 @@ SET(CMAKE_VERBOSE_MAKEFILE on)
 ADD_DEFINITIONS("-O3 -std=c++11")
 #set(CMAKE_FIND_LIBRARY_SUFFIXES .a .tbd .dylib .so)
 
+### use CANDA library
+if (NOT $ENV{CONDA_PREFIX} STREQUAL "")
+  message(STATUS "CURRENT CONDA PREFIX: $ENV{CONDA_PREFIX}")
+  include_directories(BEFORE $ENV{CONDA_PREFIX}/include)
+  # link_directories(BEFORE $ENV{CONDA_PREFIX}/lib)
+endif ()
+
 ### Check required LIABRARIES
 set(REQUIRED_LIBRARIES ${REQUIRED_LIBRARIES} z)
 foreach(LIB ${REQUIRED_LIBRARIES})
