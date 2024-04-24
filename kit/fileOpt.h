@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-11-22 12:48:19
+ * @Last Modified Time: 2024-04-23 21:32:43
  */
 
 #ifndef FILEOPT_H
@@ -56,7 +56,6 @@ void tgzReadFile(gzFile&, size_t, string&);
 int gzline(gzFile &, string &);
 
 // check gzip file empty
-
 bool gzvalid(const string&);
 
 // read list file for list and name map

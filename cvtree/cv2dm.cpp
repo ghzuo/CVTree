@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-03-16 12:25:15
+ * @Last Modified Time: 2024-04-23 23:07:30
  */
 
 #include "cv2dm.h"
@@ -15,10 +15,12 @@
 int main(int argc, char *argv[]) {
   // get the input arguments
   Args myargs(argc, argv);
+  theInfo("Get all options");
 
   // init the distance matrix by species list
   Mdist dm;
   dm.init(myargs.glist);
+  theInfo("Initial the distance matrix");
 
   // assign the dm by reference DMs
   dm.assign(myargs.refdm);
@@ -126,12 +128,10 @@ Args::Args(int argc, char **argv) : outfile(""), suffix(".faa.cv6") {
 
   // set the outfile name
   if (outfile.empty()) {
-#ifdef _NETCDF
-    outfile = methStr + suffix + ".nc";
-#elif _HDF5
+#ifdef _HDF5
     outfile = methStr + suffix + ".h5";
 #else
-    outfile = methStr + suffix + ".txt";
+    outfile = methStr + suffix + ".gz";
 #endif
   }
 
@@ -145,7 +145,11 @@ void Args::usage() {
        << "\nProgram Usage: \n\n"
        << program << "\n"
        << " [ -o <dm> ]      Output distance matrix, default: "
-          "<Method><Suffix>.h5\n"
+#ifdef _HDF5
+    "<Method><Suffix>.h5 in hdf5 format\n"
+#else
+    "<Method><Suffix>.gz in binary format\n"
+#endif
        << " [ -V <cvdir> ]   Super directory of extend cv files\n"
        << " [ -i list ]      Genome list for distance matrix, default: list\n"
        << " [ -s <Suffix> ]  Suffix of the cvfile, default: .faa.cv6\n"

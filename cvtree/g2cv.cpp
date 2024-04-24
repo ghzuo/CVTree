@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-11-24 10:49:47
+ * @Last Modified Time: 2024-04-23 10:21:49
  */
 
 #include "g2cv.h"
@@ -19,12 +19,12 @@ int main(int argc, char *argv[]) {
 
   if (myargs.btdirs.empty()) {
 #pragma omp parallel for
-    for (int i = 0; i < myargs.flist.size(); ++i) {
+    for (long i = 0; i < myargs.flist.size(); ++i) {
       myargs.meth->execute(myargs.flist[i], myargs.klist);
     }
   } else {
 #pragma omp parallel for
-    for (int i = 0; i < myargs.flist.size(); ++i) {
+    for (long i = 0; i < myargs.flist.size(); ++i) {
       myargs.meth->bootstrap(myargs.flist[i], myargs.klist, myargs.btdirs);
     }
   }
@@ -40,7 +40,7 @@ Args::Args(int argc, char **argv) {
   string gdir("");
   string cvdir("");
   string methStr("Hao");
-  int nBoot(0);
+  long nBoot(0);
 
   char ch;
   while ((ch = getopt(argc, argv, "G:i:k:V:g:m:f:b:qh")) != -1) {
@@ -122,7 +122,7 @@ Args::Args(int argc, char **argv) {
   if (nBoot > 0) {
     if (cvdir.empty())
       cvdir = "resample/";
-    for (int i = 0; i < nBoot; ++i) {
+    for (long i = 0; i < nBoot; ++i) {
       string sdir = cvdir + int2lenStr(i, 4) + "/cv/";
       mkpath(sdir);
       btdirs.emplace_back(sdir);

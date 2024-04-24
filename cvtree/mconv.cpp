@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-03-16 12:21:10
+ * @Last Modified Time: 2024-04-23 21:51:15
  */
 
 #include "distmatrix.h"
@@ -36,10 +36,11 @@ int main(int argc, char *argv[]) {
   string outfile = "mdist.txt";
   string namelist;
   string program = argv[0];
+  bool check(false);
   bool Input(false);
 
   char ch;
-  while ((ch = getopt(argc, argv, "i:o:r:n:h")) != -1) {
+  while ((ch = getopt(argc, argv, "i:o:r:n:Ch")) != -1) {
     switch (ch) {
     case 'i':
       infile = optarg;
@@ -54,6 +55,9 @@ int main(int argc, char *argv[]) {
       namelist = optarg;
       Input = true;
       break;
+    case 'C':
+      check = true;
+      break;
     case 'h':
       usage(program);
     case '?':
@@ -63,6 +67,12 @@ int main(int argc, char *argv[]) {
 
   Mdist dm;
   dm.readmtx(infile);
+  theInfo("Read Distance Matrix from " + infile);
+  if(check){
+    theInfo(dm.info());
+  }else{
+    theInfo("The dimension of distance matrix is: " + to_string(dm.size()));
+  }
 
   if (!namelist.empty()) {
     // set the name of matrix by name list file
@@ -73,7 +83,6 @@ int main(int argc, char *argv[]) {
         cerr << "The length of name list is not match size of matrix" << endl;
         exit(3);
       } 
-
       for (size_t i = 0; i < nmlist.size(); ++i) {
         dm.setname(i, nmlist[i]);
       }

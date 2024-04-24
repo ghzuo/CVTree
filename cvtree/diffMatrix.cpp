@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2017-09-01 13:03:04
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2018-08-14 15:30:22
+ * @Last Modified Time: 2024-04-23 10:22:16
  */
 
 #include "distmatrix.h"
@@ -32,8 +32,8 @@ int main(int argc, char *argv[]) {
     exit(2);
   }
 
-  for (int i = 1; i < dm1.size(); ++i) {
-    for (int j = 0; j < i; ++j) {
+  for (long i = 1; i < dm1.size(); ++i) {
+    for (long j = 0; j < i; ++j) {
       if (dm1.getdist(i, j) != dm2.getdist(i, j))
         cout << i << "\t" << j << "\t" << dm1.getdist(i, j) << "\t"
              << dm2.getdist(i, j) << "\t"

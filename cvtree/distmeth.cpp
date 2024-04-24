@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-03-16 12:23:05
+ * @Last Modified Time: 2024-04-23 21:58:38
  */
 
 #include "distmeth.h"
@@ -87,6 +87,7 @@ void DistMeth::setMaxMem(float ms, size_t ng, size_t nk) {
 /// for DistMeth
 void DistMeth::setflist(const vector<string> &flist) {
   cvlist.clear();
+  cvlist.reserve(flist.size());
   for (size_t i = 0; i < flist.size(); ++i) {
     cvlist.emplace_back(CVitem(i, flist[i]));
   }
@@ -95,13 +96,15 @@ void DistMeth::setflist(const vector<string> &flist) {
 float DistMeth::setStep(const Mdist &dm) {
 
   // get the cvitem sort by NAN
-  vector<pair<int, CVitem *>> nanItems;
+  vector<pair<long, CVitem *>> nanItems;
+  nanItems.reserve(dm.size());
   for (size_t i = 0; i < dm.size(); ++i) {
-    int n = dm.nNAN(i);
+    long n = dm.nNAN(i);
     if (n > 0) {
       nanItems.emplace_back(make_pair(n, &cvlist[i]));
     }
   }
+  nanItems.shrink_to_fit();
   sort(nanItems.begin(), nanItems.end());
 
   // divid the nanItems into two blocks
@@ -154,21 +157,16 @@ void DistMeth::fillBlock() {
 
 void DistMeth::calcInDist(Mdist &dm) {
   // for the intro-distances between the genomes
-  vector<pair<size_t, size_t>> nanList;
+#pragma omp parallel for 
   for (auto i = 0; i < introBlock.size(); ++i) {
     for (auto j = i + 1; j < introBlock.size(); ++j) {
       if (dm.isNAN(introBlock[i]->ndx, introBlock[j]->ndx)) {
-        nanList.emplace_back(make_pair(i, j));
+        dm.setdist(introBlock[i]->ndx, introBlock[j]->ndx,
+                   dist(*introBlock[i], *introBlock[j]));
       }
     }
   }
 
-#pragma omp parallel for
-  for (auto i = 0; i < nanList.size(); ++i) {
-    dm.setdist(
-        introBlock[nanList[i].first]->ndx, introBlock[nanList[i].second]->ndx,
-        dist(*introBlock[nanList[i].first], *introBlock[nanList[i].second]));
-  }
   return;
 };
 
@@ -194,7 +192,7 @@ void DistMeth::calcOutDist(Mdist &dm) {
 void DistMeth::execute(const vector<string> &flist, Mdist &dm) {
 
   setflist(flist);
-  int ndx(0);
+  long ndx(0);
 
   do {
     // check the memory and set steps
@@ -224,7 +222,7 @@ void DistMeth::execute(const vector<string> &flist, Mdist &dm) {
   } while (dm.hasNAN());
 }
 
-string DistMeth::infoStep(int ndx, float size) {
+string DistMeth::infoStep(long ndx, float size) {
   string str = "Start the calculate step " + to_string(ndx);
   str += "\n" + to_string(introBlock.size()) + "/" +
          to_string(introBlock.size() + interBlock.size()) +

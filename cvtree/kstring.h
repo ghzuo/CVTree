@@ -37,7 +37,7 @@ struct Kstr{
     Kstr();
     Kstr(const string&);
     Kstr(unsigned long);
-    static int init(const vector<char>&);
+    static long init(const vector<char>&);
 
     string decode() const;
     size_t length() const;
@@ -89,7 +89,7 @@ struct CVblock{
     CViter mid() const;
     CViter getLower(const CViter&) const;
     CViter getUpper(const CViter&) const;
-    int length() const;
+    long length() const;
 
     bool pop();
     bool resetBegin(CViter&);

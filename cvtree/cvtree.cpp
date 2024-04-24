@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-12-23 21:11:28
+ * @Last Modified Time: 2024-04-23 23:03:55
  */
 
 #include "cvtree.h"
@@ -42,7 +42,7 @@ Args::Args(int argc, char **argv) : treeName(""), dmName("") {
   string listkval("5 6 7");
   bool refself(false);
   string btdir("resample/");
-  int nBoot(0);
+  long nBoot(0);
 
   char ch;
   while ((ch = getopt(argc, argv, "i:G:V:P:k:d:t:m:M:r:g:S:b:Rqh")) != -1) {
@@ -192,12 +192,10 @@ Args::Args(int argc, char **argv) : treeName(""), dmName("") {
 
   // set the output dm name format
   if (dmName.empty()) {
-#ifdef _NETCDF
-    dmName = pdir + "dm/" + methStr + cmeth->cvsuff + "$.nc";
-#elif _HDF5
+#ifdef _HDF5
     dmName = pdir + "dm/" + methStr + cmeth->cvsuff + "$.h5";
 #else
-    dmName = pdir + "dm/" + methStr + cmeth->cvsuff + "$.txt";
+    dmName = pdir + "dm/" + methStr + cmeth->cvsuff + "$.gz";
 #endif
   }
 
@@ -214,7 +212,7 @@ Args::Args(int argc, char **argv) : treeName(""), dmName("") {
   dmeth->setMaxMem(memorySize, flist.size(), klist.size());
 
   //... for bootstrap
-  for (int i = 0; i < nBoot; ++i) {
+  for (long i = 0; i < nBoot; ++i) {
     string sdir = btdir + int2lenStr(i, 4) + "/";
     blist.emplace_back(sdir);
   }
@@ -396,7 +394,7 @@ void getBootCV(const Args &myargs) {
     mkpath(cdir);
   }
 #pragma omp parallel for
-  for (int i = 0; i < myargs.flist.size(); ++i) {
+  for (long i = 0; i < myargs.flist.size(); ++i) {
     myargs.cmeth->bootstrap(myargs.flist[i], myargs.klist, btdirs);
   }
   theInfo("CV Section: All bootstrap CVs are obtained");

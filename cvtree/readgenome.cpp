@@ -27,7 +27,7 @@ void GeneType::init(const string &str) {
   }
 
   // use the upper case letters
-  for(int i=97; i<123; ++i)
+  for(long i=97; i<123; ++i)
     mc[i] = mc[i-32];
 };
 

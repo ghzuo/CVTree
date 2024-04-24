@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-11-19 17:56:01
+ * @Last Modified Time: 2024-04-23 10:21:09
  */
 
 #ifndef TREEMETH_H
@@ -29,7 +29,7 @@ using namespace std;
 // the starTree
 typedef vector<Node *> StarTree;
 struct Neighbor {
-  int first, second;
+  long first, second;
   double dd;
 
   Neighbor() : first(0), second(0), dd(numeric_limits<double>::max()){};

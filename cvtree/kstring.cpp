@@ -16,10 +16,10 @@ size_t Kstr::nbase;
 char Kstr::cmap[128];
 vector<char> Kstr::charSet;
 
-int Kstr::init(const vector<char> &letters) {
+long Kstr::init(const vector<char> &letters) {
   nbase = letters.size() + 1;
   charSet = letters;
-  for (int i = 1; i < nbase; ++i) {
+  for (long i = 1; i < nbase; ++i) {
     cmap[letters[i - 1]] = i;
     cmap[i] = letters[i - 1];
   }
@@ -107,7 +107,7 @@ ostream &operator<<(ostream &os, const Kstr &ks) {
 void writecv(const CVmap &cv, const string &file) {
 
   CVvec kslist(cv.size());
-  int index(-1);
+  long index(-1);
   for (const CVdim &cdim : cv)
     kslist[++index] = cdim;
   sort(kslist.begin(), kslist.end(),
@@ -150,7 +150,7 @@ double readcv(const string &filename, CVvec &cv) {
 
   // get the head (norm & size) of the cv file
   pair<double, mlong> tmp;
-  int len = gzread(fp, (char *)&tmp, sizeof(CVdim));
+  long len = gzread(fp, (char *)&tmp, sizeof(CVdim));
   if(len != sizeof(CVdim)) {
     cerr << "Failed to read cv file " << filename << endl;
     exit(10);
@@ -181,7 +181,7 @@ double readcv(const string &filename, CVmap &cv) {
   mlong size = tmp.second;
 
   // read the cv
-  for (int i = 0; i < size; ++i) {
+  for (long i = 0; i < size; ++i) {
     CVdim cd;
     gzread(fp, (char *)&cd, sizeof(CVdim));
     cv.insert(cv.end(), cd);
@@ -229,7 +229,7 @@ CVblock::CVblock(const CViter &a, const CViter &b) : begin(a), end(b){};
 
 bool CVblock::empty() const { return begin == end; };
 
-int CVblock::length() const { return distance(begin, end); };
+long CVblock::length() const { return distance(begin, end); };
 
 CViter CVblock::last() const { return end - 1; };
 
