@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2022  Wenzhou Institute, University of Chinese Academy of Sciences.
- * See the accompanying Manual for the contributors and the way to cite this work.
- * Comments and suggestions welcome. Please contact
- * Dr. Guanghong Zuo <ghzuo@ucas.ac.cn>
- * 
+ * Copyright (c) 2022  Wenzhou Institute, University of Chinese Academy of
+ * Sciences. See the accompanying Manual for the contributors and the way to
+ * cite this work. Comments and suggestions welcome. Please contact Dr.
+ * Guanghong Zuo <ghzuo@ucas.ac.cn>
+ *
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2024-04-23 21:58:38
+ * @Last Modified Time: 2024-04-29 11:25:15
  */
 
 #include "distmeth.h"
@@ -155,15 +155,24 @@ void DistMeth::fillBlock() {
   return;
 };
 
+void DistMeth::setdist4NAN(Mdist &dm, const CVitem &cv1, const CVitem &cv2) {
+  if (dm.isNAN(cv1.ndx, cv2.ndx)) {
+    dm.setdist(cv1.ndx, cv2.ndx, dist(cv1, cv2));
+  }
+};
+
 void DistMeth::calcInDist(Mdist &dm) {
   // for the intro-distances between the genomes
-#pragma omp parallel for 
-  for (auto i = 0; i < introBlock.size(); ++i) {
-    for (auto j = i + 1; j < introBlock.size(); ++j) {
-      if (dm.isNAN(introBlock[i]->ndx, introBlock[j]->ndx)) {
-        dm.setdist(introBlock[i]->ndx, introBlock[j]->ndx,
-                   dist(*introBlock[i], *introBlock[j]));
-      }
+  OMP4TriAngleLoop loopOpt(introBlock.size());
+#pragma omp parallel for
+  for (auto i = loopOpt.outBeg; i < loopOpt.outEnd; ++i) {
+    for (auto j = loopOpt.inBeg; j < i; ++j) {
+      setdist4NAN(dm, *introBlock[i], *introBlock[j]);
+    }
+
+    auto ir = loopOpt.inEnd - i;
+    for (auto j = loopOpt.inBeg; j < ir; ++j) {
+      setdist4NAN(dm, *introBlock[ir], *introBlock[j]);
     }
   }
 
@@ -179,10 +188,7 @@ void DistMeth::calcOutDist(Mdist &dm) {
 
     // obtain the distances between the genome and the extend genomes
     for (auto j = 0; j < introBlock.size(); ++j) {
-      if (dm.isNAN(interBlock[i]->ndx, introBlock[j]->ndx)) {
-        dm.setdist(interBlock[i]->ndx, introBlock[j]->ndx,
-                   dist(*interBlock[i], *introBlock[j]));
-      }
+      setdist4NAN(dm, *interBlock[i], *introBlock[j]);
     }
     interBlock[i]->clear();
   }

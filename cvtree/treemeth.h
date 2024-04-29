@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2024-04-23 10:21:09
+ * @Last Modified Time: 2024-04-29 14:12:51
  */
 
 #ifndef TREEMETH_H
@@ -33,6 +33,7 @@ struct Neighbor {
   double dd;
 
   Neighbor() : first(0), second(0), dd(numeric_limits<double>::max()){};
+  void update(long, long, double);
 };
 
 struct TreeMeth {

@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2020-12-08 16:13:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2021-06-18 16:32:09
+ * @Last Modified Time: 2024-04-29 10:15:01
  */
 
 #ifndef KIT_H
@@ -17,5 +17,6 @@
 #include "stringOpt.h"
 #include "fileOpt.h"
 #include "jsonctl.h"
+#include "ompOpt.h"
 
 #endif // !KIT_H

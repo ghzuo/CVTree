@@ -7,19 +7,19 @@
 # @Author: Dr. Guanghong Zuo
 # @Date: 2017-09-01 15:55:03
 # @Last Modified By: Dr. Guanghong Zuo
-# @Last Modified Time: 2021-06-18 16:39:56
+# @Last Modified Time: 2024-04-29 10:15:40
 ###
 
 LINK_LIBRARIES(libkit.a)
 
 SET(KITHEADS 
   stringOpt.h  memory.h jsonctl.h
-  info.h kit.h
+  info.h ompOpt.h kit.h
   )
 
 SET(LIBKIT_SRC ${KITHEADS}
   stringOpt.cpp  memory.cpp
-  info.cpp fileOpt.cpp jsonctl.cpp
+  info.cpp fileOpt.cpp jsonctl.cpp ompOpt.cpp
   )
 
 ADD_LIBRARY(kit STATIC ${LIBKIT_SRC})

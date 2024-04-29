@@ -7,10 +7,22 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: Wed Apr 24 2024
+ * @Last Modified Time: 2024-04-29 14:42:28
  */
 
 #include "treemeth.h"
+/********************************************************************************
+ * @brief neighbor info
+ *
+ ********************************************************************************/
+void Neighbor::update(long idx, long idy, double ddxy) {
+  if (ddxy < dd) {
+    first = idx;
+    second = idy;
+    dd = ddxy;
+  }
+}
+
 /********************************************************************************
  * @brief the base class of tree method
  *
@@ -31,7 +43,7 @@ TreeMeth *TreeMeth::create(const string &methStr) {
   return meth;
 };
 
-void TreeMeth::startree(const Mdist &dm, Node* aTree, StarTree& nodes) {
+void TreeMeth::startree(const Mdist &dm, Node *aTree, StarTree &nodes) {
   // the distance matrix and leafs list are copy from the main program
   // so it will be changed in the main program
   nodes.resize(dm.size());
@@ -47,7 +59,7 @@ void TreeMeth::startree(const Mdist &dm, Node* aTree, StarTree& nodes) {
  * @return Node*
  ********************************************************************************/
 /// For neighborJoint
-void NeighborJoint::tree(Node*& aTree, Mdist &dm) {
+void NeighborJoint::tree(Node *&aTree, Mdist &dm) {
   // the function to neighbor joint the start tree
   StarTree nodes;
   startree(dm, aTree, nodes);
@@ -95,10 +107,8 @@ void NeighborJoint::lenStar(const StarTree &vn, const Mdist &dm) {
   }
 };
 
-#pragma omp declare reduction(mindd                                            \
-                              : Neighbor                                       \
-                              : omp_out =                                      \
-                                    omp_in.dd < omp_out.dd ? omp_in : omp_out)
+#pragma omp declare reduction(mindd:Neighbor : omp_out =                       \
+                                  omp_in.dd < omp_out.dd ? omp_in : omp_out)
 
 void NeighborJoint::njnearest(const Mdist &dm, StarTree &nodes, Neighbor &nb) {
 
@@ -117,33 +127,26 @@ void NeighborJoint::njnearest(const Mdist &dm, StarTree &nodes, Neighbor &nb) {
     }
 #pragma omp barrier
 
-      //... for parallel rearranged the triangle loop into retangle loop
+    //... for parallel rearranged the triangle loop into retangle loop
+    OMP4TriAngleLoop otl(nNode);
 #pragma omp for reduction(mindd : nb)
-    for (size_t i = 1; i <= half; ++i) {
+    for (auto i = otl.outBeg; i < otl.outEnd; ++i) {
       //.. one half
       nb.dd += length[i];
-      for (size_t j = 0; j < i; ++j) {
+      for (auto j = otl.inBeg; j < i; ++j) {
         double ddxy = dm._getdist(nodes[j]->id, nodes[i]->id) - length[j];
-        if (ddxy < nb.dd) {
-          nb.first = j;
-          nb.second = i;
-          nb.dd = ddxy;
-        }
+        nb.update(j, i, ddxy);
       }
       nb.dd -= length[i];
 
       //.. other half
-      auto ni = nNode - i;
-      nb.dd += length[ni];
-      for (size_t j = 0; j < ni; ++j) {
-        double ddxy = dm._getdist(nodes[j]->id, nodes[ni]->id) - length[j];
-        if (ddxy < nb.dd) {
-          nb.first = j;
-          nb.second = ni;
-          nb.dd = ddxy;
-        }
+      auto ir = otl.inEnd - i;
+      nb.dd += length[ir];
+      for (auto j = otl.inBeg; j < ir; ++j) {
+        double ddxy = dm._getdist(nodes[j]->id, nodes[ir]->id) - length[j];
+        nb.update(j, ir, ddxy);
       }
-      nb.dd -= length[ni];
+      nb.dd -= length[ir];
     }
   }
 };
@@ -200,7 +203,7 @@ void NeighborJoint::joint(Mdist &dm, StarTree &nodes, Neighbor &nb) {
  * @return Node*
  ********************************************************************************/
 /// For UPGMA
-void UPGMA::tree(Node*& aTree, Mdist &dm) {
+void UPGMA::tree(Node *&aTree, Mdist &dm) {
   // the function to UPGMA the start tree
   StarTree nodes;
   startree(dm, aTree, nodes);
@@ -226,16 +229,19 @@ void UPGMA::tree(Node*& aTree, Mdist &dm) {
 void UPGMA::closest(const Mdist &dm, StarTree &nodes, Neighbor &nb) {
   long nNode = nodes.size();
   nb.dd = numeric_limits<double>::max();
-  for (long i = 0; i < nNode - 1; ++i) {
-    size_t idx = nodes[i]->id;
-    for (long j = i + 1; j < nNode; ++j) {
-      size_t idy = nodes[j]->id;
-      double dist = dm.getdist(idx, idy);
-      if (dist < nb.dd) {
-        nb.first = i;
-        nb.second = j;
-        nb.dd = dist;
-      }
+
+  OMP4TriAngleLoop otl(nNode);
+#pragma omp for reduction(mindd : nb)
+  for (auto i = otl.outBeg; i < otl.outEnd; ++i) {
+    //.. one half
+    for (auto j = otl.inBeg; j < i; ++j) {
+      nb.update(j, i, dm.getdist(nodes[j]->id, nodes[i]->id));
+    }
+
+    //.. rest half
+    long ir = otl.inEnd - i; 
+    for (auto j = otl.inBeg; j < ir; ++j) {
+      nb.update(j, i, dm.getdist(nodes[j]->id, nodes[ir]->id));
     }
   }
 }

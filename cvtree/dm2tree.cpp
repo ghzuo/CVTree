@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-11-19 17:27:19
+ * @Last Modified Time: 2024-04-29 16:00:48
  */
 
 #include "dm2tree.h"
@@ -22,11 +22,14 @@ int main(int argc, char *argv[]) {
   // init the distance matrix and name list
   Mdist dm;
   dm.readmtx(myargs.distfile);
+  theInfo("Read the distance matrix with " + to_string(dm.size()) + " items");
 
   // made the star tree by listfile
   // if no, all items in distance matrix are used
-  if (!myargs.splist.empty())
+  if (!myargs.splist.empty()){
     dm.reduce(myargs.splist);
+    theInfo(to_string(dm.size()) + " items are selected for tree");
+  }
 
   // do the NJ algorithm and return the NJ tree
   Node* aTree = Node::initial();

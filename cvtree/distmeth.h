@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2022  Wenzhou Institute, University of Chinese Academy of Sciences.
- * See the accompanying Manual for the contributors and the way to cite this work.
- * Comments and suggestions welcome. Please contact
- * Dr. Guanghong Zuo <ghzuo@ucas.ac.cn>
- * 
+ * Copyright (c) 2022  Wenzhou Institute, University of Chinese Academy of
+ * Sciences. See the accompanying Manual for the contributors and the way to
+ * cite this work. Comments and suggestions welcome. Please contact Dr.
+ * Guanghong Zuo <ghzuo@ucas.ac.cn>
+ *
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2024-04-23 10:26:47
+ * @Last Modified Time: 2024-04-29 11:16:15
  */
 
 #ifndef DISTMETH_H
@@ -77,6 +77,7 @@ struct DistMeth {
 
   // execute calculation
   void fillBlock();
+  void setdist4NAN(Mdist &, const CVitem &, const CVitem &);
   void calcInDist(Mdist &);
   void calcOutDist(Mdist &);
   void execute(const vector<string> &, Mdist &);

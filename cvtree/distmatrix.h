@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: Wed Apr 24 2024
+ * @Last Modified Time: 2024-04-24 17:10:18
  */
 
 #ifndef DISTMATRIX_H
@@ -90,7 +90,8 @@ public:
 
   // get the distance from other distance matrix
   void cleanName();
-  void resetDist();
+  void resetDist(double dd=NAN);
+  void resetDist(const vector<double>&);
   void assign(const Mdist &, vector<size_t> &);
   void assign(const Mdist &);
   void assignByCode(const Mdist &);

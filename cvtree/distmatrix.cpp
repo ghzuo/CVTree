@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: Wed Apr 24 2024
+ * @Last Modified Time: 2024-04-24 17:12:46
  */
 
 #include "distmatrix.h"
@@ -405,7 +405,7 @@ void Mdist::extend(const vector<string> &nlist, const vector<double> &dd) {
   long orgSize = ng;
   long orgDistSize = dist.size();
   long newSize = ng + nlist.size();
-  long newDistsize = newSize * (newSize + 1) / 2;
+  long newDistsize = msize(newSize);
 
   if (dd.size() != newDistsize - orgDistSize) {
     cerr << "Error: the number of the append vector is unmatched!!" << endl;
@@ -665,10 +665,20 @@ void Mdist::cleanName() {
   }
 };
 
-// reinitial the distance to NAN
-void Mdist::resetDist() {
+// reinitial the distance to a value(default is NAN)
+void Mdist::resetDist(double dd) {
   for (auto &d : dist)
-    d = NAN;
+    d = dd;
+}
+
+// set the distance by a vector
+void Mdist::resetDist(const vector<double>& vd) {
+  if(dist.size() == vd.size()){
+    dist = vd;
+  } else {
+    cerr << "Error: The length of two vector is not equal in resetDist" << endl;
+    exit(1);
+  }
 }
 
 // assign distance by other distance matrix
