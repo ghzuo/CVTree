@@ -168,6 +168,7 @@ bool Mdist::readmtxbin(const string &file) {
 
 // write the binary file for the distance matrix
 void Mdist::writemtxbin(const string &file) {
+  mkpath(file);
   gzFile fp;
   if ((fp = gzopen(addsuffix(file, ".gz").c_str(), "wb")) == NULL) {
     cerr << "Error write binary matrix file: " << file << endl;
