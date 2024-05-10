@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-11-23 15:41:28
+ * @Last Modified Time: 2024-05-06 19:04:09
  */
 
 #include "stringOpt.h"
@@ -116,9 +116,11 @@ string addsuffix(const string &str, const string &suff) {
   }
 };
 
-string addnamelabel(const string &name, const string &lab) {
+string addnamelabel(const string &name, const string &lab, char sep) {
   string suffix = getsuffix(name);
   string str = delsuffix(name);
+  if(lab[0] != sep)
+    str += '-';
   str += lab;
   str += ".";
   str += suffix;

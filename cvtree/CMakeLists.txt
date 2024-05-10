@@ -7,7 +7,7 @@
 # @Author: Dr. Guanghong Zuo
 # @Date: 2017-09-01 15:55:03
 # @Last Modified By: Dr. Guanghong Zuo
-# @Last Modified Time: 2022-11-23 20:51:26
+# @Last Modified Time: Wed May 08 2024
 ###
 
 INCLUDE_DIRECTORIES("../kit")
@@ -15,16 +15,16 @@ LINK_LIBRARIES(libcvtr.a)
 LINK_LIBRARIES(libkit.a)
 
 SET(CVTREEHEADS 
-  readgenome.h kstring.h
+  genome.h kstring.h
   cvmeth.h
   distmatrix.h distmeth.h 
-  tree.h treemeth.h  
+  tree.h treemeth.h sampling.h 
   )
 
 SET(LIBCVTREE_SRC ${CVTREEHEADS}
-  readgenome.cpp kstring.cpp
+  genome.cpp kstring.cpp
   distmatrix.cpp tree.cpp
-  treemeth.cpp 
+  treemeth.cpp sampling.cpp
   distmeth.cpp cvmeth.cpp
   )
 

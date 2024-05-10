@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2024-04-23 23:03:55
+ * @Last Modified Time: Thu May 09 2024
  */
 
 #include "cvtree.h"
@@ -20,15 +20,15 @@ int main(int argc, char *argv[]) {
   maintree(myargs);
 
   // do the bootstrap
-  if (!myargs.blist.empty())
-    bootstrap(myargs);
+  if (myargs.smeth != NULL)
+    doSampleTest(myargs);
 }
 
 /*********************************************************************/
 /******************** End of Main programin **************************/
 /*********************************************************************/
 
-Args::Args(int argc, char **argv) : treeName(""), dmName("") {
+Args::Args(int argc, char **argv) : treeName(""), dmName(""), smeth(NULL) {
 
   program = argv[0];
   memorySize = getMemorySize() * 0.8;
@@ -37,15 +37,16 @@ Args::Args(int argc, char **argv) : treeName(""), dmName("") {
   string listfile("list");
   string methStr("Hao");
   string gtype("faa");
+  string cgstr;
   string gdir("");
   string cvdir(pdir + "cv/");
   string listkval("5 6 7");
   bool refself(false);
-  string btdir("resample/");
-  long nBoot(0);
+  string sdir;
+  long nSample(10);
 
   char ch;
-  while ((ch = getopt(argc, argv, "i:G:V:P:k:d:t:m:M:r:g:S:b:Rqh")) != -1) {
+  while ((ch = getopt(argc, argv, "i:G:V:P:k:d:t:m:M:r:g:C:S:s:j:bRqh")) != -1) {
     switch (ch) {
     case 'i':
       listfile = optarg;
@@ -91,12 +92,20 @@ Args::Args(int argc, char **argv) : treeName(""), dmName("") {
     case 'g':
       gtype = optarg;
       break;
+    case 'C':
+      cgstr = optarg;
+      break;
     case 'S':
-      btdir = optarg;
-      addsuffix(btdir, '/');
+      sdir = optarg;
+      break;
+    case 's':
+      nSample = str2int(optarg);
       break;
     case 'b':
-      nBoot = str2int(optarg);
+      smeth = SampleMeth::create("Bootstrap");
+      break;
+    case 'j':
+      smeth = SampleMeth::create("Jackknife", str2float(optarg));
       break;
     case 'h':
       usage();
@@ -110,6 +119,9 @@ Args::Args(int argc, char **argv) : treeName(""), dmName("") {
     cerr << "Only faa/ffn/fna are supported!\n" << endl;
     exit(1);
   }
+
+  // init genome type
+  Letter::init(gtype, cgstr);
 
   // set the method
   if (methStr == "Hao" || methStr == "CVTree") {
@@ -212,9 +224,17 @@ Args::Args(int argc, char **argv) : treeName(""), dmName("") {
   dmeth->setMaxMem(memorySize, flist.size(), klist.size());
 
   //... for bootstrap
-  for (long i = 0; i < nBoot; ++i) {
-    string sdir = btdir + int2lenStr(i, 4) + "/";
-    blist.emplace_back(sdir);
+  if (smeth != NULL) {
+    // get the super folder
+    if (sdir.empty()) 
+      sdir = smeth->wkdir();
+    addsuffix(sdir, '/');
+
+    // get the sampling fold list
+    for (long i = 0; i < nSample; ++i) {
+      string tdir = sdir + int2lenStr(i, 4) + "/";
+      blist.emplace_back(tdir);
+    }
   }
 }
 
@@ -231,6 +251,7 @@ void Args::usage() {
           "<current directory> \n"
        << " [ -g faa ]       Type of genome file [faa/ffn/fna], "
           "default: faa\n"
+       << " [ -C <None> ]    Grouped letters, separated by ',', default: None\n"
        << " [ -V <cvdir> ]   Super directory of cv files\n"
        << " [ -i list ]      Genome list for calculating, default: list\n"
        << " [ -k '5 6 7' ]   Values of k, default: K = 5 6 7\n"
@@ -241,7 +262,9 @@ void Args::usage() {
        << " [ -m Hao ]       Select CVTree Method from Hao/InterList/InterSet, "
           "default: Hao\n"
        << " [ -S resample/ ]  cache folder for resample, default: resample/\n"
-       << " [ -b <n> ]        bootstrap times, default: no bootstrape\n"
+       << " [ -s <n> ]        resample times, default: 10\n"
+       << " [ -b ]            do bootstrap resampling\n"
+       << " [ -j 0.8 ]        do jackknife resampling\n"
        << " [ -q ]           Run command in quiet mode\n"
        << " [ -h ]           Display this information\n"
        << endl;
@@ -315,11 +338,11 @@ void getMainCV(const Args &myargs, const vector<pair<size_t, Mdist>> &dms) {
  * @param myargs
  ********************************************************************************/
 
-void bootstrap(const Args &myargs) {
-  theInfo("\n============ Start Bootstrap Section ==========");
+void doSampleTest(const Args &myargs) {
+  theInfo("\n============ Start " + myargs.smeth->name + " Section ==========");
 
   // get the cv for bootstrap
-  getBootCV(myargs);
+  getSampleCV(myargs);
 
   // get matrix, tree, and bootstrap value
   // initial the tree
@@ -344,7 +367,7 @@ void bootstrap(const Args &myargs) {
     float nTree(1.0);
 
     for (auto &sdir : myargs.blist) {
-      theInfo("For the bootstrap " + sdir);
+      theInfo("For " + sdir);
       theInfo.indent(1);
 
       // get the dm and tree anme
@@ -378,15 +401,15 @@ void bootstrap(const Args &myargs) {
 
     // output result
     aTree->ratioBootstrap(nTree);
-    aTree->outnwk(addnamelabel(tname, "-bootstrap"));
+    aTree->outnwk(addnamelabel(tname, myargs.smeth->name));
     aTree->clear();
   }
-  theInfo("============ End Bootstrap Section ==========");
+  theInfo("============ End Resampleing Section ==========");
 }
 
-void getBootCV(const Args &myargs) {
-  theInfo("Start " + to_string(myargs.blist.size()) + " bootstrap CVs for " +
-          to_string(myargs.flist.size()) + " Genomes");
+void getSampleCV(const Args &myargs) {
+  theInfo("Start " + to_string(myargs.blist.size()) + " " + myargs.smeth->name +
+          " CVs for " + to_string(myargs.flist.size()) + " Genomes");
   vector<string> btdirs;
   for (auto &dir : myargs.blist) {
     string cdir = dir + "cv/";
@@ -395,9 +418,9 @@ void getBootCV(const Args &myargs) {
   }
 #pragma omp parallel for
   for (long i = 0; i < myargs.flist.size(); ++i) {
-    myargs.cmeth->bootstrap(myargs.flist[i], myargs.klist, btdirs);
+    myargs.cmeth->resample(myargs.flist[i], myargs.klist, btdirs, myargs.smeth);
   }
-  theInfo("CV Section: All bootstrap CVs are obtained");
+  theInfo("CV Section: All " + myargs.smeth->name + " CVs are obtained");
 }
 
 /********************************************************************************

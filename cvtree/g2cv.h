@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-11-21 12:05:29
+ * @Last Modified Time: 2024-05-06 17:16:58
  */
 
 #ifndef G2CV_H
@@ -21,6 +21,7 @@ struct Args {
   vector<size_t> klist;
   vector<string> btdirs;
   CVmeth* meth;
+  SampleMeth* smeth;
 
   Args(int, char **);
   void usage();

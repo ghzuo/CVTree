@@ -7,11 +7,10 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-11-24 09:16:11
+ * @Last Modified Time: Thu May 09 2024
  */
 
 #include "kstring.h"
-#include "readgenome.h"
 #include "stringOpt.h"
 
 void usage(string &program) {
@@ -28,18 +27,22 @@ void usage(string &program) {
 int main(int argc, char *argv[]) {
 
   string gtype = "faa";
+  string cgstr("");
   string infile;
   string program = argv[0];
   bool kstr = true;
 
   char ch;
-  while ((ch = getopt(argc, argv, "i:g:n")) != -1) {
+  while ((ch = getopt(argc, argv, "i:g:C:n")) != -1) {
     switch (ch) {
     case 'i':
       infile = optarg;
       break;
     case 'g':
       gtype = optarg;
+      break;
+    case 'C':
+      cgstr = optarg;
       break;
     case 'n':
       kstr = false;
@@ -52,8 +55,7 @@ int main(int argc, char *argv[]) {
   }
 
   // get gene type to read and read gene file
-  GeneType mygene(gtype);
-  Kstr::init(mygene.letters);
+  Letter::init(gtype, cgstr);
 
   CVvec cv;
   cout << "The inner of CV: " << readcv(infile, cv) << endl;

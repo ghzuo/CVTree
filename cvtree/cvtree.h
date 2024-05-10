@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-12-23 21:07:43
+ * @Last Modified Time: 2024-05-06 18:07:46
  */
 
 #ifndef CVTREE_H
@@ -37,6 +37,7 @@ struct Args {
   CVmeth *cmeth;
   DistMeth *dmeth;
   TreeMeth *tmeth;
+  SampleMeth *smeth;
 
   Args(int, char **);
   void usage();
@@ -46,8 +47,8 @@ void maintree(const Args&);
 void initMainDM(const Args&, vector<pair<size_t, Mdist>> &);
 void getMainCV(const Args&, const vector<pair<size_t, Mdist>> &);
 
-void bootstrap(const Args&);
-void getBootCV(const Args&);
+void doSampleTest(const Args&);
+void getSampleCV(const Args&);
 
 void onetree(const Args&, const string&, pair<size_t, Mdist> &, Node*&);
 

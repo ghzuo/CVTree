@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2017-03-17 15:39:23
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2018-07-26 22:01:05
+ * @Last Modified Time: Wed May 08 2024
  */
 
 #ifndef KSTRING_H
@@ -26,42 +26,37 @@
 #include <zlib.h>
 #include <unordered_map>
 
-#include "readgenome.h"
+#include "genome.h"
 
 typedef unsigned long mlong;
 
 struct Kstr{
-    static vector<char> charSet;
     unsigned long ks;
 
     Kstr();
-    Kstr(const string&);
+    Kstr(const vector<Letter>&);
     Kstr(unsigned long);
-    static long init(const vector<char>&);
+    static long kmax();
 
     string decode() const;
     size_t length() const;
 
-    void append(char);
-    void addhead(char);
+    void append(Letter);
+    void addhead(Letter);
 
     void behead();
     void choptail();
 
-    void forward(char);
-    void backward(char);
+    void forward(Letter);
+    void backward(Letter);
 
     bool operator<(const Kstr&) const;
     bool operator>(const Kstr&) const;
     bool operator==(const Kstr&) const;
     bool operator!=(const Kstr&) const;
-    bool operator()(const Kstr&, const string&) const;
+    bool operator()(const Kstr&, const Kstr&) const;
 
     friend ostream& operator<<(ostream&, const Kstr&);
-
-private:
-    static char cmap[128];
-    static size_t nbase;
 };
 
 struct Kstr_Hash{
