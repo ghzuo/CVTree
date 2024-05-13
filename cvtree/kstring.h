@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2017-03-17 15:39:23
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: Wed May 08 2024
+ * @Last Modified Time: 2024-05-11 09:46:56
  */
 
 #ifndef KSTRING_H
@@ -26,6 +26,7 @@
 #include <zlib.h>
 #include <unordered_map>
 
+#include "fileOpt.h"
 #include "genome.h"
 
 typedef unsigned long mlong;
@@ -103,11 +104,11 @@ void _binaryAlign(CVblock&, CVblock&, double& d);
 
 void writecv(const CVmap&, const string&);
 void writecv(const CVvec&, const string&);
-double readcv(const string&, CVvec&);
-double readcv(const string&, CVmap&);
+pair<double,string> readcv(const string&, CVvec&);
+pair<double,string> readcv(const string&, CVmap&);
 size_t cvsize(const string&);
 
-void readvk(const string&, vector<Kstr>&);
+string readvk(const string&, vector<Kstr>&);
 void writevk(const string&, const vector<Kstr>&);
 
 #endif

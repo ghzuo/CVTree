@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2024-04-29 11:25:15
+ * @Last Modified Time: 2024-05-12 21:30:28
  */
 
 #include "distmeth.h"
@@ -17,7 +17,8 @@ extern Info theInfo;
 void CVitem::fill() {
 
   //.. get the cv and its norm
-  norm = readcv(fname, cv);
+  pair<double, string> meta = readcv(fname, cv);
+  double norm = meta.first;
 
   //.. revise norm according to lp of method
   switch (DistMeth::lp) {
@@ -87,70 +88,72 @@ void DistMeth::setMaxMem(float ms, size_t ng, size_t nk) {
 /// for DistMeth
 void DistMeth::setflist(const vector<string> &flist) {
   cvlist.clear();
+  restlist.clear();
   cvlist.reserve(flist.size());
+  restlist.reserve(flist.size());
   for (size_t i = 0; i < flist.size(); ++i) {
     cvlist.emplace_back(CVitem(i, flist[i]));
+    restlist.emplace_back(&cvlist[i]);
   }
 };
 
 float DistMeth::setStep(const Mdist &dm) {
+  // sort restlist by number of NAN
+  sort(restlist.begin(), restlist.end(), [](auto& a, auto& b){return a->nNAN < b->nNAN;});
 
-  // get the cvitem sort by NAN
-  vector<pair<long, CVitem *>> nanItems;
-  nanItems.reserve(dm.size());
-  for (size_t i = 0; i < dm.size(); ++i) {
-    long n = dm.nNAN(i);
-    if (n > 0) {
-      nanItems.emplace_back(make_pair(n, &cvlist[i]));
-    }
-  }
-  nanItems.shrink_to_fit();
-  sort(nanItems.begin(), nanItems.end());
-
-  // divid the nanItems into two blocks
+  // chop the large NAN number item to step list
   float size(0.0);
-  interBlock.clear();
-  introBlock.clear();
-  for (auto iter = nanItems.rbegin(); iter != nanItems.rend(); ++iter) {
+  steplist.clear();
+  for (auto iter = restlist.rbegin(); iter != restlist.rend(); ++iter) {
     if (size < maxM) {
-      auto it = iter + 1;
-      for (; it != nanItems.rend(); ++it) {
-        if (dm.isNAN(iter->second->ndx, it->second->ndx)) {
-          size += cvsize(iter->second->fname);
-          introBlock.emplace_back(iter->second);
-          break;
-        }
-      }
-      if (it == nanItems.rend()) {
-        interBlock.emplace_back(iter->second);
-      }
-    } else {
-      interBlock.emplace_back(iter->second);
+      steplist.emplace_back(*iter);
+      size += cvsize((*iter)->fname);
+      break;
     }
   }
+  size_t nrest = restlist.size() - steplist.size();
+  restlist.resize(nrest);
 
 #ifdef _OPENMP
-  if (interBlock.size() < omp_get_max_threads()) {
-    introBlock.insert(introBlock.begin(), interBlock.begin(), interBlock.end());
-    vector<CVitem *>().swap(interBlock);
+  if (restlist.size() < omp_get_max_threads()) {
+    steplist.insert(steplist.end(), restlist.begin(), restlist.end());
+    vector<CVitem *>().swap(restlist);
   }
 #endif
 
   return size;
 }
 
-void DistMeth::cleanStep() {
-  for (auto &item : introBlock) {
+void DistMeth::updateStep(const Mdist& dm) {
+  // clean cv in the steplist
+  for (auto &item : steplist) {
     item->clear();
   }
+
+  // get the nonNAN cvitems in restlist
+  for(auto i=1; i<restlist.size(); ++i){
+    for(auto j=0; j<i; ++j ){
+      if(dm.isNAN(restlist[i]->ndx,restlist[j]->ndx)){
+        ++restlist[i]->nNAN;
+        ++restlist[j]->nNAN;
+      }
+    }
+  }
+
+  // get the nonNAN list to restlist
+  vector<CVitem*> nanlist;
+  for(auto& ci : restlist)
+    if(ci->nNAN > 0)
+      nanlist.emplace_back(ci);
+  restlist.swap(nanlist);
 }
 
-size_t DistMeth::length() const { return introBlock.size(); };
+size_t DistMeth::length() const { return steplist.size(); };
 
 void DistMeth::fillBlock() {
 #pragma omp parallel for
-  for (auto i = 0; i < introBlock.size(); ++i) {
-    introBlock[i]->fill();
+  for (auto i = 0; i < steplist.size(); ++i) {
+    steplist[i]->fill();
   }
   return;
 };
@@ -163,16 +166,16 @@ void DistMeth::setdist4NAN(Mdist &dm, const CVitem &cv1, const CVitem &cv2) {
 
 void DistMeth::calcInDist(Mdist &dm) {
   // for the intro-distances between the genomes
-  OMP4TriAngleLoop loopOpt(introBlock.size());
+  OMP4TriAngleLoop loopOpt(steplist.size());
 #pragma omp parallel for
   for (auto i = loopOpt.outBeg; i < loopOpt.outEnd; ++i) {
     for (auto j = loopOpt.inBeg; j < i; ++j) {
-      setdist4NAN(dm, *introBlock[i], *introBlock[j]);
+      setdist4NAN(dm, *steplist[i], *steplist[j]);
     }
 
     auto ir = loopOpt.inEnd - i;
     for (auto j = loopOpt.inBeg; j < ir; ++j) {
-      setdist4NAN(dm, *introBlock[ir], *introBlock[j]);
+      setdist4NAN(dm, *steplist[ir], *steplist[j]);
     }
   }
 
@@ -182,15 +185,15 @@ void DistMeth::calcInDist(Mdist &dm) {
 void DistMeth::calcOutDist(Mdist &dm) {
 // for the intro-distances between the genomes
 #pragma omp parallel for
-  for (auto i = 0; i < interBlock.size(); ++i) {
+  for (auto i = 0; i < restlist.size(); ++i) {
     // read an orginal cv
-    interBlock[i]->fill();
+    restlist[i]->fill();
 
     // obtain the distances between the genome and the extend genomes
-    for (auto j = 0; j < introBlock.size(); ++j) {
-      setdist4NAN(dm, *interBlock[i], *introBlock[j]);
+    for (auto j = 0; j < steplist.size(); ++j) {
+      setdist4NAN(dm, *restlist[i], *steplist[j]);
     }
-    interBlock[i]->clear();
+    restlist[i]->clear();
   }
   return;
 };
@@ -198,9 +201,10 @@ void DistMeth::calcOutDist(Mdist &dm) {
 void DistMeth::execute(const vector<string> &flist, Mdist &dm) {
 
   setflist(flist);
+  updateStep(dm);
   long ndx(0);
 
-  do {
+  while(!restlist.empty()) {
     // check the memory and set steps
     theInfo(infoStep(++ndx, setStep(dm)), 1);
 
@@ -210,28 +214,28 @@ void DistMeth::execute(const vector<string> &flist, Mdist &dm) {
 
     // calculate the inner distances
     calcInDist(dm);
-    theInfo("Complete calculate of intro-block");
+    theInfo("Complete calculate of main block");
 
     // calculate the outer distances
-    if (!interBlock.empty()) {
+    if (!restlist.empty()) {
       calcOutDist(dm);
-      theInfo("Complete calculate of inter-block", -1);
+      theInfo("Complete calculate of rest block", -1);
     } else {
-      theInfo("No inter-block calculate are required", -1);
+      theInfo("No rest block calculate are required", -1);
     }
     // clean the cvs
-    cleanStep();
+    updateStep(dm);
 
     // output complete infomation
     theInfo("Complete Distance Calculate of the Block", -1);
 
-  } while (dm.hasNAN());
+  }
 }
 
 string DistMeth::infoStep(long ndx, float size) {
   string str = "Start the calculate step " + to_string(ndx);
-  str += "\n" + to_string(introBlock.size()) + "/" +
-         to_string(introBlock.size() + interBlock.size()) +
+  str += "\n" + to_string(steplist.size()) + "/" +
+         to_string(steplist.size() + restlist.size()) +
          " CVs will be resident in memory,\nwhich size is " +
          to_string(size / 1073741824) + "G";
   return str;

@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2016-04-19 11:37:42
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: Thu May 09 2024
+ * @Last Modified Time: 2024-05-12 14:58:34
  */
 
 #ifndef READGENOME_H
@@ -17,12 +17,11 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
-#include "stringOpt.h"
-#include "sampling.h"
+#include "kit.h"
 using namespace std;
 
 struct Letter {
@@ -31,22 +30,20 @@ struct Letter {
   static long nbase;
   static vector<Letter> nonVoid;
 
-  static void init(const string &, const string&);
+  static void init(const string &, const string &);
   static void aainit();
   static void nainit();
   static void decMap4encMap();
   static void setLowercaseUpper();
-  static void simplify(const string&);
+  static void simplify(const string &);
   static void renewAuxiliary();
-  static void initByStr(const string&);
+  static void initByStr(const string &);
   static char decode(size_t);
 
   char e;
-
   Letter() = default;
   Letter(char);
-  
-  friend ostream& operator<<(ostream&, const Letter);
+  friend ostream &operator<<(ostream &, const Letter);
 };
 
 struct Gene {
@@ -59,13 +56,13 @@ struct Gene {
   size_t size() const;
   Letter operator[](size_t) const;
   vector<Letter> substr(size_t, size_t) const;
-  void translate();
-  friend ostream& operator<<(ostream&, const Gene&);
+  void encode();
+  friend ostream &operator<<(ostream &, const Gene &);
 };
 
 typedef vector<Gene> Genome;
-size_t readFasta(const string &, Genome &);
-void writeFasta(const string&, Genome&);
-Genome sampleGenome(const Genome&, SampleMeth*);
+size_t readFasta(const string &, Genome &, bool code=true);
+void encodeGenome(Genome&);
+void writeFasta(const string &, const Genome &);
 
 #endif

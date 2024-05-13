@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: Wed May 08 2024
+ * @Last Modified Time: 2024-05-11 18:20:12
  */
 
 #ifndef CVMETH_H
@@ -33,7 +33,6 @@
 
 struct CVmeth {
 
-  string gsuff = ".faa";
   string cvsuff = ".cv";
   string ksuff = ".K";
   string cvdir;
@@ -57,11 +56,6 @@ struct CVmeth {
 
   // execute the caculate
   void execute(const string &, const vector<size_t> &, bool chk = true);
-
-  // resample genes of genome
-  string sampleCVname(const string &, const string &, size_t);
-  void resample(const string &, const vector<size_t> &, const vector<string> &,
-                SampleMeth*, bool chk = true);
 
   // basic function for the method
   size_t count(const Genome &, size_t, CVmap &);

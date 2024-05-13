@@ -6,48 +6,23 @@
  * Dr. Guanghong Zuo <ghzuo@ucas.ac.cn>
  * 
  * @Author: Dr. Guanghong Zuo
- * @Date: 2024-05-06 13:07:26
+ * @Date: 2024-05-11 14:47:45
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2024-05-07 08:55:03
+ * @Last Modified Time: 2024-05-11 19:07:13
  */
 
-#ifndef SAMPLEING_H
-#define SAMPLEING_H
+#ifndef SAMPLING_H
+#define SAMPLING_H
 
-#include <string>
 #include <vector>
+#include <string>
+#include <fstream>
 #include <iostream>
-#include <numeric>
-#include <random>
-#include <algorithm>
 
-using namespace std;
+#include "sampleMeth.h"
+#include "genome.h"
 
-struct SampleMeth {
-  string name;
-  
-  // the create function
-  static SampleMeth *create(const string &, double ratio = 0.8);
+void sampleGenome(SampleMeth*, const string&, const vector<string>&);
 
-  // virtual function for different
-  virtual string wkdir() = 0;
-  virtual vector<long> operator()(long size) = 0;
-};
+#endif // SAMPLING_H
 
-// bootstrap
-struct Bootstrap : public SampleMeth {
-  Bootstrap(){ name = "bootstrap";};
-  string wkdir() override;
-  vector<long> operator()(long) override;
-};
-
-// jackkinfe
-struct Jackknife : public SampleMeth {
-  double ratio;
-  
-  Jackknife(double);
-  string wkdir() override;
-  vector<long> operator()(long) override;
-};
-
-#endif // !SAMPLEING_H

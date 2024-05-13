@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: Thu May 09 2024
+ * @Last Modified Time: 2024-05-12 17:05:49
  */
 
 #include "genome.h"
@@ -53,7 +53,7 @@ void Letter::aainit() {
 };
 
 void Letter::nainit() {
-  string decMap = "_ACGT";
+  decMap = "_ACGT";
   decMap4encMap();
 
   // for RNA Sequence
@@ -77,7 +77,7 @@ void Letter::nainit() {
 };
 
 void Letter::decMap4encMap() {
-  // set default to 1, e.g. the first nonVoid
+  // set default to 1, e.g. the first nonvoid letter
   for (auto &c : encMap)
     c = 1;
 
@@ -121,8 +121,8 @@ void Letter::simplify(const string &str) {
   decMap = newcmap;
 };
 
-void Letter::setLowercaseUpper(){
-    // use the upper case letters
+void Letter::setLowercaseUpper() {
+  // use the upper case letters
   for (long i = 97; i < 123; ++i)
     encMap[i] = encMap[i - 32];
 }
@@ -146,9 +146,7 @@ void Letter::initByStr(const string &str) {
 };
 
 // decode the number
-char Letter::decode(size_t n){
-  return decMap.at(n);
-};
+char Letter::decode(size_t n) { return decMap.at(n); };
 
 //.. the non-static member method
 Letter::Letter(char c) : e(encMap[c]){};
@@ -176,16 +174,14 @@ vector<Letter> Gene::substr(size_t pos, size_t length) const {
   return move(seg);
 };
 
-void Gene::translate() {
+void Gene::encode() {
   code.reserve(seq.size());
   for (char c : seq)
     code.emplace_back(Letter(c));
 }
 
 ostream &operator<<(ostream &os, const Gene &g) {
-  os << g.head << "\n";
-  for (auto &c : g.code)
-    os << c;
+  os << g.head << "\n" << g.seq;
   return os;
 };
 
@@ -193,7 +189,7 @@ ostream &operator<<(ostream &os, const Gene &g) {
  * @brief Genome
  *
  ********************************************************************************/
-size_t readFasta(const string &file, Genome &genome) {
+size_t readFasta(const string &file, Genome &genome, bool code) {
   ifstream infile(file.c_str());
   if (!infile) {
     cerr << "Cannot found the input file " << file << endl;
@@ -225,15 +221,24 @@ size_t readFasta(const string &file, Genome &genome) {
     } else {
       if (gene.seq.back() == '*' || gene.seq.back() == '-')
         gene.seq.pop_back();
-      gene.translate();
+      gene.encode();
       len += gene.size();
     }
   }
 
+  if (code)
+    encodeGenome(genome);
+
   return len;
 }
 
+void encodeGenome(Genome& gs){
+  for(auto& g : gs)
+    g.encode();
+}
+
 void writeFasta(const string &file, const Genome &genome) {
+  mkpath(file);
   ofstream ofile(file.c_str());
   if (!ofile) {
     cerr << "Cannot open file to write: " << file << endl;
@@ -242,15 +247,6 @@ void writeFasta(const string &file, const Genome &genome) {
 
   for (auto &g : genome)
     ofile << g << endl;
-};
-
-Genome sampleGenome(const Genome &org, SampleMeth *smeth) {
-  vector<long> ndxlist = (*smeth)(org.size());
-  Genome gs;
-  for (auto ndx : ndxlist) {
-    gs.emplace_back(org[ndx]);
-  }
-  return gs;
 };
 
 /********************************************************************************

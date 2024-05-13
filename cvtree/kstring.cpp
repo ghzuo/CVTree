@@ -7,14 +7,14 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: Thu May 09 2024
+ * @Last Modified Time: 2024-05-11 09:44:24
  */
 
 #include "kstring.h"
 
 long Kstr::kmax() {
   float logbs = log2(Letter::nbase);
-  float sz = sizeof(unsigned long) * 8;
+  float sz = sizeof(Kstr) * 8;
   return sz / logbs;
 };
 
@@ -124,13 +124,15 @@ void writecv(const CVvec &cv, const string &file) {
   // for(const CVdim& s : cv)
   // 	gzwrite(fp, &s, sizeof(CVdim));
 
+  // write Letter char set
+  gzputs(fp, Letter::decMap.c_str());
   gzclose(fp);
 }
 
 // Read the cv from binary gz file
 // read the cv from operation on the cv vector
 // used for the distance calculate
-double readcv(const string &filename, CVvec &cv) {
+pair<double,string> readcv(const string &filename, CVvec &cv) {
   gzFile fp;
   if ((fp = gzopen(filename.c_str(), "rb")) == NULL) {
     cerr << "CV file not found: \"" << filename << '"' << endl;
@@ -150,13 +152,17 @@ double readcv(const string &filename, CVvec &cv) {
   // read the cv
   cv.resize(size);
   gzread(fp, (char *)cv.data(), size * sizeof(CVdim));
+
+  // read char set
+  string charSet;
+  gzline(fp, charSet);
   gzclose(fp);
 
-  return norm;
+  return make_pair(norm, charSet);
 }
 
 // read the cv file into a map
-double readcv(const string &filename, CVmap &cv) {
+pair<double,string> readcv(const string &filename, CVmap &cv) {
   gzFile fp;
   if ((fp = gzopen(filename.c_str(), "rb")) == NULL) {
     cerr << "CV file not found: \"" << filename << '"' << endl;
@@ -175,9 +181,13 @@ double readcv(const string &filename, CVmap &cv) {
     gzread(fp, (char *)&cd, sizeof(CVdim));
     cv.insert(cv.end(), cd);
   }
+
+  // read char set
+  string charSet;
+  gzline(fp, charSet);
   gzclose(fp);
 
-  return norm;
+  return make_pair(norm,charSet);
 }
 
 size_t cvsize(const string &filename) {
@@ -442,7 +452,7 @@ void _binaryAlign(CVblock &block1, CVblock &block2, double &d) {
 
 // operation for kstr vector
 // used for the missing K string
-void readvk(const string &filename, vector<Kstr> &vk) {
+string readvk(const string &filename, vector<Kstr> &vk) {
   gzFile fp;
   if ((fp = gzopen(filename.c_str(), "rb")) == NULL) {
     cerr << "CV file not found: \"" << filename << '"' << endl;
@@ -458,7 +468,12 @@ void readvk(const string &filename, vector<Kstr> &vk) {
   CVdim cdim;
   while (gzread(fp, (char *)&cdim, sizeof(CVdim)) > 0)
     vk.emplace_back(cdim.first);
+
+  string charSet;
+  gzline(fp, charSet);
   gzclose(fp);
+
+  return charSet;
 }
 
 void writevk(const string &file, const vector<Kstr> &vk) {
@@ -479,5 +494,7 @@ void writevk(const string &file, const vector<Kstr> &vk) {
     CVdim cv(s, 1.0);
     gzwrite(fp, &cv, sizeof(CVdim));
   }
+
+  gzputs(fp, Letter::decMap.c_str());
   gzclose(fp);
 }
