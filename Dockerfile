@@ -7,7 +7,7 @@
 # @Author: Dr. Guanghong Zuo
 # @Date: 2020-10-12 14:35:55
 # @Last Modified By: Dr. Guanghong Zuo
-# @Last Modified Time: 2022-12-24 17:21:43
+# @Last Modified Time: Fri Jul 12 2024
 ###
 
 ## Stage for build cvtree
@@ -33,7 +33,7 @@ RUN mkdir cvtree/build/ && cd cvtree/build/ && cmake .. && make
 FROM alpine AS run
 COPY --from=dev /root/cvtree/build/bin/* /usr/local/bin/
 RUN apk --update add --no-cache libgomp libstdc++
-RUN apk --update add --no-cache hdf5 --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
+RUN apk --update add --no-cache hdf5-dev --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
 
 ## for workplace
 WORKDIR /root/data
