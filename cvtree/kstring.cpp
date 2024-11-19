@@ -7,25 +7,14 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-03-16 12:21:29
+ * @Last Modified Time: 2024-05-11 09:44:24
  */
 
 #include "kstring.h"
 
-size_t Kstr::nbase;
-char Kstr::cmap[128];
-vector<char> Kstr::charSet;
-
-long Kstr::init(const vector<char> &letters) {
-  nbase = letters.size() + 1;
-  charSet = letters;
-  for (long i = 1; i < nbase; ++i) {
-    cmap[letters[i - 1]] = i;
-    cmap[i] = letters[i - 1];
-  }
-
-  float logbs = log2(nbase);
-  float sz = sizeof(unsigned long) * 8;
+long Kstr::kmax() {
+  float logbs = log2(Letter::nbase);
+  float sz = sizeof(Kstr) * 8;
   return sz / logbs;
 };
 
@@ -33,15 +22,15 @@ Kstr::Kstr() : ks(0){};
 
 Kstr::Kstr(unsigned long s) { ks = s; };
 
-Kstr::Kstr(const string &str) : ks(0) {
+Kstr::Kstr(const vector<Letter> &str) : ks(0) {
   for (auto &c : str)
-    ks = ks * nbase + cmap[c];
+    ks = ks * Letter::nbase + c.e;
 };
 
 string Kstr::decode() const {
   string str;
-  for (unsigned long s = ks; s != 0; s /= nbase)
-    str += char(cmap[s % nbase]);
+  for (unsigned long s = ks; s != 0; s /= Letter::nbase)
+    str += Letter::decode(s % Letter::nbase);
   reverse(str.begin(), str.end());
   return str;
 }
@@ -51,39 +40,39 @@ size_t Kstr::length() const {
   unsigned long unit(1);
   while (unit <= ks) {
     ++n;
-    unit *= nbase;
+    unit *= Letter::nbase;
   }
   return n;
 };
 
-void Kstr::append(char c) {
-  ks *= nbase;
-  ks += cmap[c];
+void Kstr::append(Letter c) {
+  ks *= Letter::nbase;
+  ks += c.e;
 };
 
-void Kstr::addhead(char c) {
+void Kstr::addhead(Letter c) {
   unsigned long unit(1);
   while (unit <= ks)
-    unit *= nbase;
-  ks += (unit * cmap[c]);
+    unit *= Letter::nbase;
+  ks += (unit * c.e);
 };
 
-void Kstr::choptail() { ks /= nbase; };
+void Kstr::choptail() { ks /= Letter::nbase; };
 
 void Kstr::behead() {
   unsigned long unit(1);
   while (unit <= ks)
-    unit *= nbase;
-  unit /= nbase;
+    unit *= Letter::nbase;
+  unit /= Letter::nbase;
   ks %= unit;
 };
 
-void Kstr::forward(char c) {
+void Kstr::forward(Letter c) {
   behead();
   append(c);
 }
 
-void Kstr::backward(char c) {
+void Kstr::backward(Letter c) {
   choptail();
   addhead(c);
 }
@@ -96,7 +85,7 @@ bool Kstr::operator==(const Kstr &r) const { return ks == r.ks; };
 
 bool Kstr::operator!=(const Kstr &r) const { return ks != r.ks; };
 
-bool Kstr::operator()(const Kstr &a, const string &b) const { return a < b; };
+bool Kstr::operator()(const Kstr &a, const Kstr &b) const { return a < b; };
 
 ostream &operator<<(ostream &os, const Kstr &ks) {
   os << ks.decode();
@@ -135,13 +124,15 @@ void writecv(const CVvec &cv, const string &file) {
   // for(const CVdim& s : cv)
   // 	gzwrite(fp, &s, sizeof(CVdim));
 
+  // write Letter char set
+  gzputs(fp, Letter::decMap.c_str());
   gzclose(fp);
 }
 
 // Read the cv from binary gz file
 // read the cv from operation on the cv vector
 // used for the distance calculate
-double readcv(const string &filename, CVvec &cv) {
+pair<double,string> readcv(const string &filename, CVvec &cv) {
   gzFile fp;
   if ((fp = gzopen(filename.c_str(), "rb")) == NULL) {
     cerr << "CV file not found: \"" << filename << '"' << endl;
@@ -161,13 +152,17 @@ double readcv(const string &filename, CVvec &cv) {
   // read the cv
   cv.resize(size);
   gzread(fp, (char *)cv.data(), size * sizeof(CVdim));
+
+  // read char set
+  string charSet;
+  gzline(fp, charSet);
   gzclose(fp);
 
-  return norm;
+  return make_pair(norm, charSet);
 }
 
 // read the cv file into a map
-double readcv(const string &filename, CVmap &cv) {
+pair<double,string> readcv(const string &filename, CVmap &cv) {
   gzFile fp;
   if ((fp = gzopen(filename.c_str(), "rb")) == NULL) {
     cerr << "CV file not found: \"" << filename << '"' << endl;
@@ -186,9 +181,13 @@ double readcv(const string &filename, CVmap &cv) {
     gzread(fp, (char *)&cd, sizeof(CVdim));
     cv.insert(cv.end(), cd);
   }
+
+  // read char set
+  string charSet;
+  gzline(fp, charSet);
   gzclose(fp);
 
-  return norm;
+  return make_pair(norm,charSet);
 }
 
 size_t cvsize(const string &filename) {
@@ -453,7 +452,7 @@ void _binaryAlign(CVblock &block1, CVblock &block2, double &d) {
 
 // operation for kstr vector
 // used for the missing K string
-void readvk(const string &filename, vector<Kstr> &vk) {
+string readvk(const string &filename, vector<Kstr> &vk) {
   gzFile fp;
   if ((fp = gzopen(filename.c_str(), "rb")) == NULL) {
     cerr << "CV file not found: \"" << filename << '"' << endl;
@@ -469,7 +468,12 @@ void readvk(const string &filename, vector<Kstr> &vk) {
   CVdim cdim;
   while (gzread(fp, (char *)&cdim, sizeof(CVdim)) > 0)
     vk.emplace_back(cdim.first);
+
+  string charSet;
+  gzline(fp, charSet);
   gzclose(fp);
+
+  return charSet;
 }
 
 void writevk(const string &file, const vector<Kstr> &vk) {
@@ -490,5 +494,7 @@ void writevk(const string &file, const vector<Kstr> &vk) {
     CVdim cv(s, 1.0);
     gzwrite(fp, &cv, sizeof(CVdim));
   }
+
+  gzputs(fp, Letter::decMap.c_str());
   gzclose(fp);
 }

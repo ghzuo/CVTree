@@ -8,7 +8,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-11-18 19:23:11
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-11-23 16:28:00
+ * @Last Modified Time: 2024-05-12 16:06:26
  */
 
 #include "marktree.h"
@@ -65,7 +65,7 @@ void MarkNode::setBranchContents() {
   }
 };
 
-void MarkNode::initContent(map<string, SetSym>& mgi, bool unroot) {
+void MarkNode::initContent(map<string, SetSym> &mgi, bool unroot) {
   // set the leaf content map
   vector<Node *> allLeafs;
   getLeafs(allLeafs);
@@ -111,10 +111,36 @@ void MarkNode::getBranchContents(set<SetSym> &bset) {
     bset.insert(dynamic_cast<MarkNode *>(nd)->content);
 };
 
-void MarkNode::bootTree(const set<SetSym> &bset) {
+void MarkNode::chkNotes(const set<SetSym> &bset) {
   vector<Node *> branches;
   getBranches(branches);
   for (auto &nd : branches)
     if (bset.find(dynamic_cast<MarkNode *>(nd)->content) != bset.end())
       nd->bootstrap += 1.0;
 };
+
+void MarkNode::bootTree(const vector<string> &btrflist) {
+  // prepare content
+  map<string, SetSym> mgi;
+  initContent(mgi);
+  resetBootstrap();
+  float nTree(1.0);
+
+  // boot the trees
+  for (auto &btrf : btrflist) {
+    MarkNode tTree;
+    tTree.innwk(btrf);
+    if (tTree.setAllContents(mgi)) {
+      nTree += 1.0;
+      set<SetSym> bset;
+      tTree.getBranchContents(bset);
+      chkNotes(bset);
+    } else {
+      cerr << "check Tree " << btrf << " failed, and skip it" << endl;
+    }
+    tTree.clear();
+  }
+
+  // get the boot value
+  ratioBootstrap(nTree);
+}

@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-11-24 12:50:36
+ * @Last Modified Time: 2024-05-11 18:23:26
  */
 
 #include "cvmeth.h"
@@ -25,22 +25,10 @@ CVmeth *CVmeth::create(const string &methStr, const string &cvdir,
     exit(3);
   }
 
+  meth->kmax = Kstr::kmax();
   meth->setCVdir(cvdir);
-  meth->setg(gtype);
 
   return meth;
-};
-
-void CVmeth::setg(const string &gtype) {
-  // set the genome type
-  gsuff = "." + gtype;
-  cvsuff = gsuff + cvsuff;
-
-  // init genome type read file
-  theg.init(gtype);
-
-  // get the genome letters map to check the sequcne
-  kmax = Kstr::init(theg.letters);
 };
 
 void CVmeth::checkK(const vector<size_t> &klist) {
@@ -64,14 +52,14 @@ void CVmeth::setCVdir(const string &str) {
   }
 }
 
-void CVmeth::execute(const string &gname, const vector<size_t> &klist,
+void CVmeth::execute(const string &gfile, const vector<size_t> &klist,
                      bool chk) {
 
   vector<pair<int, CVmap>> mcv;
   // check the existed cvfile
   if (chk) {
     for (auto k : klist) {
-      string cvfile = getCVname(gname, k);
+      string cvfile = getCVname(gfile, k);
       if (!gzvalid(cvfile)) {
         CVmap cv;
         mcv.emplace_back(make_pair(k, cv));
@@ -87,77 +75,19 @@ void CVmeth::execute(const string &gname, const vector<size_t> &klist,
   // calculate the CV
   if (!mcv.empty()) {
     // read genomes
-    string gfile = gname + gsuff;
     Genome genome;
-    theg.readgene(gfile, genome);
+    readFasta(gfile, genome);
 
     // get the cv of all K of the genome
     cv(genome, mcv);
 
     // write down CVs
     for (auto item : mcv) {
-      string outfile = getCVname(gname, item.first);
+      string outfile = getCVname(gfile, item.first);
       writecv(item.second, outfile);
     }
   }
 };
-
-/** do bootstrape */
-void CVmeth::bootstrap(const string &gname, const vector<size_t> &klist,
-                       const vector<string> &btdirs, bool chk) {
-  // read genomes
-  string gfile = gname + gsuff;
-  Genome genome;
-  theg.readgene(gfile, genome);
-
-  // get cv for samples
-  for (auto &dir : btdirs) {
-    // initial cv container
-    vector<pair<int, CVmap>> mcv;
-    if (chk) {
-      for (auto k : klist) {
-        string cvfile = bootCVname(dir, gname, k);
-        if (!gzvalid(cvfile)) {
-          CVmap cv;
-          mcv.emplace_back(make_pair(k, cv));
-        }
-      }
-    } else {
-      for (auto k : klist) {
-        CVmap cv;
-        mcv.emplace_back(make_pair(k, cv));
-      }
-    }
-
-    // get the cv of all K for the bootstrap genome
-    cv(bootGenome(genome), mcv);
-
-    // write down CVs
-    for (auto item : mcv) {
-      string outfile = bootCVname(dir, gname, item.first);
-      writecv(item.second, outfile);
-    }
-  }
-};
-
-Genome CVmeth::bootGenome(const Genome &org) {
-  long ng = org.size();
-  random_device rd;
-  mt19937 gen(rd());
-  uniform_int_distribution<> distrib(0, ng - 1);
-
-  Genome gs(ng);
-  for (auto &g : gs){
-    long ndx = distrib(gen);
-    g = org[ndx];
-  }
-  
-  return gs;
-};
-
-string CVmeth::bootCVname(const string &sdir, const string &gname, size_t k) {
-  return sdir + getFileName(gname) + cvsuff + to_string(k) + ".gz";
-}
 
 // count the kmers
 size_t CVmeth::count(const Genome &genome, size_t k, CVmap &cv) {
@@ -232,14 +162,14 @@ void HaoMethod::markov(const CVmap &mck, const CVmap &mckM1, const CVmap &mckM2,
   for (const auto &cd : mckM2) {
     Kstr ksM2 = cd.first;
     double nksM2 = cd.second;
-    for (auto &c : ksM2.charSet) {
+    for (auto& c : Letter::nonVoid) {
       Kstr ksM1A = ksM2;
       ksM1A.append(c);
       iter = mckM1.find(ksM1A);
       if (iter != mckM1.end()) {
         double nksM1A = iter->second;
 
-        for (auto &d : ksM2.charSet) {
+        for (auto &d : Letter::nonVoid) {
           Kstr ksM1B = ksM2;
           ksM1B.addhead(d);
           iter = mckM1.find(ksM1B);

@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-11-22 13:03:56
+ * @Last Modified Time: 2024-05-12 16:45:14
  */
 
 #include "fileOpt.h"
@@ -77,6 +77,7 @@ void readNameMap(const string &file, vector<string> &nmlist,
   }
 
   for (string line; getline(infile, line);) {
+    line = trim(line);
     if (!line.empty()) {
       vector<string> items;
       separateWord(items, line);

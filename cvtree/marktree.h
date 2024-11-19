@@ -8,7 +8,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-11-18 10:52:01
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-11-23 16:16:01
+ * @Last Modified Time: 2024-05-12 16:08:51
  */
 
 #ifndef MARKTREE_H
@@ -19,6 +19,8 @@
 
 struct MarkNode : public Node {
   SetSym content;
+
+  MarkNode() = default;
 
   static MarkNode *initial();
   virtual Node *reproduct();
@@ -33,10 +35,9 @@ struct MarkNode : public Node {
   void initContent(map<string, SetSym>&, bool rooted=true);
   bool setAllContents(const map<string, SetSym>&);
   void getBranchContents(set<SetSym>&);
-  void bootTree(const set<SetSym>&);
+  void chkNotes(const set<SetSym>&);
+  void bootTree(const vector<string>&);
 
-protected:
-  MarkNode() = default;
 };
 
 #endif // !MARKTREE_H

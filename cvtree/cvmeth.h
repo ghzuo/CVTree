@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-11-21 15:13:19
+ * @Last Modified Time: 2024-05-11 18:20:12
  */
 
 #ifndef CVMETH_H
@@ -29,16 +29,14 @@
 
 #include "kit.h"
 #include "kstring.h"
-#include "readgenome.h"
 #include "stringOpt.h"
 
 struct CVmeth {
 
-  GeneType theg;
-  string gsuff = ".faa";
   string cvsuff = ".cv";
   string ksuff = ".K";
   string cvdir;
+
   long kmin = 1;
   long kmax = 14;
 
@@ -58,12 +56,6 @@ struct CVmeth {
 
   // execute the caculate
   void execute(const string &, const vector<size_t> &, bool chk = true);
-
-  // bootstrap genome
-  Genome bootGenome(const Genome &);
-  string bootCVname(const string&, const string&, size_t);
-  void bootstrap(const string &, const vector<size_t> &, const vector<string> &,
-                 bool chk = true);
 
   // basic function for the method
   size_t count(const Genome &, size_t, CVmap &);

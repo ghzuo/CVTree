@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2018-04-26 09:00:28
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2024-04-23 10:21:24
+ * @Last Modified Time: 2024-05-12 16:07:09
  */
 
 #include "treeboot.h"
@@ -18,32 +18,14 @@ int main(int argc, char *argv[]) {
   Args myargs(argc, argv);
 
   /// read the first tree
-  MarkNode* aTree = MarkNode::initial();
-  aTree->innwk(myargs.maintree);
-  map<string, SetSym> mgi;
-  aTree->initContent(mgi, myargs.unroot);
-  aTree->resetBootstrap();
-  set<SetSym> aset;
+  MarkNode mTree;
+  mTree.innwk(myargs.maintree);
 
-  // read other trees for bootstrap
-  float nTree(1.0);
-  MarkNode* bTree = MarkNode::initial();
-  for(auto& tree : myargs.boottree){
-    bTree->innwk(tree);
-    if(bTree->setAllContents(mgi)){
-      nTree += 1.0;
-      set<SetSym> bset;
-      bTree->getBranchContents(bset);
-      aTree->bootTree(bset);
-    }else{
-      cerr << tree << " , and skip it" << endl;
-    }
-    bTree->clear();
-  }
+  /// boot the trees
+  mTree.bootTree(myargs.boottree);
 
   // output result
-  aTree->ratioBootstrap(nTree);
-  aTree->outnwk(myargs.outfile);
+  mTree.outnwk(myargs.outfile);
 }
 
 Args::Args(int argc, char **argv)

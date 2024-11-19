@@ -7,27 +7,27 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-11-24 09:16:11
+ * @Last Modified Time: 2024-05-11 09:46:36
  */
 
 #include "kstring.h"
-#include "readgenome.h"
 #include "stringOpt.h"
 
 void usage(string &program) {
   cerr << "\nProgram Usage: \n\n"
        << program << "\n"
-       << "  -i <cvfile>        input file name\n"
-       << " [ -g faa ]          the type of genome file, default: faa\n"
-       << " [ -n ]              output the number code, default: the letters\n"
-       << " [ -h ]              Display this information\n"
+       << "  -i <cvfile>    input file name\n"
+       << " [ -g ]          the type of genome file, only for old format cvfile\n"
+       << " [ -n ]          output the number code, default: the letters\n"
+       << " [ -h ]          Display this information\n"
        << endl;
   exit(1);
 }
 
 int main(int argc, char *argv[]) {
 
-  string gtype = "faa";
+  string gtype;
+  string cgstr;
   string infile;
   string program = argv[0];
   bool kstr = true;
@@ -51,13 +51,25 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  // get gene type to read and read gene file
-  GeneType mygene(gtype);
-  Kstr::init(mygene.letters);
-
+  // read cv
   CVvec cv;
-  cout << "The inner of CV: " << readcv(infile, cv) << endl;
+  pair<double, string> info = readcv(infile, cv);
+
+  // initial the char set
+  if(!gtype.empty()){
+    Letter::init(gtype, cgstr);
+  }else if(!info.second.empty()){
+    Letter::initByStr(info.second);
+  }else{
+    cerr << "Please input the type of genome: faa/fna/ffn" << endl;
+    exit(2);
+  }
+
+
+  // output data
+  cout << "The inner of CV: " << info.first << endl;
   cout << "The size  of CV: " << cv.size() << endl;
+  cout << "The char set of CV: " << Letter::decMap << endl;
 
   for (const auto &cd : cv)
     cout << cd.first << "\t" << cd.second << endl;

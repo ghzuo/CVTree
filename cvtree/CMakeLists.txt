@@ -7,25 +7,25 @@
 # @Author: Dr. Guanghong Zuo
 # @Date: 2017-09-01 15:55:03
 # @Last Modified By: Dr. Guanghong Zuo
-# @Last Modified Time: 2022-11-23 20:51:26
+# @Last Modified Time: 2024-11-19 17:12:22
 ###
 
 INCLUDE_DIRECTORIES("../kit")
-LINK_LIBRARIES(libcvtr.a)
-LINK_LIBRARIES(libkit.a)
 
 SET(CVTREEHEADS 
-  readgenome.h kstring.h
-  cvmeth.h
+  genome.h 
+  kstring.h cvmeth.h
   distmatrix.h distmeth.h 
-  tree.h treemeth.h  
+  tree.h treemeth.h 
+  sampling.h sampleMeth.h
   )
 
 SET(LIBCVTREE_SRC ${CVTREEHEADS}
-  readgenome.cpp kstring.cpp
-  distmatrix.cpp tree.cpp
-  treemeth.cpp 
-  distmeth.cpp cvmeth.cpp
+  genome.cpp
+  kstring.cpp cvmeth.cpp
+  distmeth.cpp distmatrix.cpp 
+  tree.cpp treemeth.cpp 
+  sampling.cpp sampleMeth.cpp
   )
 
 SET(CV_SRC ${CVTREEHEADS}
@@ -65,38 +65,37 @@ SET(CVTREE_SRC ${CVTREEHEADS}
   setsym.h
   cvtree.h cvtree.cpp)
 
-
 ADD_LIBRARY(cvtr STATIC ${LIBCVTREE_SRC})
 
 ADD_EXECUTABLE(g2cv ${CV_SRC})
-TARGET_LINK_LIBRARIES(g2cv cvtr)
+TARGET_LINK_LIBRARIES(g2cv cvtr kit)
 
 ADD_EXECUTABLE(cvdump ${CVDUMP_SRC})
-TARGET_LINK_LIBRARIES(cvdump cvtr)
+TARGET_LINK_LIBRARIES(cvdump cvtr kit)
 
 ADD_EXECUTABLE(cv2dm ${DIST_SRC})
-TARGET_LINK_LIBRARIES(cv2dm cvtr)
+TARGET_LINK_LIBRARIES(cv2dm cvtr kit)
 
 ADD_EXECUTABLE(getdist ${GETDIST_SRC})
-TARGET_LINK_LIBRARIES(getdist cvtr)
+TARGET_LINK_LIBRARIES(getdist cvtr kit)
 
 ADD_EXECUTABLE(mconv ${MCONV_SRC})
-TARGET_LINK_LIBRARIES(mconv cvtr)
+TARGET_LINK_LIBRARIES(mconv cvtr kit)
 
 ADD_EXECUTABLE(diffmtx ${DIFFMTX_SRC})
-TARGET_LINK_LIBRARIES(diffmtx cvtr)
+TARGET_LINK_LIBRARIES(diffmtx cvtr kit)
 
 ADD_EXECUTABLE(treedist ${TREEDIST_SRC})
-TARGET_LINK_LIBRARIES(treedist cvtr)
+TARGET_LINK_LIBRARIES(treedist cvtr kit)
 
 ADD_EXECUTABLE(treeboot ${TREEBOOT_SRC})
-TARGET_LINK_LIBRARIES(treeboot cvtr)
+TARGET_LINK_LIBRARIES(treeboot cvtr kit)
 
 ADD_EXECUTABLE(dm2tree ${NJ_SRC})
-TARGET_LINK_LIBRARIES(dm2tree cvtr)
+TARGET_LINK_LIBRARIES(dm2tree cvtr kit)
 
 ADD_EXECUTABLE(cvtree ${CVTREE_SRC})
-TARGET_LINK_LIBRARIES(cvtree cvtr)
+TARGET_LINK_LIBRARIES(cvtree cvtr kit)
 
 INSTALL(TARGETS g2cv cvdump cv2dm getdist 
   diffmtx treedist dm2tree cvtree mconv

@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2024-04-23 10:21:49
+ * @Last Modified Time: 2024-05-11 11:05:23
  */
 
 #include "g2cv.h"
@@ -17,16 +17,9 @@ int main(int argc, char *argv[]) {
   // set the argures
   Args myargs(argc, argv);
 
-  if (myargs.btdirs.empty()) {
 #pragma omp parallel for
-    for (long i = 0; i < myargs.flist.size(); ++i) {
-      myargs.meth->execute(myargs.flist[i], myargs.klist);
-    }
-  } else {
-#pragma omp parallel for
-    for (long i = 0; i < myargs.flist.size(); ++i) {
-      myargs.meth->bootstrap(myargs.flist[i], myargs.klist, myargs.btdirs);
-    }
+  for (long i = 0; i < myargs.flist.size(); ++i) {
+    myargs.meth->execute(myargs.flist[i], myargs.klist);
   }
 };
 
@@ -40,10 +33,10 @@ Args::Args(int argc, char **argv) {
   string gdir("");
   string cvdir("");
   string methStr("Hao");
-  long nBoot(0);
+  string cgstr("");
 
   char ch;
-  while ((ch = getopt(argc, argv, "G:i:k:V:g:m:f:b:qh")) != -1) {
+  while ((ch = getopt(argc, argv, "G:i:k:V:g:C:m:f:qh")) != -1) {
     switch (ch) {
     case 'G':
       gdir = optarg;
@@ -59,6 +52,9 @@ Args::Args(int argc, char **argv) {
     case 'g':
       gtype = optarg;
       break;
+    case 'C':
+      cgstr = optarg;
+      break;
     case 'k':
       listkval = optarg;
       break;
@@ -67,9 +63,6 @@ Args::Args(int argc, char **argv) {
       break;
     case 'f':
       onefasta = optarg;
-      break;
-    case 'b':
-      nBoot = str2int(optarg);
       break;
     case 'q':
       theInfo.quiet = true;
@@ -86,6 +79,9 @@ Args::Args(int argc, char **argv) {
     cerr << "Only faa/ffn/fna are supported!\n" << endl;
     exit(1);
   }
+
+  // init genome type
+  Letter::init(gtype, cgstr);
 
   // set the method
   meth = CVmeth::create(methStr, cvdir, gtype);
@@ -117,35 +113,25 @@ Args::Args(int argc, char **argv) {
       gname = gdir + gname;
     }
   }
-
-  // for bootstrap
-  if (nBoot > 0) {
-    if (cvdir.empty())
-      cvdir = "resample/";
-    for (long i = 0; i < nBoot; ++i) {
-      string sdir = cvdir + int2lenStr(i, 4) + "/cv/";
-      mkpath(sdir);
-      btdirs.emplace_back(sdir);
-    }
-  }
 };
 
 void Args::usage() {
-  cerr << "\nProgram Usage: \n\n"
-       << program << "\n"
-       << " [ -G <gdir> ]     input genome file directory\n"
-       << " [ -V <cvdir> ]    super directory for CVs, default:\n"
-       << "                   for normal: <same to fasta file>\n"
-       << "                   for bootstrap: ./resample/\n"
-       << " [ -i list ]       input species list, default: list\n"
-       << " [ -f <Fasta> ]    get cv for only one fasta \n"
-       << " [ -k '5 6 7' ]    values of k, default: K = 5 6 7\n"
-       << " [ -g faa ]        the type of genome file, default: faa\n"
-       << " [ -m Hao/Count ]  the method for cvtree, default: Hao\n"
-       << " [ -b <n> ]        bootstrap times, default: no bootstrape\n"
-       << " [ -q ]            Run command in quiet mode\n"
-       << " [ -h ]            Display this information\n"
-       << endl;
+  cerr
+      << "\nProgram Usage: \n\n"
+      << program << "\n"
+      << " [ -G <gdir> ]     input genome file directory\n"
+      << " [ -V <cvdir> ]    super directory for CVs, default:\n"
+      << "                   for normal: <same to fasta file>\n"
+      << "                   for bootstrap: ./resample/\n"
+      << " [ -i list ]       input species list, default: list\n"
+      << " [ -f <Fasta> ]    get cv for only one fasta \n"
+      << " [ -k '5 6 7' ]    values of k, default: K = 5 6 7\n"
+      << " [ -g faa ]        the type of genome file, default: faa\n"
+      << " [ -C <None> ]     Grouped letters, separated by ',', default: None\n"
+      << " [ -m Hao/Count ]  the method for cvtree, default: Hao\n"
+      << " [ -q ]            Run command in quiet mode\n"
+      << " [ -h ]            Display this information\n"
+      << endl;
 
   exit(1);
 }

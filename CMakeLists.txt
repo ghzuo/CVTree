@@ -7,7 +7,7 @@
 # @Author: Dr. Guanghong Zuo
 # @Date: 2017-09-01 16:22:53
 # @Last Modified By: Dr. Guanghong Zuo
-# @Last Modified Time: 2022-12-24 17:19:03
+# @Last Modified Time: 2024-11-19 18:53:21
 ###
 
 cmake_minimum_required(VERSION 3.0)
@@ -21,7 +21,7 @@ SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 LINK_DIRECTORIES(${LIBRARY_OUTPUT_PATH})
 SET(CMAKE_VERBOSE_MAKEFILE on)
-ADD_DEFINITIONS("-O3 -std=c++11")
+ADD_DEFINITIONS("-O3 -std=c++14")
 #set(CMAKE_FIND_LIBRARY_SUFFIXES .a .tbd .dylib .so)
 #set(CMAKE_EXE_LINKER_FLAGS "-static")
 

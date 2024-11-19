@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2017-03-17 15:39:23
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2018-07-26 22:01:05
+ * @Last Modified Time: 2024-05-11 09:46:56
  */
 
 #ifndef KSTRING_H
@@ -26,42 +26,38 @@
 #include <zlib.h>
 #include <unordered_map>
 
-#include "readgenome.h"
+#include "fileOpt.h"
+#include "genome.h"
 
 typedef unsigned long mlong;
 
 struct Kstr{
-    static vector<char> charSet;
     unsigned long ks;
 
     Kstr();
-    Kstr(const string&);
+    Kstr(const vector<Letter>&);
     Kstr(unsigned long);
-    static long init(const vector<char>&);
+    static long kmax();
 
     string decode() const;
     size_t length() const;
 
-    void append(char);
-    void addhead(char);
+    void append(Letter);
+    void addhead(Letter);
 
     void behead();
     void choptail();
 
-    void forward(char);
-    void backward(char);
+    void forward(Letter);
+    void backward(Letter);
 
     bool operator<(const Kstr&) const;
     bool operator>(const Kstr&) const;
     bool operator==(const Kstr&) const;
     bool operator!=(const Kstr&) const;
-    bool operator()(const Kstr&, const string&) const;
+    bool operator()(const Kstr&, const Kstr&) const;
 
     friend ostream& operator<<(ostream&, const Kstr&);
-
-private:
-    static char cmap[128];
-    static size_t nbase;
 };
 
 struct Kstr_Hash{
@@ -108,11 +104,11 @@ void _binaryAlign(CVblock&, CVblock&, double& d);
 
 void writecv(const CVmap&, const string&);
 void writecv(const CVvec&, const string&);
-double readcv(const string&, CVvec&);
-double readcv(const string&, CVmap&);
+pair<double,string> readcv(const string&, CVvec&);
+pair<double,string> readcv(const string&, CVmap&);
 size_t cvsize(const string&);
 
-void readvk(const string&, vector<Kstr>&);
+string readvk(const string&, vector<Kstr>&);
 void writevk(const string&, const vector<Kstr>&);
 
 #endif

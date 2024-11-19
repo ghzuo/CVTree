@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2022  Wenzhou Institute, University of Chinese Academy of Sciences.
- * See the accompanying Manual for the contributors and the way to cite this work.
- * Comments and suggestions welcome. Please contact
- * Dr. Guanghong Zuo <ghzuo@ucas.ac.cn>
- * 
+ * Copyright (c) 2022  Wenzhou Institute, University of Chinese Academy of
+ * Sciences. See the accompanying Manual for the contributors and the way to
+ * cite this work. Comments and suggestions welcome. Please contact Dr.
+ * Guanghong Zuo <ghzuo@ucas.ac.cn>
+ *
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2024-04-24 17:12:46
+ * @Last Modified Time: 2024-05-12 17:51:26
  */
 
 #include "distmatrix.h"
@@ -26,8 +26,6 @@ void Mdist::init(const vector<string> &nmlist, bool chk) {
 bool Mdist::readmtx(const string &file) {
   bool done = false;
   if (!fileExists(file)) {
-#pragma omp critical
-    { theInfo("Cannot find dm file " + file); }
     return done;
   }
 
@@ -158,7 +156,7 @@ bool Mdist::readmtxbin(const string &file) {
   }
 
   // read the distance
-  for(auto& d : dist){
+  for (auto &d : dist) {
     gzread(fp, (char *)&d, sizeof(d));
   };
   gzclose(fp);
@@ -186,16 +184,16 @@ void Mdist::writemtxbin(const string &file) {
   }
 
   // write the distance
-  int  nWidth = 1048576; 
+  int nWidth = 1048576;
   long nTotal = msize() * sizeof(double);
-  char* pos = (char *)dist.data();
+  char *pos = (char *)dist.data();
   long nBlock = nTotal / nWidth;
-  for(auto i=0; i<nBlock; ++i){ 
+  for (auto i = 0; i < nBlock; ++i) {
     gzwrite(fp, pos, nWidth);
     pos += nWidth;
   }
   int nTail = nTotal % nWidth;
-  if(nTail != 0)
+  if (nTail != 0)
     gzwrite(fp, pos, nTail);
   // for(auto& d : dist){
   //   gzwrite(fp, &d, sizeof(d));
@@ -673,8 +671,8 @@ void Mdist::resetDist(double dd) {
 }
 
 // set the distance by a vector
-void Mdist::resetDist(const vector<double>& vd) {
-  if(dist.size() == vd.size()){
+void Mdist::resetDist(const vector<double> &vd) {
+  if (dist.size() == vd.size()) {
     dist = vd;
   } else {
     cerr << "Error: The length of two vector is not equal in resetDist" << endl;

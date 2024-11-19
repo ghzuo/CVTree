@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2024-04-29 11:16:15
+ * @Last Modified Time: 2024-05-12 20:58:46
  */
 
 #ifndef DISTMETH_H
@@ -41,12 +41,13 @@ using namespace std;
 enum LPnorm { L0, L1, L2 };
 struct CVitem {
   size_t ndx;
+  long nNAN;
   string fname;
   double norm;
   CVvec cv;
 
   CVitem() = default;
-  CVitem(size_t i, const string &str) : ndx(i), fname(str){};
+  CVitem(size_t i, const string &str) : ndx(i), nNAN(0), fname(str){};
   void fill();
   void clear() {
     CVvec().swap(cv);
@@ -58,8 +59,8 @@ struct DistMeth {
   static bool normalize;
   static LPnorm lp;
   vector<CVitem> cvlist;
-  vector<CVitem *> introBlock;
-  vector<CVitem *> interBlock;
+  vector<CVitem *> steplist;
+  vector<CVitem *> restlist;
   float maxM;
 
   // the create function
@@ -73,7 +74,7 @@ struct DistMeth {
   float setStep(const Mdist &);
   string infoStep(long, float);
   size_t length() const;
-  void cleanStep();
+  void updateStep(const Mdist &);
 
   // execute calculation
   void fillBlock();
