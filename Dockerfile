@@ -37,3 +37,4 @@ RUN apk --update add --no-cache hdf5-dev --repository=http://dl-cdn.alpinelinux.
 
 ## for workplace
 WORKDIR /root/data
+ENTRYPOINT ["cvtree"]
