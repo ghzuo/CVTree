@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2024-05-12 21:30:28
+ * @Last Modified Time: Fri Nov 29 2024
  */
 
 #include "distmeth.h"
@@ -108,6 +108,7 @@ float DistMeth::setStep(const Mdist &dm) {
     if (size < maxM) {
       steplist.emplace_back(*iter);
       size += cvsize((*iter)->fname);
+    } else {
       break;
     }
   }
