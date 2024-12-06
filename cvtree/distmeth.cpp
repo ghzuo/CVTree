@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: Fri Nov 29 2024
+ * @Last Modified Time: 2024-12-06 12:59:52
  */
 
 #include "distmeth.h"
@@ -18,7 +18,6 @@ void CVitem::fill() {
 
   //.. get the cv and its norm
   pair<double, string> meta = readcv(fname, cv);
-  double norm = meta.first;
 
   //.. revise norm according to lp of method
   switch (DistMeth::lp) {
@@ -29,7 +28,9 @@ void CVitem::fill() {
     norm = 0;
     for (auto &item : cv)
       norm += abs(item.second);
+    break;
   case L2:
+    norm = meta.first;
     break;
   }
 

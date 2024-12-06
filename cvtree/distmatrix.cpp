@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2024-05-12 17:51:26
+ * @Last Modified Time: 2024-12-06 11:42:15
  */
 
 #include "distmatrix.h"
@@ -612,6 +612,8 @@ double Mdist::_getdist(size_t i, size_t j) const {
   return dist[i + (j - 1) * j / 2];
 };
 
+double Mdist::getdist(size_t i) const { return dist[i]; }
+
 pair<size_t, size_t> Mdist::getIndex(size_t ndx) const {
   if (ndx >= dist.size()) {
     cerr << "Error: the index out of distance of matrix!" << endl;
@@ -656,6 +658,18 @@ string Mdist::getcode(size_t i) const {
 void Mdist::setname(size_t i, const string &str) { name[i] = str; };
 
 vector<string> Mdist::getNameList() const { return name; };
+
+void Mdist::writeNameList(const string &file) const {
+  mkpath(file);
+  ofstream ofs(file);
+  if (!ofs.is_open()) {
+    cerr << "Error opening file: " << file << endl;
+    exit(1);
+  }
+
+  ofs << strjoin(name.begin(), name.end(), '\n') << endl;
+  ofs.close();
+};
 
 // format the genome name
 void Mdist::cleanName() {

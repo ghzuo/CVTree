@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2024-04-24 17:10:18
+ * @Last Modified Time: 2024-12-06 11:36:45
  */
 
 #ifndef DISTMATRIX_H
@@ -113,10 +113,12 @@ public:
 
   // get/set value of matrix
   double getdist(size_t, size_t) const;
+  double getdist(size_t) const;
   string getname(size_t) const;
   string getcode(size_t) const;
   pair<size_t, size_t> getIndex(size_t) const;
   vector<string> getNameList() const;
+  void writeNameList(const string&) const;
   void setdist(size_t, size_t, double);
   void setdist(size_t, double);
   void setname(size_t, const string &);
