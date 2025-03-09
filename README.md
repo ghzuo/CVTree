@@ -63,6 +63,24 @@ to install it. After install docker, basic usages for CVTree are:
    `docker run --rm -v $PWD:/data -w /data cvtree-img cvtree -G faa`
 5. More usage for docker can reference [docker document](https://docs.docker.com/).
 
+### Run Programs in Singularity
+
+1. save the image as tar file: `docker save -o cvtree.tar cvtree-img`
+2. write a singularity definition file named `cvtree.def` like this:
+
+```plain
+bootstrap: docker-archive
+from: cvtree.tar
+
+%runscript
+    sh -c "$*"
+```
+
+3. convert cvtree.tar to cvtree.sif by:
+    `singularity build --fakeroot cvtree.sif cvtree.def`
+    and place the `cvtree.sif` in the `$PATH` directory.
+4. run cvtree program: `cvtree.sif cvtree -G faa`
+
 ## Run Programs with Example
 
 If this is the first time you use CVTree package, please go to the
