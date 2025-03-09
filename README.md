@@ -13,7 +13,7 @@ and  [Fudan University, Shanghai](http://tlife.fudan.edu.cn/cvtree).
 ## Main Programs
 
 - cvtree: the main program, it get the phylogenetic tree from the fasta files of genomes.
-- g2dv: Get the composition vectors based on the fasta files of genomes.
+- g2cv: Get the composition vectors based on the fasta files of genomes.
 - cv2dm: Get the distance matrix based on the compostion vectors
 - dm2tree: Get the phylogenetic tree based the dissimilarity matrix.
 - cvdump: Show composition vector
