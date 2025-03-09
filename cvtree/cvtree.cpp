@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2024-06-11 09:49:36
+ * @Last Modified Time: 2025-03-04 Tuesday 17:07:07
  */
 
 #include "cvtree.h"
@@ -37,9 +37,9 @@ Args::Args(int argc, char **argv) : treeName(""), dmName(""), smeth(NULL) {
   string listfile("list");
   string methStr("Hao");
   string gtype("faa");
-  string cgstr;
+  string cgstr("");
   string gdir("");
-  string cvdir(pdir + "cv/");
+  string cvdir("");
   string listkval("5 6 7");
   bool refself(false);
   string sdir;
@@ -125,6 +125,8 @@ Args::Args(int argc, char **argv) : treeName(""), dmName(""), smeth(NULL) {
   Letter::init(gtype, cgstr);
 
   // set the method
+  if (cvdir.empty()) 
+    cvdir = pdir + "cv/";
   if (methStr == "Hao" || methStr == "CVTree") {
     cmeth = CVmeth::create("Hao", cvdir, gtype);
     dmeth = DistMeth::create("Cosine");

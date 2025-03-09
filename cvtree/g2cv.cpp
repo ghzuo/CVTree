@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2024-05-11 11:05:23
+ * @Last Modified Time: 2025-03-09 Sunday 14:55:06
  */
 
 #include "g2cv.h"
@@ -103,10 +103,10 @@ Args::Args(int argc, char **argv) {
     flist.emplace_back(onefasta);
   }
 
-  for (auto &gname : flist) {
-    if (getsuffix(gname) == gtype)
-      gname = delsuffix(gname);
-  }
+  // for (auto &gname : flist) {
+  //   if (getsuffix(gname) == gtype)
+  //     gname = delsuffix(gname);
+  // }
 
   if (!gdir.empty()) {
     for (auto &gname : flist) {

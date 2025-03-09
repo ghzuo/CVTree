@@ -7,7 +7,7 @@
  * @Author: Dr. Guanghong Zuo
  * @Date: 2022-03-16 12:10:27
  * @Last Modified By: Dr. Guanghong Zuo
- * @Last Modified Time: 2022-11-24 14:29:00
+ * @Last Modified Time: 2025-03-05 Wednesday 17:56:44
  */
 
 #include "tree.h"
@@ -165,6 +165,13 @@ void Node::_outnwk(ostream &os) {
       (*(*iter))._outnwk(os);
     }
     os << ")";
+  } else {
+    auto pos = name.find_last_of('.');
+    string ext = name.substr(pos + 1);
+    if (ext.compare("fna") == 0 || ext.compare("ffn") == 0 ||
+        ext.compare("faa") == 0 || ext.compare("fasta") == 0) {
+      name = name.substr(0, pos);
+    }
   }
 
   string forename = name.substr(name.find_first_of('|') + 1);
