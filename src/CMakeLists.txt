@@ -56,6 +56,23 @@ if (OPENMP_FOUND)
   endif ()
 endif()
 
+## check argparse
+find_path(ARGPARSE_INCLUDE_DIR argparse/argparse.hpp)
+if(ARGPARSE_INCLUDE_DIR)
+  message(STATUS "Found argparse: ${ARGPARSE_INCLUDE_DIR}")
+  include_directories(${ARGPARSE_INCLUDE_DIR})
+else()
+  message(STATUS "argparse not found, downloading...")
+  include(FetchContent)
+  FetchContent_Declare(
+    argparse
+    GIT_REPOSITORY https://github.com/p-ranav/argparse.git
+    GIT_TAG        v3.1
+  )
+  FetchContent_MakeAvailable(argparse)
+  include_directories(${argparse_SOURCE_DIR}/include)
+endif()
+
 ### Check HDF5
 find_path(HDF5_INCLUDE NAMES H5Cpp.h)
 find_library(HDF5_LIBRARY hdf5)

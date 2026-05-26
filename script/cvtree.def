@@ -1,0 +1,48 @@
+###
+# Copyright (c) 2025
+# See the accompanying Manual for the contributors and the way to
+# cite this work. Comments and suggestions welcome. Please contact
+# Dr. Guanghong Zuo <ghzuo@ucas.ac.cn>
+# 
+# @Author: Dr. Guanghong Zuo
+# @Date: 2025-04-25 Friday 10:55:34
+# @Last Modified By: Dr. Guanghong Zuo
+# @Last Modified Time: 2026-05-23 Saturday 18:49:23
+###
+
+Bootstrap: docker-daemon
+# Bootstrap: library
+From: alpine:latest
+
+%files
+    ../src /root/cvtree
+
+%labels
+    Version 0.1
+    MAINTAINER Guanghong Zuo<ghzuo@ucas.ac.cn>
+    description "Singularity Container for CVTree Scale"
+
+%post
+    #  set the mirror of alpine linux to be the one in aliyun.com
+    sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+    # install dependencies
+    apk --update add --no-cache hdf5 hdf5-cpp libgomp libstdc++
+    apk --update add --no-cache --virtual .build-deps g++ make cmake git \
+        zlib-dev hdf5-dev nlohmann-json boost-dev
+
+    # build cvtree scale
+    # for github config
+    # git config --global url."https://kkgithub.com".insteadOf https://github.com
+    mkdir -p /root/cvtree/build
+    cd /root/cvtree/build
+    cmake ..
+    make
+    make install
+
+    # clear the build dirctory and cache files
+    apk del .build-deps
+    rm -rf /root/cvtree/build
+    rm -rf /var/cache/apk/*
+
+%runscript
+    exec cvtree "$@"
